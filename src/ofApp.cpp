@@ -25,7 +25,7 @@ void ofApp::setup(){
 
 	gridBezier = std::make_unique<GridBezier>(50,50);
 	gridBezier->initialize(ofGetWidth(), ofGetHeight());
-	gridBezier->setColorStr(std::make_unique<SolidColor>(ofColor(0)));
+	gridBezier->setColorStr(std::make_unique<SolidColor>(ofColor(255)));
 	gridBezier->setAnimationStr(std::make_unique<EaseInOutAnimation>(0.005));
 }
 

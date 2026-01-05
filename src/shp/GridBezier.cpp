@@ -103,11 +103,11 @@ bool GridBezier::isAnimationFinished() {
 }
 
 void GridBezier::resetAnimation() {
+  currentCols = 0;
+  currentRows = 0;
   if (animStrategy) {
     animStrategy->reset();
   }
-  currentCols = 0;
-  currentRows = 0;
 }
 
 int GridBezier::getTargetCols() { return targetCols; }
