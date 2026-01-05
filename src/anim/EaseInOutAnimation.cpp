@@ -1,13 +1,21 @@
-#include "EaseInOutAnimation.h"
+﻿#include "EaseInOutAnimation.h"
 #include <corecrt_math.h>
 #include <ofLog.h>
+#include <ofAppRunner.h>
 
 EaseInOutAnimation::EaseInOutAnimation(float speed) {
 	this->speed = speed;
 }
 
 void EaseInOutAnimation::update() {
-	progress += speed;
+	/**
+	 deltaTime Membuat animasi/gameplay konsisten walau FPS berubah-ubah!
+  - Kalau komputer cepat: FPS tinggi, deltaTime kecil, gerakan smooth
+  - Kalau komputer lambat: FPS rendah, deltaTime besar, gerakan tetap sama speed total
+  - ** Gameplay konsisten!**
+	**/
+	float deltaTime = ofGetLastFrameTime();
+	progress += speed * deltaTime;
 	if (progress > 1) progress = 1;
 }
 
