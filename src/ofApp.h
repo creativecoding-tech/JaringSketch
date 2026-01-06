@@ -1,10 +1,16 @@
 #pragma once
 
 #include "ofMain.h"
+#include "anim/EaseInOutAnimation.h"
+#include "shp/GridBezier.h"
 
 class ofApp : public ofBaseApp{
 
 	public:
+		std::unique_ptr<GridBezier> gridBezier;
+		bool showShape = false;
+		bool cursorIsVisible = true;
+		void initTrailsBackground();
 		void setup();
 		void update();
 		void draw();
