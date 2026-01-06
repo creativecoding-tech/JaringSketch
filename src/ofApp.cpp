@@ -48,10 +48,8 @@ void ofApp::keyPressed(int key){
 		ofExit();
 	}
 	if (key == 'r' || key == 'R') { 
-		//showShape = false;
 		gridBezier->resetAnimation(); 
 		ofBackground(0);
-		//showShape = true;
 	}
 }
 
