@@ -55,8 +55,8 @@ void GridBezier::updateAnimation() {
 
 void GridBezier::display() {
     switch (currentBzMode) {
-    case MULUR:
-        setBezierMulur();
+    case MULURLR:
+        setBezierMulurLR();
         break;
     case NORMAL:
         setBezierNormal();
