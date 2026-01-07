@@ -71,7 +71,7 @@ void ofApp::keyPressed(int key){
 
 	if (key == '4' || key == '4') {
 		gridBezier->resetAnimation();
-		gridBezier->setAnimationStr(std::make_unique<WobbleAnimation>(0.25f, 3, 0.5));
+		gridBezier->setAnimationStr(std::make_unique<WobbleAnimation>(0.25f, 3, 0.7));
 	}
 }
 
