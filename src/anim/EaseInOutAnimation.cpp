@@ -1,6 +1,5 @@
 ﻿#include "EaseInOutAnimation.h"
 #include <corecrt_math.h>
-#include <ofLog.h>
 #include <ofAppRunner.h>
 
 EaseInOutAnimation::EaseInOutAnimation(float speed) {

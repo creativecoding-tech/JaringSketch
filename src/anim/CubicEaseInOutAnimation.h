@@ -1,11 +1,11 @@
 #pragma once
 #include "../strategy/AnimationStrategy.h"
-class EaseInOutAnimation : public AnimationStrategy
+class CubicEaseInOutAnimation : public AnimationStrategy
 {
 public:
 	float progress = 0;
 	float speed = .5;
-	EaseInOutAnimation(float speed);
+	CubicEaseInOutAnimation(float speed);
 	void update() override;
 	int getValue(int target) override;
 	bool isFinished() override;
@@ -13,6 +13,5 @@ public:
 	float getSpeed();
 	void setSpeed(float speed);
 	float getProgress();
-
 };
 

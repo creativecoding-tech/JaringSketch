@@ -1,7 +1,6 @@
 #pragma once
 
 #include "ofMain.h"
-#include "anim/EaseInOutAnimation.h"
 #include "shp/GridBezier.h"
 
 class ofApp : public ofBaseApp{

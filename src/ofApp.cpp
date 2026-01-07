@@ -1,5 +1,8 @@
 ﻿#include "ofApp.h"
 #include "clr/SolidColor.h"
+#include "anim/LinearAnimation.h"
+#include "anim/CubicEaseInOutAnimation.h"
+#include "anim/EaseInOutAnimation.h"
 
 //--------------------------------------------------------------
 void ofApp::setup(){
@@ -27,7 +30,7 @@ void ofApp::setup(){
 	gridBezier->initialize(ofGetWidth(), ofGetHeight());
 	gridBezier->setColorStr(std::make_unique<SolidColor>(ofColor(255)));
 	// 0.5 detik duration
-	gridBezier->setAnimationStr(std::make_unique<EaseInOutAnimation>(0.5f));
+	gridBezier->setAnimationStr(std::make_unique<EaseInOutAnimation>(0.25f));
 }
 
 //--------------------------------------------------------------
@@ -50,6 +53,19 @@ void ofApp::keyPressed(int key){
 	if (key == 'r' || key == 'R') { 
 		gridBezier->resetAnimation(); 
 		ofBackground(0);
+	}
+
+	if (key == '1' || key == '1') {
+		gridBezier->resetAnimation();
+		gridBezier->setAnimationStr(std::make_unique<EaseInOutAnimation>(0.25f));
+	}
+	if (key == '2' || key == '2') {
+		gridBezier->resetAnimation();
+		gridBezier->setAnimationStr(std::make_unique<LinearAnimation>(0.25f));
+	}
+	if (key == '3' || key == '3') {
+		gridBezier->resetAnimation();
+		gridBezier->setAnimationStr(std::make_unique<CubicEaseInOutAnimation>(0.25f));
 	}
 }
 
@@ -107,7 +123,7 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
 
 void ofApp::initTrailsBackground() {
 	ofSetBackgroundAuto(false);
-	ofSetColor(0, 60);
+	ofSetColor(0, 35);
 	ofFill();
 	ofDrawRectangle(0, 0, ofGetWidth(), ofGetHeight());
 
