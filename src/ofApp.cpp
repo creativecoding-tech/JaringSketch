@@ -4,6 +4,8 @@
 #include "anim/CubicEaseInOutAnimation.h"
 #include "anim/EaseInOutAnimation.h"
 #include "anim/WobbleAnimation.h"
+#include "clr/HorizontalGradient.h"
+#include "clr/RainbowSpiral.h"
 
 //--------------------------------------------------------------
 void ofApp::setup(){
@@ -55,6 +57,17 @@ void ofApp::keyPressed(int key){
 		gridBezier->resetAnimation(); 
 		ofBackground(0);
 	}
+
+	//set Color
+	if (key == 'z' || key == 'Z') {
+		gridBezier->setColorStr(std::make_unique<HorizontalGradient>(200, 280));
+	}
+
+	if (key == 'x' || key == 'X') {
+		gridBezier->setColorStr(std::make_unique<RainbowSpiral>(0.5));
+	}
+
+	//set Animation
 
 	if (key == '1' || key == '1') {
 		gridBezier->resetAnimation();

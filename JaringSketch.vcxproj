@@ -225,6 +225,8 @@
     <ClCompile Include="src\anim\LinearAnimation.cpp" />
     <ClCompile Include="src\anim\WaveAnimation.cpp" />
     <ClCompile Include="src\anim\WobbleAnimation.cpp" />
+    <ClCompile Include="src\clr\HorizontalGradient.cpp" />
+    <ClCompile Include="src\clr\RainbowSpiral.cpp" />
     <ClCompile Include="src\clr\SolidColor.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Node.cpp" />
@@ -248,6 +250,8 @@
     <ClInclude Include="src\anim\LinearAnimation.h" />
     <ClInclude Include="src\anim\WaveAnimation.h" />
     <ClInclude Include="src\anim\WobbleAnimation.h" />
+    <ClInclude Include="src\clr\HorizontalGradient.h" />
+    <ClInclude Include="src\clr\RainbowSpiral.h" />
     <ClInclude Include="src\clr\SolidColor.h" />
     <ClInclude Include="src\Node.h" />
     <ClInclude Include="src\ofApp.h" />

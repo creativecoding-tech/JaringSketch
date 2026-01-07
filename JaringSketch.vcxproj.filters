@@ -46,6 +46,8 @@
     <ClCompile Include="src\anim\CubicEaseInOutAnimation.cpp" />
     <ClCompile Include="src\anim\WobbleAnimation.cpp" />
     <ClCompile Include="src\anim\WaveAnimation.cpp" />
+    <ClCompile Include="src\clr\HorizontalGradient.cpp" />
+    <ClCompile Include="src\clr\RainbowSpiral.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -112,6 +114,8 @@
     <ClInclude Include="src\anim\CubicEaseInOutAnimation.h" />
     <ClInclude Include="src\anim\WobbleAnimation.h" />
     <ClInclude Include="src\anim\WaveAnimation.h" />
+    <ClInclude Include="src\clr\HorizontalGradient.h" />
+    <ClInclude Include="src\clr\RainbowSpiral.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="icon.rc" />
