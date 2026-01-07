@@ -223,6 +223,7 @@
     <ClCompile Include="src\anim\CubicEaseInOutAnimation.cpp" />
     <ClCompile Include="src\anim\EaseInOutAnimation.cpp" />
     <ClCompile Include="src\anim\LinearAnimation.cpp" />
+    <ClCompile Include="src\anim\WobbleAnimation.cpp" />
     <ClCompile Include="src\clr\SolidColor.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Node.cpp" />
@@ -244,6 +245,7 @@
     <ClInclude Include="src\anim\CubicEaseInOutAnimation.h" />
     <ClInclude Include="src\anim\EaseInOutAnimation.h" />
     <ClInclude Include="src\anim\LinearAnimation.h" />
+    <ClInclude Include="src\anim\WobbleAnimation.h" />
     <ClInclude Include="src\clr\SolidColor.h" />
     <ClInclude Include="src\Node.h" />
     <ClInclude Include="src\ofApp.h" />

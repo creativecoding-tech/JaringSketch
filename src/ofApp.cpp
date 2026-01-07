@@ -3,6 +3,7 @@
 #include "anim/LinearAnimation.h"
 #include "anim/CubicEaseInOutAnimation.h"
 #include "anim/EaseInOutAnimation.h"
+#include "anim/WobbleAnimation.h"
 
 //--------------------------------------------------------------
 void ofApp::setup(){
@@ -66,6 +67,11 @@ void ofApp::keyPressed(int key){
 	if (key == '3' || key == '3') {
 		gridBezier->resetAnimation();
 		gridBezier->setAnimationStr(std::make_unique<CubicEaseInOutAnimation>(0.25f));
+	}
+
+	if (key == '4' || key == '4') {
+		gridBezier->resetAnimation();
+		gridBezier->setAnimationStr(std::make_unique<WobbleAnimation>(0.25f, 3, 0.5));
 	}
 }
 
