@@ -12,7 +12,9 @@ public:
 	std::unique_ptr<AnimationStrategy> animStrategy;
 	std::unique_ptr<ColorStrategy> colorStrategy;
 	int currentCols, currentRows;
-	GridBezier(float cellSize, float margin); //constructor
+	enum bezierMode { NORMAL,MULURLR };
+	bezierMode currentBzMode = MULURLR;
+	GridBezier(float cellSize, float margin,bezierMode currentBzMode); //constructor
 	void setAnimationStr(std::unique_ptr<AnimationStrategy> strategy) override;
 	void setColorStr(std::unique_ptr<ColorStrategy> strategy) override;
 	void initialize(int w, int h);
@@ -25,6 +27,8 @@ public:
 	int getCurrentCols();
 	int getCurrentRows();
 	int getTotalNodes();
-
+private:
+	void setBezierMulurLR();
+	void setBezierNormal();
 };
 

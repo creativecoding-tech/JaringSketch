@@ -1,12 +1,13 @@
 #include "GridBezier.h"
 #include "../clr/SolidColor.h"
 
-GridBezier::GridBezier(float cellSize, float margin) {
+GridBezier::GridBezier(float cellSize, float margin,bezierMode currentBzMode) {
   this->cellSize = cellSize;
   this->margin = margin;
   currentCols = 0;
   currentRows = 0;
   colorStrategy = std::make_unique<SolidColor>(ofColor(255));
+  this->currentBzMode = currentBzMode;
 }
 
 void GridBezier::setAnimationStr(
@@ -53,46 +54,14 @@ void GridBezier::updateAnimation() {
 }
 
 void GridBezier::display() {
-  // Gambar bezier vertikal (setiap kolom)
-  for (int i = 0; i <= currentCols; i++) {
-    for (int j = 0; j < currentRows; j++) {
-      int node1 = j * (currentCols + 1) + i;
-      int node2 = (j + 1) * (currentCols + 1) + i;
-
-      Node &n1 = *nodes[node1];
-      Node &n2 = *nodes[node2];
-
-      // Dapatkan warna dari color strategy
-      ofColor c = colorStrategy->getColor(i, j, currentCols, currentRows);
-      ofSetColor(c);
-      ofNoFill();
-
-      float curveAmount = cellSize * 0;
-
-      ofDrawBezier(n1.x, n1.y, n1.x + curveAmount, (n1.y + n2.y) / 2,
-                   n2.x - curveAmount, (n1.y + n2.y) / 2, n2.x, n2.y);
-    }
-  }
-
-  // Gambar bezier horizontal (setiap baris)
-  for (int j = 0; j <= currentRows; j++) {
-    for (int i = 0; i < currentCols; i++) {
-      int node1 = j * (currentCols + 1) + i;
-      int node2 = j * (currentCols + 1) + (i + 1);
-
-      Node &n1 = *nodes[node1];
-      Node &n2 = *nodes[node2];
-
-      // Dapatkan warna dari color strategy
-      ofColor c = colorStrategy->getColor(i, j, currentCols, currentRows);
-      ofSetColor(c);
-      ofNoFill();
-      float curveAmount = cellSize * 0;
-
-      ofDrawBezier(n1.x, n1.y, (n1.x + n2.x) / 2, n1.y + curveAmount,
-                   (n1.x + n2.x) / 2, n2.y - curveAmount, n2.x, n2.y);
-    }
-  }
+    switch (currentBzMode) {
+    case MULUR:
+        setBezierMulur();
+        break;
+    case NORMAL:
+        setBezierNormal();
+        break;
+   }
 }
 
 bool GridBezier::isAnimationFinished() {
@@ -119,3 +88,89 @@ int GridBezier::getCurrentCols() { return currentCols; }
 int GridBezier::getCurrentRows() { return currentRows; }
 
 int GridBezier::getTotalNodes() { return totalNodes; }
+
+void GridBezier::setBezierMulurLR() {
+    // Gambar bezier vertikal (setiap kolom)
+    for (int i = 0; i <= currentCols; i++) {
+        for (int j = 0; j < currentRows; j++) {
+            int node1 = j * (currentCols + 1) + i;
+            int node2 = (j + 1) * (currentCols + 1) + i;
+
+            Node& n1 = *nodes[node1];
+            Node& n2 = *nodes[node2];
+
+            // Dapatkan warna dari color strategy
+            ofColor c = colorStrategy->getColor(i, j, currentCols, currentRows);
+            ofSetColor(c);
+            ofNoFill();
+
+            float curveAmount = cellSize * 0;
+
+            ofDrawBezier(n1.x, n1.y, n1.x + curveAmount, (n1.y + n2.y) / 2,
+                n2.x - curveAmount, (n1.y + n2.y) / 2, n2.x, n2.y);
+        }
+    }
+
+    // Gambar bezier horizontal (setiap baris)
+    for (int j = 0; j <= currentRows; j++) {
+        for (int i = 0; i < currentCols; i++) {
+            int node1 = j * (currentCols + 1) + i;
+            int node2 = j * (currentCols + 1) + (i + 1);
+
+            Node& n1 = *nodes[node1];
+            Node& n2 = *nodes[node2];
+
+            // Dapatkan warna dari color strategy
+            ofColor c = colorStrategy->getColor(i, j, currentCols, currentRows);
+            ofSetColor(c);
+            ofNoFill();
+            float curveAmount = cellSize * 0;
+
+            ofDrawBezier(n1.x, n1.y, (n1.x + n2.x) / 2, n1.y + curveAmount,
+                (n1.x + n2.x) / 2, n2.y - curveAmount, n2.x, n2.y);
+        }
+    }
+}
+
+void GridBezier::setBezierNormal() {
+    // Gambar bezier vertikal (setiap kolom)
+    for (int i = 0; i <= currentCols; i++) {
+        for (int j = 0; j < currentRows; j++) {
+            int node1 = j * (maxCols + 1) + i;
+            int node2 = (j + 1) * (maxCols + 1) + i;
+
+            Node& n1 = *nodes[node1];
+            Node& n2 = *nodes[node2];
+
+            // Dapatkan warna dari color strategy
+            ofColor c = colorStrategy->getColor(i, j, currentCols, currentRows);
+            ofSetColor(c);
+            ofNoFill();
+
+            float curveAmount = cellSize * 0;
+
+            ofDrawBezier(n1.x, n1.y, n1.x + curveAmount, (n1.y + n2.y) / 2,
+                n2.x - curveAmount, (n1.y + n2.y) / 2, n2.x, n2.y);
+        }
+    }
+
+    // Gambar bezier horizontal (setiap baris)
+    for (int j = 0; j <= currentRows; j++) {
+        for (int i = 0; i < currentCols; i++) {
+            int node1 = j * (maxCols + 1) + i;
+            int node2 = j * (maxCols + 1) + (i + 1);
+
+            Node& n1 = *nodes[node1];
+            Node& n2 = *nodes[node2];
+
+            // Dapatkan warna dari color strategy
+            ofColor c = colorStrategy->getColor(i, j, currentCols, currentRows);
+            ofSetColor(c);
+            ofNoFill();
+            float curveAmount = cellSize * 0;
+
+            ofDrawBezier(n1.x, n1.y, (n1.x + n2.x) / 2, n1.y + curveAmount,
+                (n1.x + n2.x) / 2, n2.y - curveAmount, n2.x, n2.y);
+        }
+    }
+}

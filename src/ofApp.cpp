@@ -32,7 +32,7 @@ void ofApp::setup(){
 	ofEnableAntiAliasing(); // supaya garis/bentuk menjadi smooth untuk bentuk / geometri
 	ofEnableSmoothing();  // membuat smooth untuk garis atau kurva
 
-	gridBezier = std::make_unique<GridBezier>(50,50);
+	gridBezier = std::make_unique<GridBezier>(50,50,GridBezier::bezierMode::MULURLR);
 	gridBezier->initialize(ofGetWidth(), ofGetHeight());
 	gridBezier->setColorStr(std::make_unique<SolidColor>(ofColor(255)));
 	// 0.5 detik duration
@@ -76,7 +76,7 @@ void ofApp::keyPressed(int key){
 		gridBezier->setColorStr(std::make_unique<VerticalGradient>(255, 360));
 	}
 	if (key == 'B' || key == 'b') {
-		gridBezier->setColorStr(std::make_unique<TimeBasedColor>(0, 360, 0.25f,TimeBasedColor::mode::ELAPSE));
+		gridBezier->setColorStr(std::make_unique<TimeBasedColor>(125, 360, 0.25f,TimeBasedColor::mode::ELAPSE));
 	}
 
 	//set Animation
@@ -154,7 +154,7 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
 
 void ofApp::initTrailsBackground() {
 	ofSetBackgroundAuto(false);
-	ofSetColor(0, 35);
+	ofSetColor(0, 20);
 	ofFill();
 	ofDrawRectangle(0, 0, ofGetWidth(), ofGetHeight());
 
