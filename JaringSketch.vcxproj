@@ -226,8 +226,11 @@
     <ClCompile Include="src\anim\WaveAnimation.cpp" />
     <ClCompile Include="src\anim\WobbleAnimation.cpp" />
     <ClCompile Include="src\clr\HorizontalGradient.cpp" />
+    <ClCompile Include="src\clr\RadialGradient.cpp" />
     <ClCompile Include="src\clr\RainbowSpiral.cpp" />
     <ClCompile Include="src\clr\SolidColor.cpp" />
+    <ClCompile Include="src\clr\TimeBasedColor.cpp" />
+    <ClCompile Include="src\clr\VerticalGradient.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Node.cpp" />
     <ClCompile Include="src\ofApp.cpp" />
@@ -251,8 +254,11 @@
     <ClInclude Include="src\anim\WaveAnimation.h" />
     <ClInclude Include="src\anim\WobbleAnimation.h" />
     <ClInclude Include="src\clr\HorizontalGradient.h" />
+    <ClInclude Include="src\clr\RadialGradient.h" />
     <ClInclude Include="src\clr\RainbowSpiral.h" />
     <ClInclude Include="src\clr\SolidColor.h" />
+    <ClInclude Include="src\clr\TimeBasedColor.h" />
+    <ClInclude Include="src\clr\VerticalGradient.h" />
     <ClInclude Include="src\Node.h" />
     <ClInclude Include="src\ofApp.h" />
     <ClInclude Include="..\..\..\AInstaled\openFrameworks\of_v0.12.1_vs_64_release\addons\ofxGui\src\ofxBaseGui.h" />

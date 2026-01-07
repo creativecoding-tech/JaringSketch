@@ -6,6 +6,9 @@
 #include "anim/WobbleAnimation.h"
 #include "clr/HorizontalGradient.h"
 #include "clr/RainbowSpiral.h"
+#include "clr/RadialGradient.h"
+#include "clr/VerticalGradient.h"
+#include "clr/TimeBasedColor.h"
 
 //--------------------------------------------------------------
 void ofApp::setup(){
@@ -65,6 +68,15 @@ void ofApp::keyPressed(int key){
 
 	if (key == 'x' || key == 'X') {
 		gridBezier->setColorStr(std::make_unique<RainbowSpiral>(0.5));
+	}
+	if (key == 'c' || key == 'C') {
+		gridBezier->setColorStr(std::make_unique<RadialGradient>(0,360));
+	}
+	if (key == 'v' || key == 'V') {
+		gridBezier->setColorStr(std::make_unique<VerticalGradient>(255, 360));
+	}
+	if (key == 'B' || key == 'b') {
+		gridBezier->setColorStr(std::make_unique<TimeBasedColor>(0, 360, 0.25f,TimeBasedColor::mode::ELAPSE));
 	}
 
 	//set Animation

@@ -48,6 +48,9 @@
     <ClCompile Include="src\anim\WaveAnimation.cpp" />
     <ClCompile Include="src\clr\HorizontalGradient.cpp" />
     <ClCompile Include="src\clr\RainbowSpiral.cpp" />
+    <ClCompile Include="src\clr\RadialGradient.cpp" />
+    <ClCompile Include="src\clr\VerticalGradient.cpp" />
+    <ClCompile Include="src\clr\TimeBasedColor.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -116,6 +119,9 @@
     <ClInclude Include="src\anim\WaveAnimation.h" />
     <ClInclude Include="src\clr\HorizontalGradient.h" />
     <ClInclude Include="src\clr\RainbowSpiral.h" />
+    <ClInclude Include="src\clr\RadialGradient.h" />
+    <ClInclude Include="src\clr\VerticalGradient.h" />
+    <ClInclude Include="src\clr\TimeBasedColor.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="icon.rc" />

@@ -28,10 +28,13 @@ Project ini menampilkan grid node dengan animasi transisi yang smooth menggunaka
 
 - **Grid Layout System** — 2D grid dengan node yang terkonfigurasi (cols & rows)
 - **Multiple Animation Strategies** — 5 jenis easing: Linear, Quadratic, Cubic, Wobble, dan Wave
+- **Multiple Color Strategies** — 6 jenis pewarnaan: Solid, Horizontal/Vertical/Radial Gradient, Rainbow Spiral, Time-Based
 - **Strategy Pattern** — Arsitektur yang fleksibel untuk animasi dan pewarnaan
 - **Modular Design** — Terpisah dalam kategori: `anim/`, `clr/`, `shp/`, `strategy/`
 - **Smooth Easing Functions** — Power-based easing (1, 2, 3) untuk tingkat smoothness berbeda
 - **Special Effects** — Wobble (spring) dan Wave (gelombang) untuk creative animations
+- **HSB Color System** — Hue-Saturation-Brightness untuk vivid colors dan smooth gradients
+- **Animated Colors** — Time-based color transitions untuk dynamic visual effects
 - **Trails Effect** — Semi-transparent overlay untuk efek jejak visual yang menarik
 - **Interactive Controls** — Keyboard shortcuts untuk kontrol realtime
 - **Anti-Aliasing & Smoothing** — Garis dan kurva yang smooth untuk visual yang lebih baik
@@ -184,6 +187,100 @@ ofDrawRectangle(0, 0, width, height);
 
 ---
 
+### Color System dengan HSB
+
+Project ini menggunakan **HSB (Hue-Saturation-Brightness)** color system untuk vivid colors dan smooth gradients. Berbeda dengan RGB, HSB lebih intuitif untuk color transitions.
+
+#### HSB vs RGB
+
+| Aspect | RGB | HSB |
+|--------|-----|-----|
+| **Range** | 0-255 per channel | H: 0-255, S: 0-255, B: 0-255 |
+| **Intuitif** | ❌ Tidak mudah untuk gradients | ✅ Mudah membuat color transitions |
+| **Use Case** | Technical colors | Artistic gradients |
+
+#### Color Strategy Implementation
+
+```cpp
+// Set HSB color di openFrameworks
+ofColor color;
+color.setHsb(hue, saturation, brightness);
+// hue: 0-255 (0=red, 85=green, 170=blue, 255=red again)
+// saturation: 0-255 (0=grayscale, 255=vivid)
+// brightness: 0-255 (0=black, 255=brightest)
+```
+
+#### Tipe Color Strategies Tersedia
+
+| Strategy | Deskripsi | Arah/Pattern | Use Case |
+|----------|-----------|--------------|----------|
+| **SolidColor** | Warna solid tunggal | - | Base grid, simple visuals |
+| **HorizontalGradient** | Gradient kiri-kanan | Kiri → Kanan | Sunsets, horizons |
+| **VerticalGradient** | Gradient atas-bawah | Atas → Bawah | Sky effects |
+| **RadialGradient** | Gradient dari center | Center → Luar | Glows, spotlights |
+| **RainbowSpiral** | Spiral dengan rotasi animasi | Circular + Angle | Psychedelic effects |
+| **TimeBasedColor** | Berubah seiring waktu | Frame-based animation | Dynamic ambient colors |
+
+#### Gradient Formula
+
+**Horizontal Gradient:**
+```cpp
+float pos = (float)i / cols;  // 0.0 - 1.0 (kiri ke kanan)
+float hue = ofMap(pos, 0, 1, startHue, endHue);
+```
+
+**Vertical Gradient:**
+```cpp
+float pos = (float)j / rows;  // 0.0 - 1.0 (atas ke bawah)
+float hue = ofMap(pos, 0, 1, startHue, endHue);
+```
+
+**Radial Gradient:**
+```cpp
+float distFromCenter = ofDist(i, j, cols/2.0, rows/2.0);
+float maxDist = ofDist(0, 0, cols/2.0, rows/2.0);
+float pos = distFromCenter / maxDist;  // 0.0 - 1.0 (center ke luar)
+float hue = ofMap(pos, 0, 1, startHue, endHue);
+```
+
+**Rainbow Spiral:**
+```cpp
+float angle = atan2(j - rows/2.0f, i - cols/2.0f);
+float distFromCenter = ofDist(i, j, cols/2.0f, rows/2.0f);
+float hue = fmod(ofRadToDeg(angle) + distFromCenter * 10 + ofGetFrameNum() * speed, 360);
+```
+
+**Time-Based Color:**
+```cpp
+// Mode NORMAL: semua cell berubah sama
+float hue = fmod(ofGetFrameNum() * speed, 360);
+
+// Mode WAVE: gradient bergerak
+float pos = (float)i / cols;
+float hue = fmod((pos * 360) + ofGetFrameNum() * speed, 360);
+```
+
+#### Perbandingan Visual Gradient
+
+```
+Horizontal:  ░▒▓█▓▒░  (Kiri → Kanan)
+
+Vertical:    ░     ░
+              ▒     ▒
+              ▓     ▓
+              █     █  (Atas → Bawah)
+
+Radial:      ▓▓▓▓▓
+              ▓███▓
+              ▓█░█▓  (Center → Luar)
+              ▓███▓
+              ▓▓▓▓▓
+
+Rainbow:     ╱╲╱╲╱╲  (Spiral berputar)
+```
+
+---
+
 ## 📁 Project Structure
 
 ```
@@ -198,7 +295,12 @@ JaringSketch/
 │   │   ├── WobbleAnimation.cpp/h          # Spring/oscillation effect
 │   │   └── WaveAnimation.cpp/h            # Wave dengan offset
 │   ├── clr/                 # Color strategies
-│   │   └── SolidColor.cpp/h              # Solid color implementation
+│   │   ├── SolidColor.cpp/h              # Solid color implementation
+│   │   ├── HorizontalGradient.cpp/h      # Horizontal gradient (left to right)
+│   │   ├── VerticalGradient.cpp/h        # Vertical gradient (top to bottom)
+│   │   ├── RadialGradient.cpp/h          # Radial gradient (center outward)
+│   │   ├── RainbowSpiral.cpp/h           # Rainbow spiral with rotation
+│   │   └── TimeBasedColor.cpp/h           # Time-based animated colors
 │   ├── shp/                 # Shape implementations
 │   │   └── GridBezier.cpp/h              # Grid shape dengan bezier curves
 │   └── strategy/            # Base strategies & interfaces
@@ -242,9 +344,11 @@ Branch ini adalah **implementation lengkap** dari JaringSketch dengan sistem ani
 
 ✅ Grid layout system dengan konfigurasi cols/rows
 ✅ **5 Animation Strategies**: Linear, Quadratic, Cubic, Wobble, Wave
+✅ **6 Color Strategies**: Solid, Horizontal/Vertical/Radial Gradient, Rainbow Spiral, Time-Based
 ✅ Trails effect untuk visual impact
 ✅ Strategy pattern untuk animasi & warna
 ✅ Bezier curve rendering untuk smooth lines
+✅ HSB color system untuk vivid gradients
 ✅ Basic keyboard controls
 ✅ Delta time-based animation (FPS independent)
 
