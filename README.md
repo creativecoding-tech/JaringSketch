@@ -64,7 +64,7 @@ Project ini menampilkan grid node dengan animasi transisi yang smooth menggunaka
 
 ## 🎨 GridBezier Rendering Modes
 
-GridBezier mendukung **4 mode rendering** berbeda untuk efek visual yang bervariasi:
+GridBezier mendukung **5 mode rendering** berbeda untuk efek visual yang bervariasi:
 
 | Mode | Deskripsi | Karakteristik |
 |------|-----------|---------------|
@@ -72,6 +72,7 @@ GridBezier mendukung **4 mode rendering** berbeda untuk efek visual yang bervari
 | **MULURLR** | Growing grid animation | Grid tumbuh dari (0,0) dengan animasi easing. Nodes bertambah secara gradual hingga penuh. |
 | **WOBBLE** | Perlin noise wobble | Setiap node bergoyang dengan Perlin noise untuk efek organik "bernapas". Gerakan acak halus seperti cairan. |
 | **WAVE** | Diagonal wave effect | Kurva bernapas dengan pola gelombang diagonal yang merambat. Menggunakan fungsi sinus untuk pattern teratur. |
+| **RADIALWAVE** | Radial wave effect | Gelombang melinglar merambat dari tengah grid ke luar seperti efek ripple di air. Menggunakan distance-based sinus wave. |
 
 ### Technical Details:
 
@@ -100,6 +101,18 @@ float y = node.y + wobble;
 ```cpp
 // Curve amount dinamis dengan sinus wave
 float wave = sin(i * frequency + j * frequency + time * speed);
+float curveAmount = baseCurve + (wave * amplitude);
+```
+
+**RADIALWAVE Mode:**
+```cpp
+// Hitung jarak dari center
+float centerX = currentCols / 2.0f;
+float centerY = currentRows / 2.0f;
+float distFromCenter = sqrt(pow(i - centerX, 2) + pow(j - centerY, 2));
+
+// Curve amount dengan radial wave (ripple effect)
+float wave = sin(distFromCenter * frequency - time * speed);
 float curveAmount = baseCurve + (wave * amplitude);
 ```
 
@@ -207,27 +220,28 @@ Wobble    ╰╯╰╯     (Spring effect)
 Wave      ~~~      (Gelombang merambat)
 ```
 
-#### ⚠️ Peringatan Penting: WaveAnimation vs WAVE Mode
+#### ⚠️ Peringatan Penting: WaveAnimation vs Wave Modes
 
-**PENTING: Bedakan antara dua jenis "WAVE" di sistem ini!**
+**PENTING: Bedakan antara WaveAnimation strategy dan Wave rendering modes!**
 
 **1. WaveAnimation (Animation Strategy)**
 - Ini adalah **strategi animasi** yang mengontrol `currentCols/rows`
 - **HANYA AMAN untuk mode NORMAL** (karena NORMAL pakai `maxCols/maxRows` yang statis)
-- **TIDAK COCOK** untuk mode MULURLR, WOBBLE, dan WAVE karena menyebabkan:
+- **TIDAK COCOK** untuk mode MULURLR, WOBBLE, WAVE, dan RADIALWAVE karena menyebabkan:
   - **Vector Out of Range** - Wave membuat nilai naik-turun drastis
   - **Index Calculation Error** - Node index bergantung pada `currentCols/rows` yang dinamis
   - **Visual Glitch** - Grid berkedip secara chaotic
 
-**2. WAVE Mode (GridBezier Rendering Mode)**
-- Ini adalah **mode rendering visual** untuk efek kurva
-- **AMAN DIGUNAKAN** karena hanya mempengaruhi curve amount, bukan grid layout
-- Membuat efek bernapas dengan pola gelombang diagonal yang merambat
+**2. Wave Rendering Modes (GridBezier Rendering Modes)**
+- **WAVE Mode**: Efek diagonal wave, **AMAN** karena hanya mempengaruhi curve amount
+- **RADIALWAVE Mode**: Efek radial ripple, **AMAN** karena hanya mempengaruhi curve amount
+- Kedua mode ini membuat efek bernapas dengan pola gelombang yang merambat
 
 **System Implementation:**
 ```cpp
 // Otomatis exclude WaveAnimation untuk mode yang tidak aman
-if (currentBzMode == MULURLR || currentBzMode == WOBBLE || currentBzMode == WAVE) {
+if (currentBzMode == MULURLR || currentBzMode == WOBBLE
+    || currentBzMode == WAVE || currentBzMode == RADIALWAVE) {
     // Hanya pilih dari: Linear, EaseInOut, Cubic, Wobble (0-3)
     randomAnim = ofRandom(0, 4);
 } else {
@@ -238,10 +252,10 @@ if (currentBzMode == MULURLR || currentBzMode == WOBBLE || currentBzMode == WAVE
 
 **Untuk GridBezier Animation Strategy:**
 - Mode **NORMAL**: Linear, Quadratic, Cubic, Wobble, atau Wave ✅
-- Mode **MULURLR/WOBBLE/WAVE**: Linear, Quadratic, Cubic, atau Wobble saja (NO WaveAnimation!) ⚠️
+- Mode **MULURLR/WOBBLE/WAVE/RADIALWAVE**: Linear, Quadratic, Cubic, atau Wobble saja (NO WaveAnimation!) ⚠️
 
 **Untuk GridBezier Visual Effect:**
-Gunakan mode: NORMAL, MULURLR, WOBBLE, atau WAVE (rendering mode).
+Gunakan mode: NORMAL, MULURLR, WOBBLE, WAVE, atau RADIALWAVE (rendering mode).
 
 ### Grid System
 
@@ -419,7 +433,7 @@ Dengan optimasi C++ modern dan openFrameworks:
 Branch ini adalah **pengembangan lanjut** dari JaringSketch dengan fokus pada **multi-mode rendering system** untuk GridBezier. Fitur yang tersedia:
 
 ✅ Grid layout system dengan konfigurasi cols/rows
-✅ **4 Rendering Modes**: NORMAL, MULURLR, WOBBLE, WAVE
+✅ **5 Rendering Modes**: NORMAL, MULURLR, WOBBLE, WAVE, RADIALWAVE
 ✅ **5 Animation Strategies**: Linear, Quadratic, Cubic, Wobble, Wave
 ✅ **6 Color Strategies**: Solid, Horizontal/Vertical/Radial Gradient, Rainbow Spiral, Time-Based
 ✅ **Multi-mode rendering** dengan efek visual bervariasi
@@ -429,7 +443,8 @@ Branch ini adalah **pengembangan lanjut** dari JaringSketch dengan fokus pada **
 ✅ Strategy pattern untuk animasi & warna
 ✅ Bezier curve rendering dengan curve intensity dinamis
 ✅ Perlin noise untuk organik wobble effects
-✅ Sinusoidal wave untuk diagonal wave patterns
+✅ Sinusoidal wave untuk diagonal & radial wave patterns
+✅ Distance-based radial ripple effects
 ✅ HSB color system untuk vivid gradients
 ✅ Delta time-based animation (FPS independent)
 ✅ Memory-safe implementation dengan `std::unique_ptr`
@@ -437,6 +452,7 @@ Branch ini adalah **pengembangan lanjut** dari JaringSketch dengan fokus pada **
 ### Mode Highlights:
 - **WOBBLE Mode**: Perlin noise-based organic movement
 - **WAVE Mode**: Diagonal wave pattern untuk "breathing" curves
+- **RADIALWAVE Mode**: Radial ripple effect dari tengah ke luar
 - **MULURLR Mode**: Growing grid dengan smooth easing
 - **NORMAL Mode**: Classic static grid display
 

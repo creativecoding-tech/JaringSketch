@@ -8,10 +8,10 @@ GridBezier::GridBezier(float cellSize, float margin) {
   currentRows = 0;
   colorStrategy = std::make_unique<SolidColor>(ofColor(255));
   this->curveIntensity = ofRandom(0, 5);
-  this->randomModeBezier = (int)ofRandom(0, 4);
+  this->randomModeBezier = (int)ofRandom(0, 5);
   this->currentBzMode = static_cast<GridBezier::bezierMode>(randomModeBezier);
   //test currentBzMode
-  //this->currentBzMode = WAVE;
+  //this->currentBzMode = RADIALWAVE;
 }
 
 void GridBezier::setAnimationStr(
@@ -70,6 +70,9 @@ void GridBezier::display() {
         break;
     case WAVE:
         setBezierWave();
+        break;
+    case RADIALWAVE:
+        setBezierRadialWave();
         break;
     case NORMAL:
         setBezierNormal();
@@ -317,6 +320,75 @@ void GridBezier::setBezierWave() {
 
             // Hitung wave offset (DIAGONAL WAVE)
             float wave = sin(i * waveFrequency + j * waveFrequency + time * waveSpeed);
+            float waveOffset = wave * waveAmplitude;
+
+            // Curve amount dasar + wave effect
+            float baseCurve = cellSize * curveIntensity;
+            float curveAmount = baseCurve + waveOffset;
+
+            ofDrawBezier(n1.x, n1.y, (n1.x + n2.x) / 2, n1.y + curveAmount,
+                (n1.x + n2.x) / 2, n2.y - curveAmount, n2.x, n2.y);
+        }
+    }
+}
+
+void GridBezier::setBezierRadialWave() {
+    // Parameter Radial Wave
+    float waveAmplitude = 40;    // Tinggi gelombang (pixel)
+    float waveFrequency = 0.4;   // Kerapatan gelombang
+    float waveSpeed = 4;         // Kecepatan merambat
+    float time = ofGetFrameNum() * 0.03f;  // Time-based animation
+
+    // Gambar bezier vertikal (setiap kolom)
+    for (int i = 0; i <= currentCols; i++) {
+        for (int j = 0; j < currentRows; j++) {
+            int node1 = j * (currentCols + 1) + i;
+            int node2 = (j + 1) * (currentCols + 1) + i;
+
+            Node& n1 = *nodes[node1];
+            Node& n2 = *nodes[node2];
+
+            // Dapatkan warna
+            ofColor c = colorStrategy->getColor(i, j, currentCols, currentRows);
+            ofSetColor(c);
+            ofNoFill();
+            // Hitung jarak dari center untuk RADIAL WAVE
+            float centerX = currentCols / 2.0f;
+            float centerY = currentRows / 2.0f;
+            float distFromCenter = sqrt(pow(i - centerX, 2) + pow(j - centerY, 2));
+
+            // Radial wave: gelombang merambat dari tengah ke luar
+            float wave = sin(distFromCenter * waveFrequency - time * waveSpeed);
+            float waveOffset = wave * waveAmplitude;
+
+            // Curve amount dasar + wave effect
+            float baseCurve = cellSize * curveIntensity;
+            float curveAmount = baseCurve + waveOffset;
+
+            ofDrawBezier(n1.x, n1.y, n1.x + curveAmount, (n1.y + n2.y) / 2,
+                n2.x - curveAmount, (n1.y + n2.y) / 2, n2.x, n2.y);
+        }
+    }
+
+    // Gambar bezier horizontal (setiap baris)
+    for (int j = 0; j <= currentRows; j++) {
+        for (int i = 0; i < currentCols; i++) {
+            int node1 = j * (currentCols + 1) + i;
+            int node2 = j * (currentCols + 1) + (i + 1);
+
+            Node& n1 = *nodes[node1];
+            Node& n2 = *nodes[node2];
+
+            ofColor c = colorStrategy->getColor(i, j, currentCols, currentRows);
+            ofSetColor(c);
+            ofNoFill();
+            // Hitung jarak dari center untuk RADIAL WAVE
+            float centerX = currentCols / 2.0f;
+            float centerY = currentRows / 2.0f;
+            float distFromCenter = sqrt(pow(i - centerX, 2) + pow(j - centerY, 2));
+
+            // Radial wave: gelombang merambat dari tengah ke luar
+            float wave = sin(distFromCenter * waveFrequency - time * waveSpeed);
             float waveOffset = wave * waveAmplitude;
 
             // Curve amount dasar + wave effect

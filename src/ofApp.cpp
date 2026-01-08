@@ -203,9 +203,10 @@ std::unique_ptr<AnimationStrategy> ofApp::getRandomAnimationStrategy() {
 	int randomAnim;
 
 	// Cek current mode dari gridBezier
-	if (gridBezier->currentBzMode == GridBezier::MULURLR 
+	if (gridBezier->currentBzMode == GridBezier::MULURLR
 		|| gridBezier->currentBzMode == GridBezier::WOBBLE
-		|| gridBezier->currentBzMode == GridBezier::WAVE) {
+		|| gridBezier->currentBzMode == GridBezier::WAVE
+		|| gridBezier->currentBzMode == GridBezier::RADIALWAVE) {
 		randomAnim = (int)ofRandom(0, 4);  // Exclude Wave
 	}
 	else {
