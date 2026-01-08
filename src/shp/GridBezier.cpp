@@ -135,8 +135,12 @@ void GridBezier::setBezierMulurLR() {
 
 void GridBezier::setBezierNormal() {
     // Gambar bezier vertikal (setiap kolom)
-    for (int i = 0; i <= currentCols; i++) {
-        for (int j = 0; j < currentRows; j++) {
+
+    int colsToDraw = (currentCols > maxCols) ? maxCols : currentCols;
+    int rowsToDraw = (currentRows > maxRows) ? maxRows : currentRows;
+
+    for (int i = 0; i <= colsToDraw; i++) {
+        for (int j = 0; j < rowsToDraw; j++) {
             int node1 = j * (maxCols + 1) + i;
             int node2 = (j + 1) * (maxCols + 1) + i;
 
@@ -156,8 +160,8 @@ void GridBezier::setBezierNormal() {
     }
 
     // Gambar bezier horizontal (setiap baris)
-    for (int j = 0; j <= currentRows; j++) {
-        for (int i = 0; i < currentCols; i++) {
+    for (int j = 0; j <= rowsToDraw; j++) {
+        for (int i = 0; i < colsToDraw; i++) {
             int node1 = j * (maxCols + 1) + i;
             int node2 = j * (maxCols + 1) + (i + 1);
 

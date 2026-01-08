@@ -9,6 +9,7 @@
 #include "clr/RadialGradient.h"
 #include "clr/VerticalGradient.h"
 #include "clr/TimeBasedColor.h"
+#include "anim/WaveAnimation.h"
 
 //--------------------------------------------------------------
 void ofApp::setup(){
@@ -31,12 +32,12 @@ void ofApp::setup(){
 	ofBackground(0);   // Clear sekali di awal
 	ofEnableAntiAliasing(); // supaya garis/bentuk menjadi smooth untuk bentuk / geometri
 	ofEnableSmoothing();  // membuat smooth untuk garis atau kurva
-
-	gridBezier = std::make_unique<GridBezier>(50,50,GridBezier::bezierMode::MULURLR);
+	int randomModeBezier = (int)ofRandom(0, 2);
+	gridBezier = std::make_unique<GridBezier>(50,50, static_cast<GridBezier::bezierMode>(randomModeBezier));
 	gridBezier->initialize(ofGetWidth(), ofGetHeight());
 	gridBezier->setColorStr(getRandomColorStrategy());
 	// 0.5 detik duration
-	gridBezier->setAnimationStr(std::make_unique<EaseInOutAnimation>(0.25f));
+	gridBezier->setAnimationStr(getRandomAnimationStrategy());
 }
 
 //--------------------------------------------------------------
@@ -161,10 +162,11 @@ void ofApp::initTrailsBackground() {
 
 void ofApp::resetGirBezier() {
 	gridBezier->resetAnimation();
-	gridBezier = std::make_unique<GridBezier>(50, 50, GridBezier::bezierMode::MULURLR);
+	int randomModeBezier = (int)ofRandom(0, 2);
+	gridBezier = std::make_unique<GridBezier>(50, 50, static_cast<GridBezier::bezierMode>(randomModeBezier));
 	gridBezier->initialize(ofGetWidth(), ofGetHeight());
 	gridBezier->setColorStr(getRandomColorStrategy());
-	gridBezier->setAnimationStr(std::make_unique<EaseInOutAnimation>(0.25f));
+	gridBezier->setAnimationStr(getRandomAnimationStrategy());
 }
 
 std::unique_ptr<ColorStrategy> ofApp::getRandomColorStrategy() {
@@ -187,4 +189,25 @@ std::unique_ptr<ColorStrategy> ofApp::getRandomColorStrategy() {
 TimeBasedColor::mode ofApp::getRandomTimeBasedMode() {
 	int randomMode = (int)ofRandom(0, 3);
 	return static_cast<TimeBasedColor::mode>(randomMode);
+}
+
+std::unique_ptr<AnimationStrategy> ofApp::getRandomAnimationStrategy() {
+	int randomAnim;
+
+	// Cek current mode dari gridBezier
+	if (gridBezier->currentBzMode == GridBezier::MULURLR) {
+		randomAnim = (int)ofRandom(0, 4);  // Exclude Wave
+	}
+	else {
+		randomAnim = (int)ofRandom(0, 5);  // Semua animasi
+	}
+
+	switch (randomAnim) {
+	case 0: return std::make_unique<LinearAnimation>(0.25f);
+	case 1: return std::make_unique<EaseInOutAnimation>(0.25f);
+	case 2: return std::make_unique<CubicEaseInOutAnimation>(0.25f);
+	case 3: return std::make_unique<WobbleAnimation>(0.25f, 3, 0.2f);
+	case 4: return std::make_unique<WaveAnimation>(0.25f, 0.2f, 0.3f, 0.0f);
+	default: return std::make_unique<EaseInOutAnimation>(0.25f);
+	}
 }

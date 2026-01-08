@@ -36,4 +36,5 @@ private:
 	void resetGirBezier();
 	std::unique_ptr<ColorStrategy> getRandomColorStrategy();
 	TimeBasedColor::mode getRandomTimeBasedMode();
+	std::unique_ptr<AnimationStrategy> getRandomAnimationStrategy();
 };
