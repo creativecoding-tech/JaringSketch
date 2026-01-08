@@ -1,14 +1,15 @@
 #include "GridBezier.h"
 #include "../clr/SolidColor.h"
 
-GridBezier::GridBezier(float cellSize, float margin,bezierMode currentBzMode) {
+GridBezier::GridBezier(float cellSize, float margin) {
   this->cellSize = cellSize;
   this->margin = margin;
   currentCols = 0;
   currentRows = 0;
   colorStrategy = std::make_unique<SolidColor>(ofColor(255));
-  this->currentBzMode = currentBzMode;
   this->curveIntensity = ofRandom(0, 5);
+  this->randomModeBezier = (int)ofRandom(0, 3);
+  this->currentBzMode = static_cast<GridBezier::bezierMode>(randomModeBezier);
 }
 
 void GridBezier::setAnimationStr(
@@ -184,49 +185,80 @@ void GridBezier::setBezierNormal() {
 }
 
 void GridBezier::setBezierWobble() {
-    // Gambar bezier vertikal (setiap kolom)
+    // Clamp untuk safety
+
+    // Gambar bezier vertikal
     for (int i = 0; i <= currentCols; i++) {
         for (int j = 0; j < currentRows; j++) {
-            int node1 = j * (maxCols + 1) + i;
-            int node2 = (j + 1) * (maxCols + 1) + i;
+            int node1 = j * (currentCols + 1) + i;
+            int node2 = (j + 1) * (currentCols + 1) + i;
 
             Node& n1 = *nodes[node1];
             Node& n2 = *nodes[node2];
 
-            // Dapatkan warna dari color strategy
+            // Dapatkan warna
             ofColor c = colorStrategy->getColor(i, j, currentCols, currentRows);
             ofSetColor(c);
             ofNoFill();
 
-            // WOBBLE EFFECT: Random curve intensity untuk setiap garis!
-            float curveFactor = ofRandom(0, 1.5);  // Random 0-1.5
-            float curveAmount = cellSize * curveFactor;
+            // WOBBLE dengan PERLIN NOISE
+            float time = ofGetFrameNum() * 0.01f;  // Kecepatan animasi noise (lebih cepat)
 
-            ofDrawBezier(n1.x, n1.y, n1.x + curveAmount, (n1.y + n2.y) / 2,
-                n2.x - curveAmount, (n1.y + n2.y) / 2, n2.x, n2.y);
+            // Hitung wobble untuk node1
+            float noise1 = ofNoise(time + n1.noiseOffset); 
+            float wobble1 = ofMap(noise1, 0, 1, -10, 10);    
+
+            // Hitung wobble untuk node2
+            float noise2 = ofNoise(time + n2.noiseOffset);
+            float wobble2 = ofMap(noise2, 0, 1, -10, 10);
+
+
+            // Curve amount bisa tetap atau juga di-wobble
+            float curveAmount = cellSize * curveIntensity;
+
+            // Posisi node dengan wobble
+            float x1 = n1.x + wobble1;
+            float y1 = n1.y + wobble1;
+            float x2 = n2.x + wobble2;
+            float y2 = n2.y + wobble2;
+
+
+            ofDrawBezier(x1, y1, x1 + curveAmount, (y1 + y2) / 2,
+                x2 - curveAmount, (y1 + y2) / 2, x2, y2);
         }
     }
 
-    // Gambar bezier horizontal (setiap baris)
+    // Gambar bezier horizontal
     for (int j = 0; j <= currentRows; j++) {
         for (int i = 0; i < currentCols; i++) {
-            int node1 = j * (maxCols + 1) + i;
-            int node2 = j * (maxCols + 1) + (i + 1);
+            int node1 = j * (currentCols + 1) + i;
+            int node2 = j * (currentCols + 1) + (i + 1);
 
             Node& n1 = *nodes[node1];
             Node& n2 = *nodes[node2];
 
-            // Dapatkan warna dari color strategy
             ofColor c = colorStrategy->getColor(i, j, currentCols, currentRows);
             ofSetColor(c);
             ofNoFill();
 
-            // WOBBLE EFFECT: Random curve intensity untuk setiap garis!
-            float curveFactor = ofRandom(0, 1.5);  // Random 0-1.5
-            float curveAmount = cellSize * curveFactor;
+            // WOBBLE dengan PERLIN NOISE
+            float time = ofGetFrameNum() * 0.02f;  // speed
+            float noise1 = ofNoise(time + n1.noiseOffset);
+            float wobble1 = ofMap(noise1, 0, 1, -10, 10);  
+            float noise2 = ofNoise(time + n2.noiseOffset);
+            float wobble2 = ofMap(noise2, 0, 1, -10, 10);
 
-            ofDrawBezier(n1.x, n1.y, (n1.x + n2.x) / 2, n1.y + curveAmount,
-                (n1.x + n2.x) / 2, n2.y - curveAmount, n2.x, n2.y);
+            float curveAmount = cellSize * curveIntensity;
+
+
+            float x1 = n1.x + wobble1;
+            float y1 = n1.y + wobble1;
+            float x2 = n2.x + wobble2;
+            float y2 = n2.y + wobble2;
+
+
+            ofDrawBezier(x1, y1, (x1 + x2) / 2, y1 + curveAmount,
+                (x1 + x2) / 2, y2 - curveAmount, x2, y2);
         }
     }
 }

@@ -33,10 +33,10 @@ void ofApp::setup(){
 	ofEnableAntiAliasing(); // supaya garis/bentuk menjadi smooth untuk bentuk / geometri
 	ofEnableSmoothing();  // membuat smooth untuk garis atau kurva
 	//TEST
-	//gridBezier = std::make_unique<GridBezier>(50, 50, GridBezier::WOBBLE);
+	//gridBezier = std::make_unique<GridBezier>(50, 50, GridBezier::MULURLR);
 
 	int randomModeBezier = (int)ofRandom(0, 3);
-	gridBezier = std::make_unique<GridBezier>(50, 50, static_cast<GridBezier::bezierMode>(randomModeBezier));
+	gridBezier = std::make_unique<GridBezier>(50, 50);
 	gridBezier->initialize(ofGetWidth(), ofGetHeight());
 	gridBezier->setColorStr(getRandomColorStrategy());
 	// 0.5 detik duration
@@ -170,9 +170,8 @@ void ofApp::initTrailsBackground() {
 void ofApp::resetGirBezier() {
 	gridBezier->resetAnimation();
 	//TEST
-	//gridBezier = std::make_unique<GridBezier>(50, 50, GridBezier::NORMAL);
-	int randomModeBezier = (int)ofRandom(0, 3);
-	gridBezier = std::make_unique<GridBezier>(50, 50, static_cast<GridBezier::bezierMode>(randomModeBezier));
+	//gridBezier = std::make_unique<GridBezier>(50, 50, GridBezier::WOBBLE);
+	gridBezier = std::make_unique<GridBezier>(50, 50);
 	gridBezier->initialize(ofGetWidth(), ofGetHeight());
 	gridBezier->setColorStr(getRandomColorStrategy());
 	gridBezier->setAnimationStr(getRandomAnimationStrategy());
@@ -204,7 +203,8 @@ std::unique_ptr<AnimationStrategy> ofApp::getRandomAnimationStrategy() {
 	int randomAnim;
 
 	// Cek current mode dari gridBezier
-	if (gridBezier->currentBzMode == GridBezier::MULURLR) {
+	if (gridBezier->currentBzMode == GridBezier::MULURLR 
+		|| gridBezier->currentBzMode == GridBezier::WOBBLE) {
 		randomAnim = (int)ofRandom(0, 4);  // Exclude Wave
 	}
 	else {

@@ -14,7 +14,7 @@ public:
 	int currentCols, currentRows;
 	enum bezierMode { NORMAL,MULURLR, WOBBLE};
 	bezierMode currentBzMode = MULURLR;
-	GridBezier(float cellSize, float margin,bezierMode currentBzMode); //constructor
+	GridBezier(float cellSize, float margin); //constructor
 	void setAnimationStr(std::unique_ptr<AnimationStrategy> strategy) override;
 	void setColorStr(std::unique_ptr<ColorStrategy> strategy) override;
 	void initialize(int w, int h);
@@ -28,6 +28,7 @@ public:
 	int getCurrentRows();
 	int getTotalNodes();
 private:
+	int randomModeBezier;
 	float curveIntensity = 0;
 	void setBezierMulurLR();
 	void setBezierNormal();
