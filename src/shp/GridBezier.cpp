@@ -8,15 +8,18 @@ GridBezier::GridBezier(float cellSize, float margin) {
   currentRows = 0;
   colorStrategy = std::make_unique<SolidColor>(ofColor(255));
   this->curveIntensity = ofRandom(0, 6);
-  this->randomModeBezier = (int)ofRandom(0, 5);
-  this->currentBzMode = static_cast<GridBezier::bezierMode>(randomModeBezier);
 
-  // Random arah inisialisasi
-  int randomDir = (int)ofRandom(0, 4);
-  this->currentInitDir = static_cast<GridBezier::initDirection>(randomDir);
+  //this->randomModeBezier = (int)ofRandom(0, 5);
+  //this->currentBzMode = static_cast<GridBezier::bezierMode>(randomModeBezier);
 
   //test currentBzMode
-  //this->currentBzMode = MULURLR;
+this->currentBzMode = VARYING;
+
+  // Random arah inisialisasi (5 arah)
+  //int randomDir = (int)ofRandom(0, 5);
+  //this->currentInitDir = static_cast<GridBezier::initDirection>(randomDir);
+  //test arah inisialisasi
+  this->currentInitDir = RADIAL_OUT;
 }
 
 void GridBezier::setAnimationStr(
@@ -85,6 +88,42 @@ void GridBezier::initialize(int w, int h) {
         for (int i = maxCols; i >= 0; i--) {
           float startX = offsetX + i * cellSize;
           float startY = offsetY + j * cellSize;
+          nodes.push_back(std::make_unique<Node>(startX, startY));
+        }
+      }
+      break;
+
+    case RADIAL_OUT:
+      // Tengah ke luar (distance-based sorting)
+      {
+        // Struct untuk menyimpan info node
+        struct NodeInfo {
+          int i, j;
+          float distance;
+        };
+
+        std::vector<NodeInfo> nodeInfos;
+        float centerX = maxCols / 2.0f;
+        float centerY = maxRows / 2.0f;
+
+        // Hitung jarak semua node dari center
+        for (int j = 0; j <= maxRows; j++) {
+          for (int i = 0; i <= maxCols; i++) {
+            float dist = sqrt(pow(i - centerX, 2) + pow(j - centerY, 2));
+            nodeInfos.push_back({i, j, dist});
+          }
+        }
+
+        // Sort berdasarkan distance (terdekat dulu)
+        std::sort(nodeInfos.begin(), nodeInfos.end(),
+          [](const NodeInfo& a, const NodeInfo& b) {
+            return a.distance < b.distance;
+          });
+
+        // Push nodes ke vector BERDASARKAN URUTAN SORTED
+        for (const auto& info : nodeInfos) {
+          float startX = offsetX + info.i * cellSize;
+          float startY = offsetY + info.j * cellSize;
           nodes.push_back(std::make_unique<Node>(startX, startY));
         }
       }
