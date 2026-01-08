@@ -207,6 +207,7 @@ std::unique_ptr<AnimationStrategy> ofApp::getRandomAnimationStrategy() {
 		randomAnim = (int)ofRandom(0, 4);  // Exclude Wave
 	}
 	else {
+		// VARYING mode: WaveAnimation BOLEH dipakai (0-4)
 		randomAnim = (int)ofRandom(0, 5);  // Semua animasi
 	}
 

@@ -69,7 +69,7 @@ GridBezier mendukung **5 mode rendering** berbeda untuk efek visual yang bervari
 
 | Mode | Deskripsi | Karakteristik |
 |------|-----------|---------------|
-| **NORMAL** | Standard bezier curves | Grid statis dengan semua nodes visible dari awal. Cocok untuk base grid display. |
+| **VARYING** | Varying bezier curves | Grid statis dengan semua nodes visible dari awal. Curve intensity bervariasi secara random (0-5) setiap reset, menciptakan pola kurva yang unik. |
 | **MULURLR** | Growing grid animation | Grid tumbuh dari (0,0) dengan animasi easing. Nodes bertambah secara gradual hingga penuh. |
 | **WOBBLE** | Perlin noise wobble | Setiap node bergoyang dengan Perlin noise untuk efek organik "bernapas". Gerakan acak halus seperti cairan. **Termasuk hybrid dynamic line width (noise + pulse)!** |
 | **WAVE** | Diagonal wave effect | Kurva bernapas dengan pola gelombang diagonal yang merambat. Menggunakan fungsi sinus untuk pattern teratur. **Termasuk dynamic line width!** |
@@ -77,9 +77,10 @@ GridBezier mendukung **5 mode rendering** berbeda untuk efek visual yang bervari
 
 ### Technical Details:
 
-**NORMAL Mode:**
+**VARYING Mode:**
 ```cpp
 // Grid langsung tampil penuh
+// Curve intensity: ofRandom(0, 5) - bervariasi setiap reset!
 // Loop hingga maxCols dan maxRows
 ```
 
@@ -356,7 +357,7 @@ Wave      ~~~      (Gelombang merambat)
 
 **1. WaveAnimation (Animation Strategy)**
 - Ini adalah **strategi animasi** yang mengontrol `currentCols/rows`
-- **HANYA AMAN untuk mode NORMAL** (karena NORMAL pakai `maxCols/maxRows` yang statis)
+- **HANYA AMAN untuk mode VARYING** (karena VARYING pakai `maxCols/maxRows` yang statis)
 - **TIDAK COCOK** untuk mode MULURLR, WOBBLE, WAVE, dan RADIALWAVE karena menyebabkan:
   - **Vector Out of Range** - Wave membuat nilai naik-turun drastis
   - **Index Calculation Error** - Node index bergantung pada `currentCols/rows` yang dinamis
@@ -375,17 +376,17 @@ if (currentBzMode == MULURLR || currentBzMode == WOBBLE
     // Hanya pilih dari: Linear, EaseInOut, Cubic, Wobble (0-3)
     randomAnim = ofRandom(0, 4);
 } else {
-    // NORMAL mode: WaveAnimation BOLEH dipakai (0-4)
+    // VARYING mode: WaveAnimation BOLEH dipakai (0-4)
     randomAnim = ofRandom(0, 5);
 }
 ```
 
 **Untuk GridBezier Animation Strategy:**
-- Mode **NORMAL**: Linear, Quadratic, Cubic, Wobble, atau Wave ✅
+- Mode **VARYING**: Linear, Quadratic, Cubic, Wobble, atau Wave ✅
 - Mode **MULURLR/WOBBLE/WAVE/RADIALWAVE**: Linear, Quadratic, Cubic, atau Wobble saja (NO WaveAnimation!) ⚠️
 
 **Untuk GridBezier Visual Effect:**
-Gunakan mode: NORMAL, MULURLR, WOBBLE, WAVE, atau RADIALWAVE (rendering mode).
+Gunakan mode: VARYING, MULURLR, WOBBLE, WAVE, atau RADIALWAVE (rendering mode).
 
 ### Grid System
 
@@ -472,7 +473,7 @@ float hue = fmod(ofRadToDeg(angle) + distFromCenter * 10 + ofGetFrameNum() * spe
 
 **Time-Based Color:**
 ```cpp
-// Mode NORMAL: semua cell berubah sama
+// Mode VARYING: semua cell berubah sama
 float hue = fmod(ofGetFrameNum() * speed, 360);
 
 // Mode WAVE: gradient bergerak
@@ -563,7 +564,7 @@ Dengan optimasi C++ modern dan openFrameworks:
 Branch ini adalah **pengembangan lanjut** dari JaringSketch dengan fokus pada **multi-mode rendering system** untuk GridBezier. Fitur yang tersedia:
 
 ✅ Grid layout system dengan konfigurasi cols/rows
-✅ **5 Rendering Modes**: NORMAL, MULURLR, WOBBLE, WAVE, RADIALWAVE
+✅ **5 Rendering Modes**: VARYING, MULURLR, WOBBLE, WAVE, RADIALWAVE
 ✅ **5 Animation Strategies**: Linear, Quadratic, Cubic, Wobble, Wave
 ✅ **6 Color Strategies**: Solid, Horizontal/Vertical/Radial Gradient, Rainbow Spiral, Time-Based
 ✅ **Multi-mode rendering** dengan efek visual bervariasi
@@ -586,7 +587,7 @@ Branch ini adalah **pengembangan lanjut** dari JaringSketch dengan fokus pada **
 - **WAVE Mode**: Diagonal wave pattern dengan **dynamic line width** yang berdenyut
 - **RADIALWAVE Mode**: Radial ripple effect dengan **dynamic line width** yang berdenyut
 - **MULURLR Mode**: Growing grid dengan smooth easing
-- **NORMAL Mode**: Classic static grid display
+- **VARYING Mode**: Static grid dengan **random curve intensity** yang bervariasi setiap reset
 
 🎨 **Creative Freedom**: Project ini terbuka untuk eksplorasi dan improvisasi tanpa batas. Seni digital adalah tentang ekspresi, bukan checklist.
 

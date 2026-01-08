@@ -74,8 +74,8 @@ void GridBezier::display() {
     case RADIALWAVE:
         setBezierRadialWave();
         break;
-    case NORMAL:
-        setBezierNormal();
+    case VARYING:
+        setBezierVarying();
         break;
    }
 }
@@ -148,7 +148,7 @@ void GridBezier::setBezierMulurLR() {
     }
 }
 
-void GridBezier::setBezierNormal() {
+void GridBezier::setBezierVarying() {
     // Gambar bezier vertikal (setiap kolom)
 
     for (int i = 0; i <= currentCols; i++) {
