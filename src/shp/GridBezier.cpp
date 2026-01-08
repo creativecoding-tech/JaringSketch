@@ -9,9 +9,9 @@ GridBezier::GridBezier(float cellSize, float margin) {
   colorStrategy = std::make_unique<SolidColor>(ofColor(255));
   this->curveIntensity = ofRandom(0, 5);
   this->randomModeBezier = (int)ofRandom(0, 5);
-  this->currentBzMode = static_cast<GridBezier::bezierMode>(randomModeBezier);
+  //this->currentBzMode = static_cast<GridBezier::bezierMode>(randomModeBezier);
   //test currentBzMode
-  //this->currentBzMode = RADIALWAVE;
+  this->currentBzMode = WAVE;
 }
 
 void GridBezier::setAnimationStr(
@@ -273,9 +273,9 @@ void GridBezier::setBezierWobble() {
 
 void GridBezier::setBezierWave() {
     // Parameter Wave
-    float waveAmplitude = ofRandom(15,35);   // Tinggi gelombang (pixel)
+    float waveAmplitude = 35;   // Tinggi gelombang (pixel)
     float waveFrequency = 0.4;  // Kerapatan gelombang
-    float waveSpeed = 3;       // Kecepatan merambat
+    float waveSpeed = 4;       // Kecepatan merambat
     float time = ofGetFrameNum() * 0.03f;  // Time-based animation
 
     // Gambar bezier vertikal (setiap kolom)
@@ -294,6 +294,8 @@ void GridBezier::setBezierWave() {
 
             // Hitung wave offset (DIAGONAL WAVE)
             float wave = sin(i * waveFrequency + j * waveFrequency + time * waveSpeed);
+            float lineWidth = ofMap(wave, -1, 1, 3, 6);  // Mapping wave ke line width
+            ofSetLineWidth(lineWidth);
             float waveOffset = wave * waveAmplitude;
 
             // Curve amount dasar + wave effect
@@ -320,6 +322,8 @@ void GridBezier::setBezierWave() {
 
             // Hitung wave offset (DIAGONAL WAVE)
             float wave = sin(i * waveFrequency + j * waveFrequency + time * waveSpeed);
+            float lineWidth = ofMap(wave, -1, 1, 3, 6);  // Mapping wave ke line width
+            ofSetLineWidth(lineWidth);
             float waveOffset = wave * waveAmplitude;
 
             // Curve amount dasar + wave effect
