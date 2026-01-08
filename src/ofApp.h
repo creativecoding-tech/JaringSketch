@@ -15,6 +15,7 @@ class ofApp : public ofBaseApp{
 		std::unique_ptr<GridBezier> gridBezier;
 		bool showShape = false;
 		bool cursorIsVisible = true;
+
 		void setup();
 		void update();
 		void draw();

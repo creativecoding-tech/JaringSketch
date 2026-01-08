@@ -32,8 +32,11 @@ void ofApp::setup(){
 	ofBackground(0);   // Clear sekali di awal
 	ofEnableAntiAliasing(); // supaya garis/bentuk menjadi smooth untuk bentuk / geometri
 	ofEnableSmoothing();  // membuat smooth untuk garis atau kurva
-	int randomModeBezier = (int)ofRandom(0, 2);
-	gridBezier = std::make_unique<GridBezier>(50,50, static_cast<GridBezier::bezierMode>(randomModeBezier));
+	//TEST
+	//gridBezier = std::make_unique<GridBezier>(50, 50, GridBezier::WOBBLE);
+
+	int randomModeBezier = (int)ofRandom(0, 3);
+	gridBezier = std::make_unique<GridBezier>(50, 50, static_cast<GridBezier::bezierMode>(randomModeBezier));
 	gridBezier->initialize(ofGetWidth(), ofGetHeight());
 	gridBezier->setColorStr(getRandomColorStrategy());
 	// 0.5 detik duration
@@ -97,6 +100,10 @@ void ofApp::keyPressed(int key){
 	if (key == '4' || key == '4') {
 		gridBezier->resetAnimation();
 		gridBezier->setAnimationStr(std::make_unique<WobbleAnimation>(0.25f, 3, 0.7));
+	}
+	if (key == '5' || key == '5') {
+		gridBezier->resetAnimation();
+		gridBezier->setAnimationStr(std::make_unique<WaveAnimation>(0.25f, 0.2f, 0.3f, 0.0f));
 	}
 }
 
@@ -162,7 +169,9 @@ void ofApp::initTrailsBackground() {
 
 void ofApp::resetGirBezier() {
 	gridBezier->resetAnimation();
-	int randomModeBezier = (int)ofRandom(0, 2);
+	//TEST
+	//gridBezier = std::make_unique<GridBezier>(50, 50, GridBezier::NORMAL);
+	int randomModeBezier = (int)ofRandom(0, 3);
 	gridBezier = std::make_unique<GridBezier>(50, 50, static_cast<GridBezier::bezierMode>(randomModeBezier));
 	gridBezier->initialize(ofGetWidth(), ofGetHeight());
 	gridBezier->setColorStr(getRandomColorStrategy());

@@ -51,6 +51,9 @@ void GridBezier::updateAnimation() {
     animStrategy->update();
     currentCols = animStrategy->getValue(targetCols);
     currentRows = animStrategy->getValue(targetRows);
+
+    if (currentCols > maxCols) currentCols = maxCols;
+    if (currentRows > maxRows) currentRows = maxRows;
   }
 }
 
@@ -58,6 +61,9 @@ void GridBezier::display() {
     switch (currentBzMode) {
     case MULURLR:
         setBezierMulurLR();
+        break;
+    case WOBBLE:
+        setBezierWobble();
         break;
     case NORMAL:
         setBezierNormal();
@@ -136,11 +142,8 @@ void GridBezier::setBezierMulurLR() {
 void GridBezier::setBezierNormal() {
     // Gambar bezier vertikal (setiap kolom)
 
-    int colsToDraw = (currentCols > maxCols) ? maxCols : currentCols;
-    int rowsToDraw = (currentRows > maxRows) ? maxRows : currentRows;
-
-    for (int i = 0; i <= colsToDraw; i++) {
-        for (int j = 0; j < rowsToDraw; j++) {
+    for (int i = 0; i <= currentCols; i++) {
+        for (int j = 0; j < currentRows; j++) {
             int node1 = j * (maxCols + 1) + i;
             int node2 = (j + 1) * (maxCols + 1) + i;
 
@@ -160,8 +163,8 @@ void GridBezier::setBezierNormal() {
     }
 
     // Gambar bezier horizontal (setiap baris)
-    for (int j = 0; j <= rowsToDraw; j++) {
-        for (int i = 0; i < colsToDraw; i++) {
+    for (int j = 0; j <= currentRows; j++) {
+        for (int i = 0; i < currentCols; i++) {
             int node1 = j * (maxCols + 1) + i;
             int node2 = j * (maxCols + 1) + (i + 1);
 
@@ -173,6 +176,54 @@ void GridBezier::setBezierNormal() {
             ofSetColor(c);
             ofNoFill();
             float curveAmount = cellSize * curveIntensity;
+
+            ofDrawBezier(n1.x, n1.y, (n1.x + n2.x) / 2, n1.y + curveAmount,
+                (n1.x + n2.x) / 2, n2.y - curveAmount, n2.x, n2.y);
+        }
+    }
+}
+
+void GridBezier::setBezierWobble() {
+    // Gambar bezier vertikal (setiap kolom)
+    for (int i = 0; i <= currentCols; i++) {
+        for (int j = 0; j < currentRows; j++) {
+            int node1 = j * (maxCols + 1) + i;
+            int node2 = (j + 1) * (maxCols + 1) + i;
+
+            Node& n1 = *nodes[node1];
+            Node& n2 = *nodes[node2];
+
+            // Dapatkan warna dari color strategy
+            ofColor c = colorStrategy->getColor(i, j, currentCols, currentRows);
+            ofSetColor(c);
+            ofNoFill();
+
+            // WOBBLE EFFECT: Random curve intensity untuk setiap garis!
+            float curveFactor = ofRandom(0, 1.5);  // Random 0-1.5
+            float curveAmount = cellSize * curveFactor;
+
+            ofDrawBezier(n1.x, n1.y, n1.x + curveAmount, (n1.y + n2.y) / 2,
+                n2.x - curveAmount, (n1.y + n2.y) / 2, n2.x, n2.y);
+        }
+    }
+
+    // Gambar bezier horizontal (setiap baris)
+    for (int j = 0; j <= currentRows; j++) {
+        for (int i = 0; i < currentCols; i++) {
+            int node1 = j * (maxCols + 1) + i;
+            int node2 = j * (maxCols + 1) + (i + 1);
+
+            Node& n1 = *nodes[node1];
+            Node& n2 = *nodes[node2];
+
+            // Dapatkan warna dari color strategy
+            ofColor c = colorStrategy->getColor(i, j, currentCols, currentRows);
+            ofSetColor(c);
+            ofNoFill();
+
+            // WOBBLE EFFECT: Random curve intensity untuk setiap garis!
+            float curveFactor = ofRandom(0, 1.5);  // Random 0-1.5
+            float curveAmount = cellSize * curveFactor;
 
             ofDrawBezier(n1.x, n1.y, (n1.x + n2.x) / 2, n1.y + curveAmount,
                 (n1.x + n2.x) / 2, n2.y - curveAmount, n2.x, n2.y);
