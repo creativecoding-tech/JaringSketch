@@ -6,7 +6,7 @@ Eksperimen grid dengan animasi bezier yang smooth dan efek trails. Project ini a
 ![C++](https://img.shields.io/badge/C++-17-blue)
 ![Platform](https://img.shields.io/badge/Platform-Windows-lightgrey)
 ![License](https://img.shields.io/badge/License-Apache%202.0-green)
-![Branch](https://img.shields.io/badge/Branch-sketch--basic--anim--color-orange)
+![Branch](https://img.shields.io/badge/Branch-sketch--GridBezier-orange)
 
 [![Fund The Experiments](https://img.shields.io/badge/Fund-The_Experiments-FF5722?style=for-the-badge&logo=buy-me-a-coffee)](https://sociabuzz.com/abdkdhni)
 
@@ -46,9 +46,64 @@ Project ini menampilkan grid node dengan animasi transisi yang smooth menggunaka
 | Input | Action |
 | --- | --- |
 | **Key 'S'** | Toggle visibility shape grid (Show/Hide) |
-| **Key 'R'** | Reset animasi ke posisi awal |
+| **Key 'R'** | Reset animasi dengan strategi baru (random) |
 | **Key 'Q'** | Keluar dari aplikasi |
 | **Right Click** | Toggle visibilitas kursor |
+| **Key 'Z'** | Set Horizontal Gradient color |
+| **Key 'X'** | Set Rainbow Spiral color |
+| **Key 'C'** | Set Radial Gradient color |
+| **Key 'V'** | Set Vertical Gradient color |
+| **Key 'B'** | Set Time-Based (WAVE mode) color |
+| **Key '1'** | Set EaseInOut (Quadratic) animation |
+| **Key '2'** | Set Linear animation |
+| **Key '3'** | Set CubicEaseInOut animation |
+| **Key '4'** | Set Wobble animation |
+| **Key '5'** | Set Wave animation |
+
+---
+
+## 🎨 GridBezier Rendering Modes
+
+GridBezier mendukung **4 mode rendering** berbeda untuk efek visual yang bervariasi:
+
+| Mode | Deskripsi | Karakteristik |
+|------|-----------|---------------|
+| **NORMAL** | Standard bezier curves | Grid statis dengan semua nodes visible dari awal. Cocok untuk base grid display. |
+| **MULURLR** | Growing grid animation | Grid tumbuh dari (0,0) dengan animasi easing. Nodes bertambah secara gradual hingga penuh. |
+| **WOBBLE** | Perlin noise wobble | Setiap node bergoyang dengan Perlin noise untuk efek organik "bernapas". Gerakan acak halus seperti cairan. |
+| **WAVE** | Diagonal wave effect | Kurva bernapas dengan pola gelombang diagonal yang merambat. Menggunakan fungsi sinus untuk pattern teratur. |
+
+### Technical Details:
+
+**NORMAL Mode:**
+```cpp
+// Grid langsung tampil penuh
+// Loop hingga maxCols dan maxRows
+```
+
+**MULURLR Mode:**
+```cpp
+// Grid tumbuh dari 0,0 ke target
+// currentCols/Rows bertambah dengan animasi easing
+// Loop hingga currentCols dan currentRows
+```
+
+**WOBBLE Mode:**
+```cpp
+// Posisi node digeser dengan Perlin noise
+float wobble = ofMap(ofNoise(time + node.noiseOffset), 0, 1, -10, 10);
+float x = node.x + wobble;
+float y = node.y + wobble;
+```
+
+**WAVE Mode:**
+```cpp
+// Curve amount dinamis dengan sinus wave
+float wave = sin(i * frequency + j * frequency + time * speed);
+float curveAmount = baseCurve + (wave * amplitude);
+```
+
+Mode dipilih secara **random** saat aplikasi start atau saat tekan tombol 'R'.
 
 ---
 
@@ -75,8 +130,8 @@ Project ini menampilkan grid node dengan animasi transisi yang smooth menggunaka
 # Clone repository ini
 git clone https://github.com/username/JaringSketch.git
 
-# Checkout branch sketch-basic
-git checkout sketch-basic
+# Checkout branch sketch-GridBezier
+git checkout sketch-GridBezier
 
 # Buka Visual Studio
 # Double-click: JaringSketch.sln
@@ -152,20 +207,41 @@ Wobble    ╰╯╰╯     (Spring effect)
 Wave      ~~~      (Gelombang merambat)
 ```
 
-#### ⚠️ Peringatan Penting: WaveAnimation & GridBezier
+#### ⚠️ Peringatan Penting: WaveAnimation vs WAVE Mode
 
-**WaveAnimation TIDAK COCOK untuk GridBezier!** Menggunakan WaveAnimation pada `GridBezier::currentCols/rows` dapat menyebabkan:
+**PENTING: Bedakan antara dua jenis "WAVE" di sistem ini!**
 
-- **Vector Out of Range** - Wave membuat nilai naik-turun drastis
-- **Index Calculation Error** - Node index bergantung pada `currentCols`
-- **Visual Glitch** - Grid berkedip secara chaotic
+**1. WaveAnimation (Animation Strategy)**
+- Ini adalah **strategi animasi** yang mengontrol `currentCols/rows`
+- **HANYA AMAN untuk mode NORMAL** (karena NORMAL pakai `maxCols/maxRows` yang statis)
+- **TIDAK COCOK** untuk mode MULURLR, WOBBLE, dan WAVE karena menyebabkan:
+  - **Vector Out of Range** - Wave membuat nilai naik-turun drastis
+  - **Index Calculation Error** - Node index bergantung pada `currentCols/rows` yang dinamis
+  - **Visual Glitch** - Grid berkedip secara chaotic
 
-**Gunakan WaveAnimation HANYA untuk:**
-- Animasi posisi individual (bukan jumlah kolom/rows)
-- Visual effects di luar grid layout
-- Custom implementations dengan proper bounds checking
+**2. WAVE Mode (GridBezier Rendering Mode)**
+- Ini adalah **mode rendering visual** untuk efek kurva
+- **AMAN DIGUNAKAN** karena hanya mempengaruhi curve amount, bukan grid layout
+- Membuat efek bernapas dengan pola gelombang diagonal yang merambat
 
-**Untuk GridBezier, gunakan:** Linear, Quadratic, atau Cubic animation.
+**System Implementation:**
+```cpp
+// Otomatis exclude WaveAnimation untuk mode yang tidak aman
+if (currentBzMode == MULURLR || currentBzMode == WOBBLE || currentBzMode == WAVE) {
+    // Hanya pilih dari: Linear, EaseInOut, Cubic, Wobble (0-3)
+    randomAnim = ofRandom(0, 4);
+} else {
+    // NORMAL mode: WaveAnimation BOLEH dipakai (0-4)
+    randomAnim = ofRandom(0, 5);
+}
+```
+
+**Untuk GridBezier Animation Strategy:**
+- Mode **NORMAL**: Linear, Quadratic, Cubic, Wobble, atau Wave ✅
+- Mode **MULURLR/WOBBLE/WAVE**: Linear, Quadratic, Cubic, atau Wobble saja (NO WaveAnimation!) ⚠️
+
+**Untuk GridBezier Visual Effect:**
+Gunakan mode: NORMAL, MULURLR, WOBBLE, atau WAVE (rendering mode).
 
 ### Grid System
 
@@ -338,19 +414,31 @@ Dengan optimasi C++ modern dan openFrameworks:
 
 ---
 
-## 📝 Current Status: **sketch-basic-anim-color**
+## 📝 Current Status: **sketch-GridBezier**
 
-Branch ini adalah **implementation lengkap** dari JaringSketch dengan sistem animasi berbasis Strategy Pattern. Fitur yang tersedia:
+Branch ini adalah **pengembangan lanjut** dari JaringSketch dengan fokus pada **multi-mode rendering system** untuk GridBezier. Fitur yang tersedia:
 
 ✅ Grid layout system dengan konfigurasi cols/rows
+✅ **4 Rendering Modes**: NORMAL, MULURLR, WOBBLE, WAVE
 ✅ **5 Animation Strategies**: Linear, Quadratic, Cubic, Wobble, Wave
 ✅ **6 Color Strategies**: Solid, Horizontal/Vertical/Radial Gradient, Rainbow Spiral, Time-Based
+✅ **Multi-mode rendering** dengan efek visual bervariasi
+✅ **Dynamic mode selection** (random pada startup/reset)
+✅ **Interactive strategy switching** via keyboard (1-5 untuk animasi, Z-X-C-V-B untuk color)
 ✅ Trails effect untuk visual impact
 ✅ Strategy pattern untuk animasi & warna
-✅ Bezier curve rendering untuk smooth lines
+✅ Bezier curve rendering dengan curve intensity dinamis
+✅ Perlin noise untuk organik wobble effects
+✅ Sinusoidal wave untuk diagonal wave patterns
 ✅ HSB color system untuk vivid gradients
-✅ Basic keyboard controls
 ✅ Delta time-based animation (FPS independent)
+✅ Memory-safe implementation dengan `std::unique_ptr`
+
+### Mode Highlights:
+- **WOBBLE Mode**: Perlin noise-based organic movement
+- **WAVE Mode**: Diagonal wave pattern untuk "breathing" curves
+- **MULURLR Mode**: Growing grid dengan smooth easing
+- **NORMAL Mode**: Classic static grid display
 
 🎨 **Creative Freedom**: Project ini terbuka untuk eksplorasi dan improvisasi tanpa batas. Seni digital adalah tentang ekspresi, bukan checklist.
 
