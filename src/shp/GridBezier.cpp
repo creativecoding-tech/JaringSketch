@@ -10,8 +10,13 @@ GridBezier::GridBezier(float cellSize, float margin) {
   this->curveIntensity = ofRandom(0, 6);
   this->randomModeBezier = (int)ofRandom(0, 5);
   this->currentBzMode = static_cast<GridBezier::bezierMode>(randomModeBezier);
+
+  // Random arah inisialisasi
+  int randomDir = (int)ofRandom(0, 4);
+  this->currentInitDir = static_cast<GridBezier::initDirection>(randomDir);
+
   //test currentBzMode
-  //this->currentBzMode = NORMAL;
+  //this->currentBzMode = MULURLR;
 }
 
 void GridBezier::setAnimationStr(
@@ -39,13 +44,51 @@ void GridBezier::initialize(int w, int h) {
   // Allocate node array
   totalNodes = (maxCols + 1) * (maxRows + 1);
 
-  // Inisialisasi semua node
-  for (int j = 0; j <= maxRows; j++) {
-    for (int i = 0; i <= maxCols; i++) {
-      float startX = offsetX + i * cellSize;
-      float startY = offsetY + j * cellSize;
-      nodes.push_back(std::make_unique<Node>(startX, startY));
-    }
+  // Inisialisasi semua node berdasarkan arah random
+  switch (currentInitDir) {
+    case TOP_LEFT:
+      // Atas ke bawah, kiri ke kanan
+      for (int j = 0; j <= maxRows; j++) {
+        for (int i = 0; i <= maxCols; i++) {
+          float startX = offsetX + i * cellSize;
+          float startY = offsetY + j * cellSize;
+          nodes.push_back(std::make_unique<Node>(startX, startY));
+        }
+      }
+      break;
+
+    case TOP_RIGHT:
+      // Atas ke bawah, kanan ke kiri
+      for (int j = 0; j <= maxRows; j++) {
+        for (int i = maxCols; i >= 0; i--) {
+          float startX = offsetX + i * cellSize;
+          float startY = offsetY + j * cellSize;
+          nodes.push_back(std::make_unique<Node>(startX, startY));
+        }
+      }
+      break;
+
+    case BOTTOM_LEFT:
+      // Bawah ke atas, kiri ke kanan
+      for (int j = maxRows; j >= 0; j--) {
+        for (int i = 0; i <= maxCols; i++) {
+          float startX = offsetX + i * cellSize;
+          float startY = offsetY + j * cellSize;
+          nodes.push_back(std::make_unique<Node>(startX, startY));
+        }
+      }
+      break;
+
+    case BOTTOM_RIGHT:
+      // Bawah ke atas, kanan ke kiri
+      for (int j = maxRows; j >= 0; j--) {
+        for (int i = maxCols; i >= 0; i--) {
+          float startX = offsetX + i * cellSize;
+          float startY = offsetY + j * cellSize;
+          nodes.push_back(std::make_unique<Node>(startX, startY));
+        }
+      }
+      break;
   }
 }
 

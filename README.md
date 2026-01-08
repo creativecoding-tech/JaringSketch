@@ -27,6 +27,7 @@ Project ini menampilkan grid node dengan animasi transisi yang smooth menggunaka
 ## ✨ Fitur & Teknik
 
 - **Grid Layout System** — 2D grid dengan node yang terkonfigurasi (cols & rows)
+- **Random Initialization Direction** — 4 arah pertumbuhan grid: TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT
 - **Multiple Animation Strategies** — 5 jenis easing: Linear, Quadratic, Cubic, Wobble, dan Wave
 - **Multiple Color Strategies** — 6 jenis pewarnaan: Solid, Horizontal/Vertical/Radial Gradient, Rainbow Spiral, Time-Based
 - **Strategy Pattern** — Arsitektur yang fleksibel untuk animasi dan pewarnaan
@@ -86,10 +87,32 @@ GridBezier mendukung **5 mode rendering** berbeda untuk efek visual yang bervari
 
 **MULURLR Mode:**
 ```cpp
-// Grid tumbuh dari 0,0 ke target
-// currentCols/Rows bertambah dengan animasi easing
+// Grid tumbuh dengan animasi easing
+// currentCols/Rows bertambah secara gradual
+// Arah pertumbuhan ditentukan oleh random initialization direction
 // Loop hingga currentCols dan currentRows
 ```
+
+**Random Initialization Direction:**
+```cpp
+// 4 Arah pertumbuhan grid yang di-random saat constructor:
+enum initDirection { TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT };
+
+// TOP_LEFT:    Atas → Bawah, Kiri → Kanan (default)
+// TOP_RIGHT:   Atas → Bawah, Kanan → Kiri
+// BOTTOM_LEFT: Bawah → Atas, Kiri → Kanan
+// BOTTOM_RIGHT:Bawah → Atas, Kanan → Kiri
+
+// Arah ditentukan sekali di constructor dan berlaku untuk SEMUA mode
+int randomDir = (int)ofRandom(0, 4);
+this->currentInitDir = static_cast<initDirection>(randomDir);
+```
+
+**Fitur Spesial Random Initialization:**
+- 🎲 **4 Arah Berbeda**: Setiap reset memberikan arah pertumbuhan yang random
+- 🌱 **Growing Animation**: MULURLR mode akan tumbuh dari arah yang berbeda-beda
+- 🎯 **All Modes**: Berlaku untuk SEMUA GridBezier modes (VARYING, MULURLR, WOBBLE, WAVE, RADIALWAVE)
+- 🔄 **Consistent Direction**: Arah tetap sama selama lifecycle object, berubah saat reset ('R')
 
 **WOBBLE Mode:**
 ```cpp
@@ -567,6 +590,7 @@ Branch ini adalah **pengembangan lanjut** dari JaringSketch dengan fokus pada **
 ✅ **5 Rendering Modes**: VARYING, MULURLR, WOBBLE, WAVE, RADIALWAVE
 ✅ **5 Animation Strategies**: Linear, Quadratic, Cubic, Wobble, Wave
 ✅ **6 Color Strategies**: Solid, Horizontal/Vertical/Radial Gradient, Rainbow Spiral, Time-Based
+✅ **4 Initialization Directions**: TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT (random!)
 ✅ **Multi-mode rendering** dengan efek visual bervariasi
 ✅ **Dynamic mode selection** (random pada startup/reset)
 ✅ **Interactive strategy switching** via keyboard (1-5 untuk animasi, Z-X-C-V-B untuk color)

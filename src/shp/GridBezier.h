@@ -30,6 +30,8 @@ public:
 private:
 	int randomModeBezier;
 	float curveIntensity = 0;
+	enum initDirection { TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT };
+	initDirection currentInitDir;
 	void setBezierMulurLR();
 	void setBezierVarying();
 	void setBezierWobble();
