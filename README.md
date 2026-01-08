@@ -33,6 +33,7 @@ Project ini menampilkan grid node dengan animasi transisi yang smooth menggunaka
 - **Modular Design** — Terpisah dalam kategori: `anim/`, `clr/`, `shp/`, `strategy/`
 - **Smooth Easing Functions** — Power-based easing (1, 2, 3) untuk tingkat smoothness berbeda
 - **Special Effects** — Wobble (spring) dan Wave (gelombang) untuk creative animations
+- **Dynamic Line Width** — Ketebalan garis yang berubah mengikuti gelombang (RADIALWAVE mode)
 - **HSB Color System** — Hue-Saturation-Brightness untuk vivid colors dan smooth gradients
 - **Animated Colors** — Time-based color transitions untuk dynamic visual effects
 - **Trails Effect** — Semi-transparent overlay untuk efek jejak visual yang menarik
@@ -111,12 +112,62 @@ float centerX = currentCols / 2.0f;
 float centerY = currentRows / 2.0f;
 float distFromCenter = sqrt(pow(i - centerX, 2) + pow(j - centerY, 2));
 
-// Curve amount dengan radial wave (ripple effect)
+// Radial wave untuk curve dan line width (dynamic!)
 float wave = sin(distFromCenter * frequency - time * speed);
+
+// Dynamic line width: wave mempengaruhi ketebalan garis
+float lineWidth = ofMap(wave, -1, 1, 3, 6);  // Wave tinggi → Line tebal
+ofSetLineWidth(lineWidth);
+
+// Curve amount dengan radial wave (ripple effect)
 float curveAmount = baseCurve + (wave * amplitude);
 ```
 
+**Fitur Spesial RADIALWAVE:**
+- ✨ **Dynamic Line Width** - Ketebalan garis berubah mengikuti gelombang
+  - Wave tinggi (1) → Line tebal (6px)
+  - Wave rendah (-1) → Line tipis (3px)
+  - Menciptakan efek "berdenyut" yang dramatis
+
 Mode dipilih secara **random** saat aplikasi start atau saat tekan tombol 'R'.
+
+---
+
+## ✨ Dynamic Line Width Feature
+
+RADIALWAVE mode memiliki fitur spesial **Dynamic Line Width** yang membuat ketebalan garis berubah mengikuti gelombang.
+
+### How It Works
+
+```cpp
+// Hitung wave value (-1 sampai 1)
+float wave = sin(distFromCenter * waveFrequency - time * waveSpeed);
+
+// Mapping wave ke line width (3px sampai 6px)
+float lineWidth = ofMap(wave, -1, 1, 3, 6);
+ofSetLineWidth(lineWidth);
+```
+
+**Visual Effect:**
+- Gelombang tinggi → Garis tebal (6px)
+- Gelombang rendah → Garis tipis (3px)
+- Menciptakan efek **"berdenyut"** seperti pulsating light
+
+**Parameter Mapping:**
+```cpp
+ofMap(wave, -1, 1, 3, 6);
+//         ^   ^  ^ ^
+//         |   |  | +-- Max line width (6px)
+//         |   |  +----- Min line width (3px)
+//         |   +-------- Input max (wave tertinggi)
+//         +------------ Input min (wave terendah)
+```
+
+**Customization:**
+Ubah range line width untuk efek yang berbeda:
+- `ofMap(wave, -1, 1, 2, 4)` - Lebih halus
+- `ofMap(wave, -1, 1, 3, 6)` - Medium (current)
+- `ofMap(wave, -1, 1, 1, 10)` - Ekstrem dramatis
 
 ---
 
@@ -445,6 +496,7 @@ Branch ini adalah **pengembangan lanjut** dari JaringSketch dengan fokus pada **
 ✅ Perlin noise untuk organik wobble effects
 ✅ Sinusoidal wave untuk diagonal & radial wave patterns
 ✅ Distance-based radial ripple effects
+✅ **Dynamic line width** yang mengikuti gelombang (RADIALWAVE mode)
 ✅ HSB color system untuk vivid gradients
 ✅ Delta time-based animation (FPS independent)
 ✅ Memory-safe implementation dengan `std::unique_ptr`
@@ -452,7 +504,7 @@ Branch ini adalah **pengembangan lanjut** dari JaringSketch dengan fokus pada **
 ### Mode Highlights:
 - **WOBBLE Mode**: Perlin noise-based organic movement
 - **WAVE Mode**: Diagonal wave pattern untuk "breathing" curves
-- **RADIALWAVE Mode**: Radial ripple effect dari tengah ke luar
+- **RADIALWAVE Mode**: Radial ripple effect dengan **dynamic line width** yang berdenyut
 - **MULURLR Mode**: Growing grid dengan smooth easing
 - **NORMAL Mode**: Classic static grid display
 

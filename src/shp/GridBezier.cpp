@@ -334,7 +334,7 @@ void GridBezier::setBezierWave() {
 
 void GridBezier::setBezierRadialWave() {
     // Parameter Radial Wave
-    float waveAmplitude = 40;    // Tinggi gelombang (pixel)
+    float waveAmplitude = 35;    // Tinggi gelombang (pixel)
     float waveFrequency = 0.4;   // Kerapatan gelombang
     float waveSpeed = 4;         // Kecepatan merambat
     float time = ofGetFrameNum() * 0.03f;  // Time-based animation
@@ -352,6 +352,7 @@ void GridBezier::setBezierRadialWave() {
             ofColor c = colorStrategy->getColor(i, j, currentCols, currentRows);
             ofSetColor(c);
             ofNoFill();
+            
             // Hitung jarak dari center untuk RADIAL WAVE
             float centerX = currentCols / 2.0f;
             float centerY = currentRows / 2.0f;
@@ -359,6 +360,8 @@ void GridBezier::setBezierRadialWave() {
 
             // Radial wave: gelombang merambat dari tengah ke luar
             float wave = sin(distFromCenter * waveFrequency - time * waveSpeed);
+            float lineWidth = ofMap(wave, -1, 1, 3, 6);  // Mapping wave ke line width
+            ofSetLineWidth(lineWidth);
             float waveOffset = wave * waveAmplitude;
 
             // Curve amount dasar + wave effect
@@ -382,6 +385,7 @@ void GridBezier::setBezierRadialWave() {
             ofColor c = colorStrategy->getColor(i, j, currentCols, currentRows);
             ofSetColor(c);
             ofNoFill();
+            ofSetLineWidth(ofRandom(3, 6));
             // Hitung jarak dari center untuk RADIAL WAVE
             float centerX = currentCols / 2.0f;
             float centerY = currentRows / 2.0f;
@@ -389,6 +393,8 @@ void GridBezier::setBezierRadialWave() {
 
             // Radial wave: gelombang merambat dari tengah ke luar
             float wave = sin(distFromCenter * waveFrequency - time * waveSpeed);
+            float lineWidth = ofMap(wave, -1, 1, 3, 6);  // Mapping wave ke line width
+            ofSetLineWidth(lineWidth);
             float waveOffset = wave * waveAmplitude;
 
             // Curve amount dasar + wave effect
