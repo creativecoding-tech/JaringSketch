@@ -57,8 +57,12 @@ void ofApp::keyPressed(int key){
 		ofExit();
 	}
 	if (key == 'r' || key == 'R') { 
-		gridBezier->resetAnimation(); 
+		gridBezier->resetAnimation();
 		ofBackground(0);
+		gridBezier = std::make_unique<GridBezier>(50, 50, GridBezier::bezierMode::MULURLR);
+		gridBezier->initialize(ofGetWidth(), ofGetHeight());  
+		gridBezier->setColorStr(std::make_unique<SolidColor>(ofColor(255)));  
+		gridBezier->setAnimationStr(std::make_unique<EaseInOutAnimation>(0.25f));
 	}
 
 	//set Color

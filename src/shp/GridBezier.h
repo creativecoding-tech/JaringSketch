@@ -28,6 +28,7 @@ public:
 	int getCurrentRows();
 	int getTotalNodes();
 private:
+	float curveIntensity = 0;
 	void setBezierMulurLR();
 	void setBezierNormal();
 };

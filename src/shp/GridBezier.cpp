@@ -8,6 +8,7 @@ GridBezier::GridBezier(float cellSize, float margin,bezierMode currentBzMode) {
   currentRows = 0;
   colorStrategy = std::make_unique<SolidColor>(ofColor(255));
   this->currentBzMode = currentBzMode;
+  this->curveIntensity = ofRandom(0, 5);
 }
 
 void GridBezier::setAnimationStr(
@@ -104,7 +105,7 @@ void GridBezier::setBezierMulurLR() {
             ofSetColor(c);
             ofNoFill();
 
-            float curveAmount = cellSize * 0;
+            float curveAmount = cellSize * curveIntensity;
 
             ofDrawBezier(n1.x, n1.y, n1.x + curveAmount, (n1.y + n2.y) / 2,
                 n2.x - curveAmount, (n1.y + n2.y) / 2, n2.x, n2.y);
@@ -124,7 +125,7 @@ void GridBezier::setBezierMulurLR() {
             ofColor c = colorStrategy->getColor(i, j, currentCols, currentRows);
             ofSetColor(c);
             ofNoFill();
-            float curveAmount = cellSize * 0;
+            float curveAmount = cellSize * curveIntensity;
 
             ofDrawBezier(n1.x, n1.y, (n1.x + n2.x) / 2, n1.y + curveAmount,
                 (n1.x + n2.x) / 2, n2.y - curveAmount, n2.x, n2.y);
@@ -147,7 +148,7 @@ void GridBezier::setBezierNormal() {
             ofSetColor(c);
             ofNoFill();
 
-            float curveAmount = cellSize * 0;
+            float curveAmount = cellSize * curveIntensity;
 
             ofDrawBezier(n1.x, n1.y, n1.x + curveAmount, (n1.y + n2.y) / 2,
                 n2.x - curveAmount, (n1.y + n2.y) / 2, n2.x, n2.y);
@@ -167,7 +168,7 @@ void GridBezier::setBezierNormal() {
             ofColor c = colorStrategy->getColor(i, j, currentCols, currentRows);
             ofSetColor(c);
             ofNoFill();
-            float curveAmount = cellSize * 0;
+            float curveAmount = cellSize * curveIntensity;
 
             ofDrawBezier(n1.x, n1.y, (n1.x + n2.x) / 2, n1.y + curveAmount,
                 (n1.x + n2.x) / 2, n2.y - curveAmount, n2.x, n2.y);
