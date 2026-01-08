@@ -7,11 +7,11 @@ GridBezier::GridBezier(float cellSize, float margin) {
   currentCols = 0;
   currentRows = 0;
   colorStrategy = std::make_unique<SolidColor>(ofColor(255));
-  this->curveIntensity = ofRandom(0, 5);
+  this->curveIntensity = ofRandom(0, 6);
   this->randomModeBezier = (int)ofRandom(0, 5);
-  //this->currentBzMode = static_cast<GridBezier::bezierMode>(randomModeBezier);
+  this->currentBzMode = static_cast<GridBezier::bezierMode>(randomModeBezier);
   //test currentBzMode
-  this->currentBzMode = WAVE;
+  //this->currentBzMode = NORMAL;
 }
 
 void GridBezier::setAnimationStr(
@@ -210,7 +210,7 @@ void GridBezier::setBezierWobble() {
             ofNoFill();
 
             // WOBBLE dengan PERLIN NOISE
-            float time = ofGetFrameNum() * 0.01f;  // Kecepatan animasi noise (lebih cepat)
+            float time = ofGetFrameNum() * 0.02f;  // Kecepatan animasi noise (lebih cepat)
 
             // Hitung wobble untuk node1
             float noise1 = ofNoise(time + n1.noiseOffset); 
@@ -219,6 +219,12 @@ void GridBezier::setBezierWobble() {
             // Hitung wobble untuk node2
             float noise2 = ofNoise(time + n2.noiseOffset);
             float wobble2 = ofMap(noise2, 0, 1, -10, 10);
+
+            // Pulse untuk animasi global
+            float pulse = cos(ofGetFrameNum() * 0.05f);
+            float combined = ((noise1 + noise2) / 2.0f + pulse) / 2.0f;
+            float lineWidth = ofMap(combined, 0, 1, 3, 6);
+            ofSetLineWidth(lineWidth);
 
 
             // Curve amount bisa tetap atau juga di-wobble
@@ -255,6 +261,13 @@ void GridBezier::setBezierWobble() {
             float wobble1 = ofMap(noise1, 0, 1, -10, 10);  
             float noise2 = ofNoise(time + n2.noiseOffset);
             float wobble2 = ofMap(noise2, 0, 1, -10, 10);
+
+
+            // Pulse untuk animasi global
+            float pulse = sin(ofGetFrameNum() * 0.05f);
+            float combined = ((noise1 + noise2)/2.0f + pulse) / 2.0f;
+            float lineWidth = ofMap(combined, 0, 1, 3, 6);
+            ofSetLineWidth(lineWidth);
 
             float curveAmount = cellSize * curveIntensity;
 

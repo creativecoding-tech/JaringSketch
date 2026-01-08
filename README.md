@@ -33,7 +33,7 @@ Project ini menampilkan grid node dengan animasi transisi yang smooth menggunaka
 - **Modular Design** — Terpisah dalam kategori: `anim/`, `clr/`, `shp/`, `strategy/`
 - **Smooth Easing Functions** — Power-based easing (1, 2, 3) untuk tingkat smoothness berbeda
 - **Special Effects** — Wobble (spring) dan Wave (gelombang) untuk creative animations
-- **Dynamic Line Width** — Ketebalan garis berubah mengikuti gelombang (WAVE & RADIALWAVE mode)
+- **Dynamic Line Width** — Ketebalan garis berubah mengikuti gelombang (WAVE, RADIALWAVE & WOBBLE mode)
 - **HSB Color System** — Hue-Saturation-Brightness untuk vivid colors dan smooth gradients
 - **Animated Colors** — Time-based color transitions untuk dynamic visual effects
 - **Trails Effect** — Semi-transparent overlay untuk efek jejak visual yang menarik
@@ -71,7 +71,7 @@ GridBezier mendukung **5 mode rendering** berbeda untuk efek visual yang bervari
 |------|-----------|---------------|
 | **NORMAL** | Standard bezier curves | Grid statis dengan semua nodes visible dari awal. Cocok untuk base grid display. |
 | **MULURLR** | Growing grid animation | Grid tumbuh dari (0,0) dengan animasi easing. Nodes bertambah secara gradual hingga penuh. |
-| **WOBBLE** | Perlin noise wobble | Setiap node bergoyang dengan Perlin noise untuk efek organik "bernapas". Gerakan acak halus seperti cairan. |
+| **WOBBLE** | Perlin noise wobble | Setiap node bergoyang dengan Perlin noise untuk efek organik "bernapas". Gerakan acak halus seperti cairan. **Termasuk hybrid dynamic line width (noise + pulse)!** |
 | **WAVE** | Diagonal wave effect | Kurva bernapas dengan pola gelombang diagonal yang merambat. Menggunakan fungsi sinus untuk pattern teratur. **Termasuk dynamic line width!** |
 | **RADIALWAVE** | Radial wave effect | Gelombang melinglar merambat dari tengah grid ke luar seperti efek ripple di air. Menggunakan distance-based sinus wave. **Termasuk dynamic line width!** |
 
@@ -92,10 +92,15 @@ GridBezier mendukung **5 mode rendering** berbeda untuk efek visual yang bervari
 
 **WOBBLE Mode:**
 ```cpp
-// Posisi node digeser dengan Perlin noise
-float wobble = ofMap(ofNoise(time + node.noiseOffset), 0, 1, -10, 10);
-float x = node.x + wobble;
-float y = node.y + wobble;
+// Hitung Perlin noise untuk node position
+float noise1 = ofNoise(time + n1.noiseOffset);
+float wobble1 = ofMap(noise1, 0, 1, -10, 10);
+
+// Hybrid dynamic line width: noise + global pulse
+float pulse = cos(ofGetFrameNum() * 0.05f);  // cos() untuk vertikal
+float combined = ((noise1 + noise2) / 2.0f + pulse) / 2.0f;
+float lineWidth = ofMap(combined, 0, 1, 3, 6);
+ofSetLineWidth(lineWidth);
 ```
 
 **WAVE Mode:**
@@ -141,7 +146,7 @@ Mode dipilih secara **random** saat aplikasi start atau saat tekan tombol 'R'.
 
 ## ✨ Dynamic Line Width Feature
 
-**WAVE** dan **RADIALWAVE** mode memiliki fitur spesial **Dynamic Line Width** yang membuat ketebalan garis berubah mengikuti gelombang.
+**WAVE**, **RADIALWAVE**, dan **WOBBLE** mode memiliki fitur spesial **Dynamic Line Width** yang membuat ketebalan garis berubah mengikuti gelombang atau noise.
 
 ### How It Works
 
@@ -165,11 +170,31 @@ float lineWidth = ofMap(wave, -1, 1, 3, 6);
 ofSetLineWidth(lineWidth);
 ```
 
+**Hybrid Approach (WOBBLE Mode):**
+```cpp
+// Perlin noise untuk local variation (0 sampai 1)
+float noise1 = ofNoise(time + n1.noiseOffset);
+float noise2 = ofNoise(time + n2.noiseOffset);
+
+// Sinusoidal pulse untuk global pulsing (-1 sampai 1)
+float pulse = cos(ofGetFrameNum() * 0.05f);  // cos() untuk vertikal
+// float pulse = sin(ofGetFrameNum() * 0.05f);  // sin() untuk horizontal
+
+// Gabungan noise + pulse
+float combined = ((noise1 + noise2) / 2.0f + pulse) / 2.0f;
+
+// Mapping combined value ke line width (3px sampai 6px)
+float lineWidth = ofMap(combined, 0, 1, 3, 6);
+ofSetLineWidth(lineWidth);
+```
+
 **Visual Effect:**
 - Gelombang tinggi → Garis tebal (6px)
 - Gelombang rendah → Garis tipis (3px)
 - Menciptakan efek **"berdenyut"** seperti pulsating light
-- Pola diagonal (WAVE) atau radial (RADIALWAVE) sesuai mode
+- **WAVE**: Pola diagonal teratur
+- **RADIALWAVE**: Pola radial melingkar
+- **WOBBLE**: Pola chaotic dengan local variation + global pulse
 
 **Parameter Mapping:**
 ```cpp
@@ -186,6 +211,42 @@ Ubah range line width untuk efek yang berbeda:
 - `ofMap(wave, -1, 1, 2, 4)` - Lebih halus
 - `ofMap(wave, -1, 1, 3, 6)` - Medium (current)
 - `ofMap(wave, -1, 1, 1, 10)` - Ekstrem dramatis
+
+---
+
+### 🔥 WOBBLE Mode: Hybrid Dynamic Line Width
+
+WOBBLE mode menggunakan pendekatan **hybrid** yang menggabungkan dua sumber nilai:
+
+**1. Perlin Noise (Local Variation):**
+- Setiap bezier punya noise value berbeda (0 sampai 1)
+- Menciptakan variasi **local** yang unik per garis
+- Bersifat chaotic dan unpredictable
+
+**2. Sinusoidal Pulse (Global Pulsing):**
+- Semua bezier berdenyut **bersamaan** (-1 sampai 1)
+- Menggunakan `cos()` untuk vertikal, `sin()` untuk horizontal
+- Menciptakan pola **global** yang teratur
+
+**Combination Formula:**
+```cpp
+float combined = ((noise1 + noise2) / 2.0f + pulse) / 2.0f;
+```
+
+**Kenapa Hybrid Lebih Menarik:**
+- ✨ **Best of both worlds**: Variasi chaotic + rhythm teratur
+- 🎭 **Phase difference**: `cos()` vs `sin()` untuk cross-fading antara vertikal & horizontal
+- 💫 **Organic complexity**: Lebih natural daripada hanya noise atau hanya pulse
+- 🌊 **Chaotic breathing**: Efek "bernapas" tapi tidak monoton
+
+**Phase Difference Magic:**
+```cpp
+float pulse = cos(frame * 0.05);  // Vertikal curves
+float pulse = sin(frame * 0.05);  // Horizontal curves
+```
+- `cos()` dan `sin()` beda 90° fase
+- Saat vertikal tebal → horizontal sedang (dan sebaliknya)
+- Menciptakan pola berputar yang dynamic!
 
 ---
 
@@ -514,13 +575,14 @@ Branch ini adalah **pengembangan lanjut** dari JaringSketch dengan fokus pada **
 ✅ Perlin noise untuk organik wobble effects
 ✅ Sinusoidal wave untuk diagonal & radial wave patterns
 ✅ Distance-based radial ripple effects
-✅ **Dynamic line width** yang mengikuti gelombang (WAVE & RADIALWAVE mode)
+✅ **Dynamic line width** yang mengikuti gelombang (WAVE, RADIALWAVE & WOBBLE mode)
+✅ **Hybrid dynamic line width** dengan noise + pulse combination (WOBBLE mode)
 ✅ HSB color system untuk vivid gradients
 ✅ Delta time-based animation (FPS independent)
 ✅ Memory-safe implementation dengan `std::unique_ptr`
 
 ### Mode Highlights:
-- **WOBBLE Mode**: Perlin noise-based organic movement
+- **WOBBLE Mode**: Perlin noise-based organic movement dengan **hybrid dynamic line width** (noise + pulse)
 - **WAVE Mode**: Diagonal wave pattern dengan **dynamic line width** yang berdenyut
 - **RADIALWAVE Mode**: Radial ripple effect dengan **dynamic line width** yang berdenyut
 - **MULURLR Mode**: Growing grid dengan smooth easing
