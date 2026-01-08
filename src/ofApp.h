@@ -2,6 +2,12 @@
 
 #include "ofMain.h"
 #include "shp/GridBezier.h"
+#include "clr/SolidColor.h"
+#include "clr/HorizontalGradient.h"
+#include "clr/VerticalGradient.h"
+#include "clr/RadialGradient.h"
+#include "clr/RainbowSpiral.h"
+#include "clr/TimeBasedColor.h"
 
 class ofApp : public ofBaseApp{
 
@@ -26,5 +32,8 @@ class ofApp : public ofBaseApp{
 		void gotMessage(ofMessage msg);
 
 private:
-	void initTrailsBackground();		
+	void initTrailsBackground();
+	void resetGirBezier();
+	std::unique_ptr<ColorStrategy> getRandomColorStrategy();
+	TimeBasedColor::mode getRandomTimeBasedMode();
 };

@@ -34,7 +34,7 @@ void ofApp::setup(){
 
 	gridBezier = std::make_unique<GridBezier>(50,50,GridBezier::bezierMode::MULURLR);
 	gridBezier->initialize(ofGetWidth(), ofGetHeight());
-	gridBezier->setColorStr(std::make_unique<SolidColor>(ofColor(255)));
+	gridBezier->setColorStr(getRandomColorStrategy());
 	// 0.5 detik duration
 	gridBezier->setAnimationStr(std::make_unique<EaseInOutAnimation>(0.25f));
 }
@@ -57,12 +57,7 @@ void ofApp::keyPressed(int key){
 		ofExit();
 	}
 	if (key == 'r' || key == 'R') { 
-		gridBezier->resetAnimation();
-		ofBackground(0);
-		gridBezier = std::make_unique<GridBezier>(50, 50, GridBezier::bezierMode::MULURLR);
-		gridBezier->initialize(ofGetWidth(), ofGetHeight());  
-		gridBezier->setColorStr(std::make_unique<SolidColor>(ofColor(255)));  
-		gridBezier->setAnimationStr(std::make_unique<EaseInOutAnimation>(0.25f));
+		resetGirBezier();
 	}
 
 	//set Color
@@ -80,7 +75,7 @@ void ofApp::keyPressed(int key){
 		gridBezier->setColorStr(std::make_unique<VerticalGradient>(255, 360));
 	}
 	if (key == 'B' || key == 'b') {
-		gridBezier->setColorStr(std::make_unique<TimeBasedColor>(125, 360, 0.25f,TimeBasedColor::mode::ELAPSE));
+		gridBezier->setColorStr(std::make_unique<TimeBasedColor>(125, 360, 0.25f,TimeBasedColor::WAVE));
 	}
 
 	//set Animation
@@ -158,12 +153,38 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
 
 void ofApp::initTrailsBackground() {
 	ofSetBackgroundAuto(false);
-	ofSetColor(0, 20);
+	ofSetColor(0, ofRandom(15,21));
 	ofFill();
 	ofDrawRectangle(0, 0, ofGetWidth(), ofGetHeight());
-
-	// Debug info
-	ofSetColor(255, 255, 0);
-
 	ofSetLineWidth(3.0);
+}
+
+void ofApp::resetGirBezier() {
+	gridBezier->resetAnimation();
+	gridBezier = std::make_unique<GridBezier>(50, 50, GridBezier::bezierMode::MULURLR);
+	gridBezier->initialize(ofGetWidth(), ofGetHeight());
+	gridBezier->setColorStr(getRandomColorStrategy());
+	gridBezier->setAnimationStr(std::make_unique<EaseInOutAnimation>(0.25f));
+}
+
+std::unique_ptr<ColorStrategy> ofApp::getRandomColorStrategy() {
+	int randomColor = (int)ofRandom(0, 6);
+	float startHue = ofRandom(0, 360);
+	float endHue = ofRandom(0, 360);
+	float speed = ofRandom(0.2f, 1.0f);
+	ofColor randomC = ofColor(ofRandom(255), ofRandom(255), ofRandom(255));
+	switch (randomColor) {
+	case 0: return std::make_unique<SolidColor>(randomC);
+	case 1: return std::make_unique<HorizontalGradient>(startHue, endHue, 80, 100);
+	case 2: return std::make_unique<VerticalGradient>(startHue, endHue, 80, 100);
+	case 3:  return std::make_unique<RadialGradient>(startHue, endHue, 80, 100);
+	case 4: return std::make_unique<RainbowSpiral>(speed, 80, 100);
+	case 5: return std::make_unique<TimeBasedColor>(startHue, endHue, speed, getRandomTimeBasedMode());
+	default: return std::make_unique<SolidColor>(ofColor(255));
+	}
+}
+
+TimeBasedColor::mode ofApp::getRandomTimeBasedMode() {
+	int randomMode = (int)ofRandom(0, 3);
+	return static_cast<TimeBasedColor::mode>(randomMode);
 }
