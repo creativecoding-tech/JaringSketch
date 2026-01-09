@@ -9,17 +9,18 @@ GridBezier::GridBezier(float cellSize, float margin) {
   colorStrategy = std::make_unique<SolidColor>(ofColor(255));
   this->curveIntensity = ofRandom(0, 6);
 
-  //this->randomModeBezier = (int)ofRandom(0, 5);
-  //this->currentBzMode = static_cast<GridBezier::bezierMode>(randomModeBezier);
+  this->randomModeBezier = (int)ofRandom(0, 5);
+  this->currentBzMode = static_cast<GridBezier::bezierMode>(randomModeBezier);
 
   //test currentBzMode
-this->currentBzMode = VARYING;
+//this->currentBzMode = VARYING;
 
   // Random arah inisialisasi (5 arah)
-  //int randomDir = (int)ofRandom(0, 5);
-  //this->currentInitDir = static_cast<GridBezier::initDirection>(randomDir);
+  int randomDir = (int)ofRandom(0, 5);
+  this->currentInitDir = static_cast<GridBezier::initDirection>(randomDir);
+  
   //test arah inisialisasi
-  this->currentInitDir = RADIAL_OUT;
+  //this->currentInitDir = RADIAL_OUT;
 }
 
 void GridBezier::setAnimationStr(
@@ -32,6 +33,10 @@ void GridBezier::setColorStr(std::unique_ptr<ColorStrategy> colorStrategy) {
 }
 
 void GridBezier::initialize(int w, int h) {
+  // Simpan width/height untuk re-initialize
+  lastWidth = w;
+  lastHeight = h;
+
   // Hitung area yang bisa digunakan
   float usableWidth = w - margin * 2;
   targetCols = (int)(usableWidth / cellSize);
@@ -140,6 +145,24 @@ void GridBezier::updateAnimation() {
     if (currentCols > maxCols) currentCols = maxCols;
     if (currentRows > maxRows) currentRows = maxRows;
   }
+
+  // Re-initialize dengan TOP_LEFT setelah RADIAL_OUT selesai
+  if (currentInitDir == RADIAL_OUT && isAnimationFinished() && !hasReinitialized) {
+    // Clear nodes
+    nodes.clear();
+    int randomDir = (int)ofRandom(0, 4);
+    this->currentInitDir = static_cast<GridBezier::initDirection>(randomDir);
+
+    // Re-initialize
+    initialize(lastWidth, lastHeight);
+
+    // Reset flag
+    hasReinitialized = true;
+
+    // Set ke full grid (karena setelah re-init, langsung tampilkan full)
+    currentCols = maxCols;
+    currentRows = maxRows;
+  }
 }
 
 void GridBezier::display() {
@@ -172,6 +195,7 @@ bool GridBezier::isAnimationFinished() {
 void GridBezier::resetAnimation() {
   currentCols = 0;
   currentRows = 0;
+  hasReinitialized = false;  // Reset flag untuk RADIAL_OUT
   if (animStrategy) {
     animStrategy->reset();
   }

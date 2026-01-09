@@ -32,6 +32,8 @@ private:
 	float curveIntensity = 0;
 	enum initDirection { TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT, RADIAL_OUT};
 	initDirection currentInitDir;
+	bool hasReinitialized = false;
+	int lastWidth, lastHeight;  // Simpan width/height untuk re-initialize
 	void setBezierMulurLR();
 	void setBezierVarying();
 	void setBezierWobble();
