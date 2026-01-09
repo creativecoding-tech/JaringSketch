@@ -16,7 +16,7 @@ GridBezier::GridBezier(float cellSize, float margin) {
 //this->currentBzMode = VERTICALWAVE;
 
   // Random arah inisialisasi (6 arah)
-  int randomDir = (int)ofRandom(0, 6);
+  randomDir = (int)ofRandom(0, 6);
   this->currentInitDir = static_cast<GridBezier::initDirection>(randomDir);
   
   //test arah inisialisasi
@@ -186,7 +186,7 @@ void GridBezier::updateAnimation() {
   if ((currentInitDir == RADIAL_OUT || currentInitDir == RADIAL_IN) && isAnimationFinished() && !hasReinitialized) {
     // Clear nodes
     nodes.clear();
-    int randomDir = (int)ofRandom(0, 4);
+    randomDir = (int)ofRandom(0, 4);
     this->currentInitDir = static_cast<GridBezier::initDirection>(randomDir);
 
     // Re-initialize
