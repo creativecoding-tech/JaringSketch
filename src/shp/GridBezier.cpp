@@ -9,11 +9,11 @@ GridBezier::GridBezier(float cellSize, float margin) {
   colorStrategy = std::make_unique<SolidColor>(ofColor(255));
   this->curveIntensity = ofRandom(0, 6);
 
-  //this->randomModeBezier = (int)ofRandom(0, 6);  // 6 modes: VARYING, MULURLR, WOBBLE, WAVE, RADIALWAVE, HORIZONTALWAVE
+  //this->randomModeBezier = (int)ofRandom(0, 7);  // 7 modes: VARYING, MULURLR, WOBBLE, WAVE, RADIALWAVE, HORIZONTALWAVE, VERTICALWAVE
   //this->currentBzMode = static_cast<GridBezier::bezierMode>(randomModeBezier);
 
   //test currentBzMode
-this->currentBzMode = HORIZONTALWAVE;
+this->currentBzMode = VERTICALWAVE;
 
   // Random arah inisialisasi (5 arah)
   int randomDir = (int)ofRandom(0, 5);
@@ -181,6 +181,9 @@ void GridBezier::display() {
         break;
     case HORIZONTALWAVE:
         setBezierHorizontalWave();
+        break;
+    case VERTICALWAVE:
+        setBezierVerticalWave();
         break;
     case VARYING:
         setBezierVarying();
@@ -584,6 +587,71 @@ void GridBezier::setBezierHorizontalWave() {
 
             // Hitung wave offset (HORIZONTAL WAVE - hanya berdasarkan kolom/posisi x)
             float wave = sin(i * waveFrequency + time * waveSpeed);
+            float lineWidth = ofMap(wave, -1, 1, 3, 6);  // Mapping wave ke line width
+            ofSetLineWidth(lineWidth);
+            float waveOffset = wave * waveAmplitude;
+
+            // Curve amount dasar + wave effect
+            float baseCurve = cellSize * curveIntensity;
+            float curveAmount = baseCurve + waveOffset;
+
+            ofDrawBezier(n1.x, n1.y, (n1.x + n2.x) / 2, n1.y + curveAmount,
+                (n1.x + n2.x) / 2, n2.y - curveAmount, n2.x, n2.y);
+        }
+    }
+}
+
+void GridBezier::setBezierVerticalWave() {
+    // Parameter Vertical Wave
+    float waveAmplitude = 35;    // Tinggi gelombang (pixel)
+    float waveFrequency = 0.4;   // Kerapatan gelombang
+    float waveSpeed = 3;         // Kecepatan merambat
+    float time = ofGetFrameNum() * 0.03f;  // Time-based animation
+
+    // Gambar bezier vertikal (setiap kolom)
+    for (int i = 0; i <= currentCols; i++) {
+        for (int j = 0; j < currentRows; j++) {
+            int node1 = j * (currentCols + 1) + i;
+            int node2 = (j + 1) * (currentCols + 1) + i;
+
+            Node& n1 = *nodes[node1];
+            Node& n2 = *nodes[node2];
+
+            // Dapatkan warna
+            ofColor c = colorStrategy->getColor(i, j, currentCols, currentRows);
+            ofSetColor(c);
+            ofNoFill();
+
+            // Hitung wave offset (VERTICAL WAVE - hanya berdasarkan baris/posisi y)
+            float wave = sin(j * waveFrequency + time * waveSpeed);
+            float lineWidth = ofMap(wave, -1, 1, 3, 6);  // Mapping wave ke line width
+            ofSetLineWidth(lineWidth);
+            float waveOffset = wave * waveAmplitude;
+
+            // Curve amount dasar + wave effect
+            float baseCurve = cellSize * curveIntensity;
+            float curveAmount = baseCurve + waveOffset;
+
+            ofDrawBezier(n1.x, n1.y, n1.x + curveAmount, (n1.y + n2.y) / 2,
+                n2.x - curveAmount, (n1.y + n2.y) / 2, n2.x, n2.y);
+        }
+    }
+
+    // Gambar bezier horizontal (setiap baris)
+    for (int j = 0; j <= currentRows; j++) {
+        for (int i = 0; i < currentCols; i++) {
+            int node1 = j * (currentCols + 1) + i;
+            int node2 = j * (currentCols + 1) + (i + 1);
+
+            Node& n1 = *nodes[node1];
+            Node& n2 = *nodes[node2];
+
+            ofColor c = colorStrategy->getColor(i, j, currentCols, currentRows);
+            ofSetColor(c);
+            ofNoFill();
+
+            // Hitung wave offset (VERTICAL WAVE - hanya berdasarkan baris/posisi y)
+            float wave = sin(j * waveFrequency + time * waveSpeed);
             float lineWidth = ofMap(wave, -1, 1, 3, 6);  // Mapping wave ke line width
             ofSetLineWidth(lineWidth);
             float waveOffset = wave * waveAmplitude;
