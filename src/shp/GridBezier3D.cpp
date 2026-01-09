@@ -54,8 +54,8 @@ void GridBezier3D::initialize(int w, int h) {
 			float maxDist = sqrt(pow(centerX, 2) + pow(centerY, 2));
 			float normalizedDist = distFromCenter / maxDist;  // 0.0 - 1.0
 
-			// Z position: dari -100 sampai 100 berdasarkan distance dari center
-			float startZ = normalizedDist * 200 - 100;
+			// Z position: SINUSOIDAL CURVE - melengkung halus dari center ke edge
+			float startZ = sin(normalizedDist * PI / 2) * 200 - 100;
 
 			nodes.push_back(std::make_unique<Node3D>(startX, startY, startZ));
 		}
@@ -116,8 +116,8 @@ void GridBezier3D::setBezierVarying3D() {
 
 			// Draw bezier curve di 3D space
 			ofDrawBezier(n1.x, n1.y, n1.z,
-					   n1.x + curveAmount, (n1.y + n2.y) / 2, n1.z,
-					   n2.x - curveAmount, (n1.y + n2.y) / 2, n2.z,
+					   n1.x + curveAmount, (n1.y + n2.y) / 2, n1.z + 50,
+					   n2.x - curveAmount, (n1.y + n2.y) / 2, n2.z - 50,
 					   n2.x, n2.y, n2.z);
 		}
 	}
@@ -139,8 +139,8 @@ void GridBezier3D::setBezierVarying3D() {
 
 			// Draw bezier curve di 3D space
 			ofDrawBezier(n1.x, n1.y, n1.z,
-					   (n1.x + n2.x) / 2, n1.y + curveAmount, n1.z,
-					   (n1.x + n2.x) / 2, n2.y - curveAmount, n2.z,
+					   (n1.x + n2.x) / 2, n1.y + curveAmount, n1.z + 50,
+					   (n1.x + n2.x) / 2, n2.y - curveAmount, n2.z - 50,
 					   n2.x, n2.y, n2.z);
 		}
 	}
