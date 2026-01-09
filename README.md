@@ -14,7 +14,7 @@ Eksperimen grid dengan animasi bezier yang smooth dan efek trails. Project ini a
 
 ## 📺 Demo Video
 
-Lihat hasilnya di YouTube: [Watch Demo](https://youtu.be/XwEZjz_YhQg)
+Lihat hasilnya di YouTube: [Watch Demo](https://youtu.be/Ggu9cwZL4QY)
 
 ---
 
@@ -724,7 +724,7 @@ This project is licensed under the **Apache License 2.0** - see the LICENSE file
 
 - **[OpenFrameworks](https://openframeworks.cc/)** - openframeworks.cc
 - **[ofxGui Addon](https://ofxaddons.com/categories/1-gui)** - ofxGui documentation
-- **[Watch Demo](https://youtu.be/XwEZjz_YhQg)** - YouTube demonstration
+- **[Watch Demo](https://youtu.be/Ggu9cwZL4QY)** - YouTube demonstration
 - **[Support Me](https://sociabuzz.com/abdkdhni)** - Fund the experiments ☕
 
 ---

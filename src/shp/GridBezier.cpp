@@ -9,16 +9,16 @@ GridBezier::GridBezier(float cellSize, float margin) {
   colorStrategy = std::make_unique<SolidColor>(ofColor(255));
   this->curveIntensity = ofRandom(0, 6);
 
-  this->randomModeBezier = (int)ofRandom(0, 7);  // 7 modes: VARYING, MULURLR, WOBBLE, WAVE, RADIALWAVE, HORIZONTALWAVE, VERTICALWAVE
+  // 7 modes: VARYING, MULURLR, WOBBLE, WAVE, RADIALWAVE, HORIZONTALWAVE, VERTICALWAVE
+  this->randomModeBezier = (int)ofRandom(0, 7);
   this->currentBzMode = static_cast<GridBezier::bezierMode>(randomModeBezier);
 
   //test currentBzMode
-//this->currentBzMode = VERTICALWAVE;
+ //this->currentBzMode = VERTICALWAVE;
 
   // Random arah inisialisasi (6 arah)
-  randomDir = (int)ofRandom(0, 6);
+  this->randomDir = (int)ofRandom(0, 6);
   this->currentInitDir = static_cast<GridBezier::initDirection>(randomDir);
-  
   //test arah inisialisasi
   //this->currentInitDir = RADIAL_IN;
 }
