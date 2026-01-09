@@ -27,7 +27,7 @@ Project ini menampilkan grid node dengan animasi transisi yang smooth menggunaka
 ## ✨ Fitur & Teknik
 
 - **Grid Layout System** — 2D grid dengan node yang terkonfigurasi (cols & rows)
-- **Random Initialization Direction** — 4 arah pertumbuhan grid: TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT
+- **Random Initialization Direction** — 5 arah pertumbuhan grid: TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT, RADIAL_OUT
 - **Multiple Animation Strategies** — 5 jenis easing: Linear, Quadratic, Cubic, Wobble, dan Wave
 - **Multiple Color Strategies** — 6 jenis pewarnaan: Solid, Horizontal/Vertical/Radial Gradient, Rainbow Spiral, Time-Based
 - **Strategy Pattern** — Arsitektur yang fleksibel untuk animasi dan pewarnaan
@@ -95,24 +95,27 @@ GridBezier mendukung **5 mode rendering** berbeda untuk efek visual yang bervari
 
 **Random Initialization Direction:**
 ```cpp
-// 4 Arah pertumbuhan grid yang di-random saat constructor:
-enum initDirection { TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT };
+// 5 Arah pertumbuhan grid yang di-random saat constructor:
+enum initDirection { TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT, RADIAL_OUT };
 
-// TOP_LEFT:    Atas → Bawah, Kiri → Kanan (default)
+// TOP_LEFT:    Atas → Bawah, Kiri → Kanan
 // TOP_RIGHT:   Atas → Bawah, Kanan → Kiri
 // BOTTOM_LEFT: Bawah → Atas, Kiri → Kanan
 // BOTTOM_RIGHT:Bawah → Atas, Kanan → Kiri
+// RADIAL_OUT:  Tengah → Luar (distance-based)
 
 // Arah ditentukan sekali di constructor dan berlaku untuk SEMUA mode
-int randomDir = (int)ofRandom(0, 4);
+int randomDir = (int)ofRandom(0, 5);
 this->currentInitDir = static_cast<initDirection>(randomDir);
 ```
 
 **Fitur Spesial Random Initialization:**
-- 🎲 **4 Arah Berbeda**: Setiap reset memberikan arah pertumbuhan yang random
+- 🎲 **5 Arah Berbeda**: Setiap reset memberikan arah pertumbuhan yang random
+- 🌀 **RADIAL_OUT Mode**: Grid tumbuh dari tengah ke luar dengan distance-based sorting
 - 🌱 **Growing Animation**: MULURLR mode akan tumbuh dari arah yang berbeda-beda
 - 🎯 **All Modes**: Berlaku untuk SEMUA GridBezier modes (VARYING, MULURLR, WOBBLE, WAVE, RADIALWAVE)
 - 🔄 **Consistent Direction**: Arah tetap sama selama lifecycle object, berubah saat reset ('R')
+- ✨ **Auto Re-initialize**: RADIAL_OUT otomatis re-initialize ke arah random setelah animasi selesai untuk hasil akhir yang rapi
 
 **WOBBLE Mode:**
 ```cpp
@@ -590,7 +593,7 @@ Branch ini adalah **pengembangan lanjut** dari JaringSketch dengan fokus pada **
 ✅ **5 Rendering Modes**: VARYING, MULURLR, WOBBLE, WAVE, RADIALWAVE
 ✅ **5 Animation Strategies**: Linear, Quadratic, Cubic, Wobble, Wave
 ✅ **6 Color Strategies**: Solid, Horizontal/Vertical/Radial Gradient, Rainbow Spiral, Time-Based
-✅ **4 Initialization Directions**: TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT (random!)
+✅ **5 Initialization Directions**: TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT, RADIAL_OUT (random!)
 ✅ **Multi-mode rendering** dengan efek visual bervariasi
 ✅ **Dynamic mode selection** (random pada startup/reset)
 ✅ **Interactive strategy switching** via keyboard (1-5 untuk animasi, Z-X-C-V-B untuk color)
@@ -605,6 +608,7 @@ Branch ini adalah **pengembangan lanjut** dari JaringSketch dengan fokus pada **
 ✅ HSB color system untuk vivid gradients
 ✅ Delta time-based animation (FPS independent)
 ✅ Memory-safe implementation dengan `std::unique_ptr`
+✅ **Auto re-initialization** untuk RADIAL_OUT mode (chaotic → rapi setelah animasi)
 
 ### Mode Highlights:
 - **WOBBLE Mode**: Perlin noise-based organic movement dengan **hybrid dynamic line width** (noise + pulse)
@@ -612,6 +616,7 @@ Branch ini adalah **pengembangan lanjut** dari JaringSketch dengan fokus pada **
 - **RADIALWAVE Mode**: Radial ripple effect dengan **dynamic line width** yang berdenyut
 - **MULURLR Mode**: Growing grid dengan smooth easing
 - **VARYING Mode**: Static grid dengan **random curve intensity** yang bervariasi setiap reset
+- **RADIAL_OUT Init Direction**: Grid tumbuh dari tengah ke luar (chaotic visual), lalu otomatis re-initialize ke arah random yang rapi setelah animasi selesai
 
 🎨 **Creative Freedom**: Project ini terbuka untuk eksplorasi dan improvisasi tanpa batas. Seni digital adalah tentang ekspresi, bukan checklist.
 
