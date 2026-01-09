@@ -33,23 +33,58 @@ void ofApp::setup(){
 	ofEnableAntiAliasing(); // supaya garis/bentuk menjadi smooth untuk bentuk / geometri
 	ofEnableSmoothing();  // membuat smooth untuk garis atau kurva
 
+	// Random choice: 0 = 2D, 1 = 3D
+	int choice = (int)ofRandom(0, 2);
+	//use3D = (choice == 1);
+	//TEST
+	use3D = true;
 
 	int cellMargin = ofRandom(45, 51);
-	gridBezier = std::make_unique<GridBezier>(cellMargin, cellMargin);
-	gridBezier->initialize(ofGetWidth(), ofGetHeight());
-	gridBezier->setColorStr(getRandomColorStrategy());
-	gridBezier->setAnimationStr(getRandomAnimationStrategy());
+
+	if (use3D) {
+		// Setup 3D camera
+		cam.setPosition(ofGetWidth() / 2, ofGetHeight() / 2, 1000);  // Camera position
+		cam.lookAt(ofVec3f(ofGetWidth() / 2, ofGetHeight() / 2, 0)); // Look at center of grid
+
+		// Initialize 3D GridBezier3D
+		gridBezier3D = std::make_unique<GridBezier3D>(cellMargin, cellMargin);
+		gridBezier3D->initialize(ofGetWidth(), ofGetHeight());
+		gridBezier3D->setColorStr(getRandomColorStrategy());
+		gridBezier3D->setAnimationStr(getRandomAnimationStrategy3D());
+	} else {
+		// Initialize 2D GridBezier
+		gridBezier = std::make_unique<GridBezier>(cellMargin, cellMargin);
+		gridBezier->initialize(ofGetWidth(), ofGetHeight());
+		gridBezier->setColorStr(getRandomColorStrategy());
+		gridBezier->setAnimationStr(getRandomAnimationStrategy());
+	}
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
-	if (showShape)gridBezier->updateAnimation();
+	if (showShape) {
+		if (use3D && gridBezier3D) {
+			gridBezier3D->updateAnimation();
+		} else if (gridBezier) {
+			gridBezier->updateAnimation();
+		}
+	}
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
 	initTrailsBackground();
-	if(showShape)gridBezier->display();
+	if(showShape) {
+		if (use3D && gridBezier3D) {
+			// 3D rendering with camera
+			cam.begin();
+			gridBezier3D->display();
+			cam.end();
+		} else if (gridBezier) {
+			// 2D rendering
+			gridBezier->display();
+		}
+	}
 }
 
 //--------------------------------------------------------------
@@ -166,12 +201,32 @@ void ofApp::initTrailsBackground() {
 }
 
 void ofApp::resetGirBezier() {
-	gridBezier->resetAnimation();
+	// Random choice lagi: 0 = 2D, 1 = 3D
+	int choice = (int)ofRandom(0, 2);
+	//use3D = (choice == 1);
+    //TEST 3D
+	use3D = true;
+
 	int cellMargin = ofRandom(45, 51);
-	gridBezier = std::make_unique<GridBezier>(cellMargin, cellMargin);
-	gridBezier->initialize(ofGetWidth(), ofGetHeight());
-	gridBezier->setColorStr(getRandomColorStrategy());
-	gridBezier->setAnimationStr(getRandomAnimationStrategy());
+
+	if (use3D) {
+		// Setup 3D camera
+		cam.setPosition(ofGetWidth() / 2, ofGetHeight() / 2, 1500);
+		cam.lookAt(ofVec3f(ofGetWidth() / 2, ofGetHeight() / 2, 0));
+
+		// Reset 3D GridBezier3D
+		gridBezier3D = std::make_unique<GridBezier3D>(cellMargin, cellMargin);
+		gridBezier3D->initialize(ofGetWidth(), ofGetHeight());
+		gridBezier3D->setColorStr(getRandomColorStrategy());
+		gridBezier3D->setAnimationStr(getRandomAnimationStrategy3D());
+	} else {
+		// Reset 2D GridBezier
+		gridBezier->resetAnimation();
+		gridBezier = std::make_unique<GridBezier>(cellMargin, cellMargin);
+		gridBezier->initialize(ofGetWidth(), ofGetHeight());
+		gridBezier->setColorStr(getRandomColorStrategy());
+		gridBezier->setAnimationStr(getRandomAnimationStrategy());
+	}
 }
 
 std::unique_ptr<ColorStrategy> ofApp::getRandomColorStrategy() {
@@ -200,7 +255,7 @@ std::unique_ptr<AnimationStrategy> ofApp::getRandomAnimationStrategy() {
 	int randomAnim;
 
 	// Cek current mode dari gridBezier
-	if (gridBezier->currentBzMode == GridBezier::MULURLR
+	if (gridBezier && gridBezier->currentBzMode == GridBezier::MULURLR
 		|| gridBezier->currentBzMode == GridBezier::WOBBLE
 		|| gridBezier->currentBzMode == GridBezier::WAVE
 		|| gridBezier->currentBzMode == GridBezier::RADIALWAVE
@@ -212,6 +267,20 @@ std::unique_ptr<AnimationStrategy> ofApp::getRandomAnimationStrategy() {
 		// VARYING mode: WaveAnimation BOLEH dipakai (0-4)
 		randomAnim = (int)ofRandom(0, 5);  // Semua animasi
 	}
+
+	switch (randomAnim) {
+	case 0: return std::make_unique<LinearAnimation>(0.25f);
+	case 1: return std::make_unique<EaseInOutAnimation>(0.25f);
+	case 2: return std::make_unique<CubicEaseInOutAnimation>(0.25f);
+	case 3: return std::make_unique<WobbleAnimation>(0.25f, 3, 0.2f);
+	case 4: return std::make_unique<WaveAnimation>(0.25f, 0.2f, 0.3f, 0.0f);
+	default: return std::make_unique<EaseInOutAnimation>(0.25f);
+	}
+}
+
+std::unique_ptr<AnimationStrategy> ofApp::getRandomAnimationStrategy3D() {
+	// Untuk 3D, semua animasi BOLEH dipakai (VARYING3D mode)
+	int randomAnim = (int)ofRandom(0, 5);
 
 	switch (randomAnim) {
 	case 0: return std::make_unique<LinearAnimation>(0.25f);

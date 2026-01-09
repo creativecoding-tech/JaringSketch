@@ -2,6 +2,7 @@
 
 #include "ofMain.h"
 #include "shp/GridBezier.h"
+#include "shp/GridBezier3D.h"
 #include "clr/SolidColor.h"
 #include "clr/HorizontalGradient.h"
 #include "clr/VerticalGradient.h"
@@ -13,8 +14,11 @@ class ofApp : public ofBaseApp{
 
 	public:
 		std::unique_ptr<GridBezier> gridBezier;
+		std::unique_ptr<GridBezier3D> gridBezier3D;
+		ofEasyCam cam;
 		bool showShape = false;
 		bool cursorIsVisible = true;
+		bool use3D = false;  // flag untuk tracking 2D/3D
 
 		void setup();
 		void update();
@@ -38,4 +42,5 @@ private:
 	std::unique_ptr<ColorStrategy> getRandomColorStrategy();
 	TimeBasedColor::mode getRandomTimeBasedMode();
 	std::unique_ptr<AnimationStrategy> getRandomAnimationStrategy();
+	std::unique_ptr<AnimationStrategy> getRandomAnimationStrategy3D();
 };

@@ -39,7 +39,9 @@
     </ClCompile>
     <ClCompile Include="src\anim\EaseInOutAnimation.cpp" />
     <ClCompile Include="src\Node.cpp" />
+    <ClCompile Include="src\Node3D.cpp" />
     <ClCompile Include="src\shp\GridBezier.cpp" />
+    <ClCompile Include="src\shp\GridBezier3D.cpp" />
     <ClCompile Include="src\clr\SolidColor.cpp" />
     <ClCompile Include="src\strategy\ColorStrategy.cpp" />
     <ClCompile Include="src\anim\LinearAnimation.cpp" />
@@ -110,7 +112,9 @@
     <ClInclude Include="src\strategy\ColorStrategy.h" />
     <ClInclude Include="src\anim\EaseInOutAnimation.h" />
     <ClInclude Include="src\Node.h" />
+    <ClInclude Include="src\Node3D.h" />
     <ClInclude Include="src\shp\GridBezier.h" />
+    <ClInclude Include="src\shp\GridBezier3D.h" />
     <ClInclude Include="src\strategy\Shape.h" />
     <ClInclude Include="src\clr\SolidColor.h" />
     <ClInclude Include="src\anim\LinearAnimation.h" />
