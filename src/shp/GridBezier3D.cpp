@@ -7,8 +7,11 @@ GridBezier3D::GridBezier3D(float cellSize, float margin) {
 	colorStrategy = std::make_unique<SolidColor>(ofColor(255));
 	this->curveIntensity = ofRandom(0, 6);
 
-	// Default mode
-	this->currentBzMode = VARYING3D;
+	// 2 modes: VARYING3D, MULURLR3D
+	/*this->randomModeBezier = (int)ofRandom(0, 2);
+	this->currentBzMode = static_cast<GridBezier3D::bezierMode3D>(randomModeBezier);*/
+
+	this->currentBzMode = MULURLR3D;
 }
 
 void GridBezier3D::setAnimationStr(std::unique_ptr<AnimationStrategy> animStrategy) {
@@ -78,6 +81,9 @@ void GridBezier3D::display() {
 	case VARYING3D:
 		setBezierVarying3D();
 		break;
+	case MULURLR3D:
+		setBezierMulurLR3D();
+		break;
 	}
 }
 
@@ -93,6 +99,57 @@ void GridBezier3D::resetAnimation() {
 		animStrategy->reset();
 		currentCols = 0;
 		currentRows = 0;
+	}
+}
+
+void GridBezier3D::setBezierMulurLR3D() {
+	// Gambar bezier vertikal (setiap kolom) di 3D space
+	// INDEXING DENGAN currentCols/currentRows (dinamis sesuai animasi growing)
+	for (int i = 0; i <= currentCols; i++) {
+		for (int j = 0; j < currentRows; j++) {
+			int node1 = j * (currentCols + 1) + i;
+			int node2 = (j + 1) * (currentCols + 1) + i;
+
+			Node3D& n1 = *nodes[node1];
+			Node3D& n2 = *nodes[node2];
+
+			// Dapatkan warna dari color strategy dengan ukuran DINAMIS
+			ofColor c = colorStrategy->getColor(i, j, currentCols, currentRows);
+			ofSetColor(c);
+			ofNoFill();
+
+			float curveAmount = cellSize * curveIntensity;
+
+			// Draw bezier curve di 3D space
+			ofDrawBezier(n1.x, n1.y, n1.z,
+					   n1.x + curveAmount, (n1.y + n2.y) / 2, n1.z + 50,
+					   n2.x - curveAmount, (n1.y + n2.y) / 2, n2.z - 50,
+					   n2.x, n2.y, n2.z);
+		}
+	}
+
+	// Gambar bezier horizontal (setiap baris) di 3D space
+	for (int j = 0; j <= currentRows; j++) {
+		for (int i = 0; i < currentCols; i++) {
+			int node1 = j * (currentCols + 1) + i;
+			int node2 = j * (currentCols + 1) + (i + 1);
+
+			Node3D& n1 = *nodes[node1];
+			Node3D& n2 = *nodes[node2];
+
+			// Color dengan ukuran DINAMIS
+			ofColor c = colorStrategy->getColor(i, j, currentCols, currentRows);
+			ofSetColor(c);
+			ofNoFill();
+
+			float curveAmount = cellSize * curveIntensity;
+
+			// Draw bezier curve di 3D space
+			ofDrawBezier(n1.x, n1.y, n1.z,
+					   (n1.x + n2.x) / 2, n1.y + curveAmount, n1.z + 50,
+					   (n1.x + n2.x) / 2, n2.y - curveAmount, n2.z - 50,
+					   n2.x, n2.y, n2.z);
+		}
 	}
 }
 

@@ -222,8 +222,9 @@ void ofApp::resetGirBezier() {
 
 	if (use3D) {
 		// Setup 3D camera
-		cam.setPosition(ofGetWidth() / 2, (ofGetHeight() / 2) + 100, 811);  // Camera position
+		cam.setPosition(ofGetWidth()/2, -181, 996);  // Camera position
 		cam.lookAt(ofVec3f(ofGetWidth() / 2, ofGetHeight() / 2, 0)); // Look at center of grid
+		cam.setOrientation(ofQuaternion(0.35005, 0.006934, -0.00259127, 0.936702));
 
 		// Reset 3D GridBezier3D
 		gridBezier3D = std::make_unique<GridBezier3D>(cellMargin, cellMargin);
