@@ -12,7 +12,7 @@ public:
 	std::unique_ptr<AnimationStrategy> animStrategy;
 	std::unique_ptr<ColorStrategy> colorStrategy;
 	int currentCols, currentRows;
-	enum bezierMode { VARYING,MULURLR, WOBBLE,WAVE, RADIALWAVE};
+	enum bezierMode { VARYING,MULURLR, WOBBLE,WAVE, RADIALWAVE,HORIZONTALWAVE};
 	bezierMode currentBzMode = MULURLR;
 	GridBezier(float cellSize, float margin); //constructor
 	void setAnimationStr(std::unique_ptr<AnimationStrategy> strategy) override;
@@ -39,5 +39,6 @@ private:
 	void setBezierWobble();
 	void setBezierWave();
 	void setBezierRadialWave();
+	void setBezierHorizontalWave();
 };
 

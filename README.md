@@ -34,7 +34,7 @@ Project ini menampilkan grid node dengan animasi transisi yang smooth menggunaka
 - **Modular Design** — Terpisah dalam kategori: `anim/`, `clr/`, `shp/`, `strategy/`
 - **Smooth Easing Functions** — Power-based easing (1, 2, 3) untuk tingkat smoothness berbeda
 - **Special Effects** — Wobble (spring) dan Wave (gelombang) untuk creative animations
-- **Dynamic Line Width** — Ketebalan garis berubah mengikuti gelombang (WAVE, RADIALWAVE & WOBBLE mode)
+- **Dynamic Line Width** — Ketebalan garis berubah mengikuti gelombang (WAVE, RADIALWAVE, HORIZONTALWAVE & WOBBLE mode)
 - **HSB Color System** — Hue-Saturation-Brightness untuk vivid colors dan smooth gradients
 - **Animated Colors** — Time-based color transitions untuk dynamic visual effects
 - **Trails Effect** — Semi-transparent overlay untuk efek jejak visual yang menarik
@@ -66,7 +66,7 @@ Project ini menampilkan grid node dengan animasi transisi yang smooth menggunaka
 
 ## 🎨 GridBezier Rendering Modes
 
-GridBezier mendukung **5 mode rendering** berbeda untuk efek visual yang bervariasi:
+GridBezier mendukung **6 mode rendering** berbeda untuk efek visual yang bervariasi:
 
 | Mode | Deskripsi | Karakteristik |
 |------|-----------|---------------|
@@ -75,6 +75,7 @@ GridBezier mendukung **5 mode rendering** berbeda untuk efek visual yang bervari
 | **WOBBLE** | Perlin noise wobble | Setiap node bergoyang dengan Perlin noise untuk efek organik "bernapas". Gerakan acak halus seperti cairan. **Termasuk hybrid dynamic line width (noise + pulse)!** |
 | **WAVE** | Diagonal wave effect | Kurva bernapas dengan pola gelombang diagonal yang merambat. Menggunakan fungsi sinus untuk pattern teratur. **Termasuk dynamic line width!** |
 | **RADIALWAVE** | Radial wave effect | Gelombang melinglar merambat dari tengah grid ke luar seperti efek ripple di air. Menggunakan distance-based sinus wave. **Termasuk dynamic line width!** |
+| **HORIZONTALWAVE** | Horizontal wave effect | Gelombang horizontal merambat dari kiri ke kanan. Menggunakan fungsi sinus berdasarkan posisi kolom (x-axis). **Termasuk dynamic line width!** |
 
 ### Technical Details:
 
@@ -113,7 +114,7 @@ this->currentInitDir = static_cast<initDirection>(randomDir);
 - 🎲 **5 Arah Berbeda**: Setiap reset memberikan arah pertumbuhan yang random
 - 🌀 **RADIAL_OUT Mode**: Grid tumbuh dari tengah ke luar dengan distance-based sorting
 - 🌱 **Growing Animation**: MULURLR mode akan tumbuh dari arah yang berbeda-beda
-- 🎯 **All Modes**: Berlaku untuk SEMUA GridBezier modes (VARYING, MULURLR, WOBBLE, WAVE, RADIALWAVE)
+- 🎯 **All Modes**: Berlaku untuk SEMUA GridBezier modes (VARYING, MULURLR, WOBBLE, WAVE, RADIALWAVE, HORIZONTALWAVE)
 - 🔄 **Consistent Direction**: Arah tetap sama selama lifecycle object, berubah saat reset ('R')
 - ✨ **Auto Re-initialize**: RADIAL_OUT otomatis re-initialize ke arah random setelah animasi selesai untuk hasil akhir yang rapi
 
@@ -167,13 +168,33 @@ float curveAmount = baseCurve + (wave * amplitude);
   - Wave rendah (-1) → Line tipis (3px)
   - Menciptakan efek "berdenyut" yang dramatis
 
+**HORIZONTALWAVE Mode:**
+```cpp
+// Horizontal wave untuk curve dan line width (dynamic!)
+float wave = sin(i * frequency + time * speed);
+
+// Dynamic line width: wave mempengaruhi ketebalan garis
+float lineWidth = ofMap(wave, -1, 1, 3, 6);  // Wave tinggi → Line tebal
+ofSetLineWidth(lineWidth);
+
+// Curve amount dengan horizontal wave
+float curveAmount = baseCurve + (wave * amplitude);
+```
+
+**Fitur Spesial HORIZONTALWAVE:**
+- ✨ **Dynamic Line Width** - Ketebalan garis berubah mengikuti gelombang horizontal
+  - Wave tinggi (1) → Line tebal (6px)
+  - Wave rendah (-1) → Line tipis (3px)
+  - Menciptakan efek "berdenyut" horizontal yang dramatis
+- 🌊 **Horizontal Propagation** - Gelombang merambat dari kiri ke kanan (hanya bergantung pada posisi kolom/i)
+
 Mode dipilih secara **random** saat aplikasi start atau saat tekan tombol 'R'.
 
 ---
 
 ## ✨ Dynamic Line Width Feature
 
-**WAVE**, **RADIALWAVE**, dan **WOBBLE** mode memiliki fitur spesial **Dynamic Line Width** yang membuat ketebalan garis berubah mengikuti gelombang atau noise.
+**WAVE**, **RADIALWAVE**, **HORIZONTALWAVE**, dan **WOBBLE** mode memiliki fitur spesial **Dynamic Line Width** yang membuat ketebalan garis berubah mengikuti gelombang atau noise.
 
 ### How It Works
 
@@ -191,6 +212,16 @@ ofSetLineWidth(lineWidth);
 ```cpp
 // Hitung radial wave value (-1 sampai 1)
 float wave = sin(distFromCenter * frequency - time * speed);
+
+// Mapping wave ke line width (3px sampai 6px)
+float lineWidth = ofMap(wave, -1, 1, 3, 6);
+ofSetLineWidth(lineWidth);
+```
+
+**Horizontal Wave (HORIZONTALWAVE Mode):**
+```cpp
+// Hitung horizontal wave value (-1 sampai 1)
+float wave = sin(i * frequency + time * speed);
 
 // Mapping wave ke line width (3px sampai 6px)
 float lineWidth = ofMap(wave, -1, 1, 3, 6);
@@ -221,6 +252,7 @@ ofSetLineWidth(lineWidth);
 - Menciptakan efek **"berdenyut"** seperti pulsating light
 - **WAVE**: Pola diagonal teratur
 - **RADIALWAVE**: Pola radial melingkar
+- **HORIZONTALWAVE**: Pola horizontal dari kiri ke kanan
 - **WOBBLE**: Pola chaotic dengan local variation + global pulse
 
 **Parameter Mapping:**
@@ -409,10 +441,10 @@ if (currentBzMode == MULURLR || currentBzMode == WOBBLE
 
 **Untuk GridBezier Animation Strategy:**
 - Mode **VARYING**: Linear, Quadratic, Cubic, Wobble, atau Wave ✅
-- Mode **MULURLR/WOBBLE/WAVE/RADIALWAVE**: Linear, Quadratic, Cubic, atau Wobble saja (NO WaveAnimation!) ⚠️
+- Mode **MULURLR/WOBBLE/WAVE/RADIALWAVE/HORIZONTALWAVE**: Linear, Quadratic, Cubic, atau Wobble saja (NO WaveAnimation!) ⚠️
 
 **Untuk GridBezier Visual Effect:**
-Gunakan mode: VARYING, MULURLR, WOBBLE, WAVE, atau RADIALWAVE (rendering mode).
+Gunakan mode: VARYING, MULURLR, WOBBLE, WAVE, RADIALWAVE, atau HORIZONTALWAVE (rendering mode).
 
 ### Grid System
 
@@ -590,7 +622,7 @@ Dengan optimasi C++ modern dan openFrameworks:
 Branch ini adalah **pengembangan lanjut** dari JaringSketch dengan fokus pada **multi-mode rendering system** untuk GridBezier. Fitur yang tersedia:
 
 ✅ Grid layout system dengan konfigurasi cols/rows
-✅ **5 Rendering Modes**: VARYING, MULURLR, WOBBLE, WAVE, RADIALWAVE
+✅ **6 Rendering Modes**: VARYING, MULURLR, WOBBLE, WAVE, RADIALWAVE, HORIZONTALWAVE
 ✅ **5 Animation Strategies**: Linear, Quadratic, Cubic, Wobble, Wave
 ✅ **6 Color Strategies**: Solid, Horizontal/Vertical/Radial Gradient, Rainbow Spiral, Time-Based
 ✅ **5 Initialization Directions**: TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT, RADIAL_OUT (random!)
@@ -601,9 +633,9 @@ Branch ini adalah **pengembangan lanjut** dari JaringSketch dengan fokus pada **
 ✅ Strategy pattern untuk animasi & warna
 ✅ Bezier curve rendering dengan curve intensity dinamis
 ✅ Perlin noise untuk organik wobble effects
-✅ Sinusoidal wave untuk diagonal & radial wave patterns
+✅ Sinusoidal wave untuk diagonal, horizontal & radial wave patterns
 ✅ Distance-based radial ripple effects
-✅ **Dynamic line width** yang mengikuti gelombang (WAVE, RADIALWAVE & WOBBLE mode)
+✅ **Dynamic line width** yang mengikuti gelombang (WAVE, RADIALWAVE, HORIZONTALWAVE & WOBBLE mode)
 ✅ **Hybrid dynamic line width** dengan noise + pulse combination (WOBBLE mode)
 ✅ HSB color system untuk vivid gradients
 ✅ Delta time-based animation (FPS independent)
@@ -614,6 +646,7 @@ Branch ini adalah **pengembangan lanjut** dari JaringSketch dengan fokus pada **
 - **WOBBLE Mode**: Perlin noise-based organic movement dengan **hybrid dynamic line width** (noise + pulse)
 - **WAVE Mode**: Diagonal wave pattern dengan **dynamic line width** yang berdenyut
 - **RADIALWAVE Mode**: Radial ripple effect dengan **dynamic line width** yang berdenyut
+- **HORIZONTALWAVE Mode**: Horizontal wave pattern dengan **dynamic line width** yang berdenyut
 - **MULURLR Mode**: Growing grid dengan smooth easing
 - **VARYING Mode**: Static grid dengan **random curve intensity** yang bervariasi setiap reset
 - **RADIAL_OUT Init Direction**: Grid tumbuh dari tengah ke luar (chaotic visual), lalu otomatis re-initialize ke arah random yang rapi setelah animasi selesai
