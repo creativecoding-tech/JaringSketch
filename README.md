@@ -20,7 +20,17 @@ Lihat hasilnya di YouTube: [Watch Demo](https://youtu.be/XwEZjz_YhQg)
 
 ## 📺 Preview
 
-Project ini menampilkan grid node dengan animasi transisi yang smooth menggunakan ease-in-ease-out interpolation.
+Project ini menampilkan grid node dengan animasi bezier yang dinamis dan 7 mode rendering berbeda:
+
+- **VARYING**: Grid statis dengan curve intensity yang bervariasi
+- **MULURLR**: Grid tumbuh dengan animasi easing dari 6 arah pertumbuhan yang berbeda
+- **WOBBLE**: Grid bernapas dengan efek Perlin noise yang organik
+- **WAVE**: Grid dengan pola gelombang diagonal yang berdenyut
+- **RADIALWAVE**: Grid dengan efek ripple radial dari tengah ke luar
+- **HORIZONTALWAVE**: Grid dengan gelombang horizontal dari kiri ke kanan
+- **VERTICALWAVE**: Grid dengan gelombang vertikal dari atas ke bawah
+
+Setiap mode memiliki karakteristik visual yang unik dengan dynamic line width dan smooth color transitions.
 
 ---
 
