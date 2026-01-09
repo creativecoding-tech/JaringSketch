@@ -43,7 +43,7 @@ void ofApp::setup(){
 
 	if (use3D) {
 		// Setup 3D camera
-		cam.setPosition(ofGetWidth() / 2, ofGetHeight() / 2, 1000);  // Camera position
+		cam.setPosition(ofGetWidth() /2, (ofGetHeight() / 2) + 100 , 811);  // Camera position
 		cam.lookAt(ofVec3f(ofGetWidth() / 2, ofGetHeight() / 2, 0)); // Look at center of grid
 
 		// Initialize 3D GridBezier3D
@@ -93,8 +93,19 @@ void ofApp::keyPressed(int key){
 	if (key == 'q' || key == 'Q') { 
 		ofExit();
 	}
-	if (key == 'r' || key == 'R') { 
+	if (key == 'r' || key == 'R') {
 		resetGirBezier();
+	}
+
+	// Print camera position dan orientation
+	if (key == 'p' || key == 'P') {
+		ofVec3f pos = cam.getPosition();
+		ofQuaternion orient = cam.getOrientationQuat();
+
+		ofLog() << "========== CAMERA POSITION ==========";
+		ofLog() << "Position: X=" << pos.x << ", Y=" << pos.y << ", Z=" << pos.z;
+		ofLog() << "Orientation: X=" << orient.x() << ", Y=" << orient.y() << ", Z=" << orient.z() << ", W=" << orient.w();
+		ofLog() << "====================================";
 	}
 
 	//set Color
@@ -211,8 +222,8 @@ void ofApp::resetGirBezier() {
 
 	if (use3D) {
 		// Setup 3D camera
-		cam.setPosition(ofGetWidth() / 2, ofGetHeight() / 2, 1500);
-		cam.lookAt(ofVec3f(ofGetWidth() / 2, ofGetHeight() / 2, 0));
+		cam.setPosition(ofGetWidth() / 2, (ofGetHeight() / 2) + 100, 811);  // Camera position
+		cam.lookAt(ofVec3f(ofGetWidth() / 2, ofGetHeight() / 2, 0)); // Look at center of grid
 
 		// Reset 3D GridBezier3D
 		gridBezier3D = std::make_unique<GridBezier3D>(cellMargin, cellMargin);
