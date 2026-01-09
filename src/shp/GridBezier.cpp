@@ -9,18 +9,18 @@ GridBezier::GridBezier(float cellSize, float margin) {
   colorStrategy = std::make_unique<SolidColor>(ofColor(255));
   this->curveIntensity = ofRandom(0, 6);
 
-  //this->randomModeBezier = (int)ofRandom(0, 7);  // 7 modes: VARYING, MULURLR, WOBBLE, WAVE, RADIALWAVE, HORIZONTALWAVE, VERTICALWAVE
-  //this->currentBzMode = static_cast<GridBezier::bezierMode>(randomModeBezier);
+  this->randomModeBezier = (int)ofRandom(0, 7);  // 7 modes: VARYING, MULURLR, WOBBLE, WAVE, RADIALWAVE, HORIZONTALWAVE, VERTICALWAVE
+  this->currentBzMode = static_cast<GridBezier::bezierMode>(randomModeBezier);
 
   //test currentBzMode
-this->currentBzMode = VERTICALWAVE;
+//this->currentBzMode = VERTICALWAVE;
 
-  // Random arah inisialisasi (5 arah)
-  int randomDir = (int)ofRandom(0, 5);
+  // Random arah inisialisasi (6 arah)
+  int randomDir = (int)ofRandom(0, 6);
   this->currentInitDir = static_cast<GridBezier::initDirection>(randomDir);
   
   //test arah inisialisasi
-  //this->currentInitDir = RADIAL_OUT;
+  //this->currentInitDir = RADIAL_IN;
 }
 
 void GridBezier::setAnimationStr(
@@ -133,6 +133,42 @@ void GridBezier::initialize(int w, int h) {
         }
       }
       break;
+
+    case RADIAL_IN:
+      // Luar ke tengah (distance-based sorting, descending)
+      {
+        // Struct untuk menyimpan info node
+        struct NodeInfo {
+          int i, j;
+          float distance;
+        };
+
+        std::vector<NodeInfo> nodeInfos;
+        float centerX = maxCols / 2.0f;
+        float centerY = maxRows / 2.0f;
+
+        // Hitung jarak semua node dari center
+        for (int j = 0; j <= maxRows; j++) {
+          for (int i = 0; i <= maxCols; i++) {
+            float dist = sqrt(pow(i - centerX, 2) + pow(j - centerY, 2));
+            nodeInfos.push_back({i, j, dist});
+          }
+        }
+
+        // Sort berdasarkan distance (terjauh dulu - descending)
+        std::sort(nodeInfos.begin(), nodeInfos.end(),
+          [](const NodeInfo& a, const NodeInfo& b) {
+            return a.distance > b.distance;
+          });
+
+        // Push nodes ke vector BERDASARKAN URUTAN SORTED
+        for (const auto& info : nodeInfos) {
+          float startX = offsetX + info.i * cellSize;
+          float startY = offsetY + info.j * cellSize;
+          nodes.push_back(std::make_unique<Node>(startX, startY));
+        }
+      }
+      break;
   }
 }
 
@@ -146,8 +182,8 @@ void GridBezier::updateAnimation() {
     if (currentRows > maxRows) currentRows = maxRows;
   }
 
-  // Re-initialize dengan TOP_LEFT setelah RADIAL_OUT selesai
-  if (currentInitDir == RADIAL_OUT && isAnimationFinished() && !hasReinitialized) {
+  // Re-initialize dengan random arah setelah RADIAL_OUT/RADIAL_IN selesai
+  if ((currentInitDir == RADIAL_OUT || currentInitDir == RADIAL_IN) && isAnimationFinished() && !hasReinitialized) {
     // Clear nodes
     nodes.clear();
     int randomDir = (int)ofRandom(0, 4);

@@ -30,7 +30,7 @@ public:
 private:
 	int randomModeBezier;
 	float curveIntensity = 0;
-	enum initDirection { TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT, RADIAL_OUT};
+	enum initDirection { TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT, RADIAL_OUT, RADIAL_IN};
 	initDirection currentInitDir;
 	bool hasReinitialized = false;
 	int lastWidth, lastHeight;  // Simpan width/height untuk re-initialize

@@ -27,7 +27,7 @@ Project ini menampilkan grid node dengan animasi transisi yang smooth menggunaka
 ## ✨ Fitur & Teknik
 
 - **Grid Layout System** — 2D grid dengan node yang terkonfigurasi (cols & rows)
-- **Random Initialization Direction** — 5 arah pertumbuhan grid: TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT, RADIAL_OUT
+- **Random Initialization Direction** — 6 arah pertumbuhan grid: TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT, RADIAL_OUT, RADIAL_IN
 - **Multiple Animation Strategies** — 5 jenis easing: Linear, Quadratic, Cubic, Wobble, dan Wave
 - **Multiple Color Strategies** — 6 jenis pewarnaan: Solid, Horizontal/Vertical/Radial Gradient, Rainbow Spiral, Time-Based
 - **Strategy Pattern** — Arsitektur yang fleksibel untuk animasi dan pewarnaan
@@ -97,27 +97,29 @@ GridBezier mendukung **7 mode rendering** berbeda untuk efek visual yang bervari
 
 **Random Initialization Direction:**
 ```cpp
-// 5 Arah pertumbuhan grid yang di-random saat constructor:
-enum initDirection { TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT, RADIAL_OUT };
+// 6 Arah pertumbuhan grid yang di-random saat constructor:
+enum initDirection { TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT, RADIAL_OUT, RADIAL_IN };
 
 // TOP_LEFT:    Atas → Bawah, Kiri → Kanan
 // TOP_RIGHT:   Atas → Bawah, Kanan → Kiri
 // BOTTOM_LEFT: Bawah → Atas, Kiri → Kanan
 // BOTTOM_RIGHT:Bawah → Atas, Kanan → Kiri
-// RADIAL_OUT:  Tengah → Luar (distance-based)
+// RADIAL_OUT:  Tengah → Luar (distance-based, ascending)
+// RADIAL_IN:   Luar → Tengah (distance-based, descending)
 
 // Arah ditentukan sekali di constructor dan berlaku untuk SEMUA mode
-int randomDir = (int)ofRandom(0, 5);
+int randomDir = (int)ofRandom(0, 6);
 this->currentInitDir = static_cast<initDirection>(randomDir);
 ```
 
 **Fitur Spesial Random Initialization:**
-- 🎲 **5 Arah Berbeda**: Setiap reset memberikan arah pertumbuhan yang random
-- 🌀 **RADIAL_OUT Mode**: Grid tumbuh dari tengah ke luar dengan distance-based sorting
+- 🎲 **6 Arah Berbeda**: Setiap reset memberikan arah pertumbuhan yang random
+- 🌀 **RADIAL_OUT Mode**: Grid tumbuh dari tengah ke luar dengan distance-based sorting (ascending)
+- 🌀 **RADIAL_IN Mode**: Grid tumbuh dari luar ke tengah dengan distance-based sorting (descending)
 - 🌱 **Growing Animation**: MULURLR mode akan tumbuh dari arah yang berbeda-beda
 - 🎯 **All Modes**: Berlaku untuk SEMUA GridBezier modes (VARYING, MULURLR, WOBBLE, WAVE, RADIALWAVE, HORIZONTALWAVE, VERTICALWAVE)
 - 🔄 **Consistent Direction**: Arah tetap sama selama lifecycle object, berubah saat reset ('R')
-- ✨ **Auto Re-initialize**: RADIAL_OUT otomatis re-initialize ke arah random setelah animasi selesai untuk hasil akhir yang rapi
+- ✨ **Auto Re-initialize**: RADIAL_OUT & RADIAL_IN otomatis re-initialize ke arah random setelah animasi selesai untuk hasil akhir yang rapi
 
 **WOBBLE Mode:**
 ```cpp
@@ -657,7 +659,7 @@ Branch ini adalah **pengembangan lanjut** dari JaringSketch dengan fokus pada **
 ✅ **7 Rendering Modes**: VARYING, MULURLR, WOBBLE, WAVE, RADIALWAVE, HORIZONTALWAVE, VERTICALWAVE
 ✅ **5 Animation Strategies**: Linear, Quadratic, Cubic, Wobble, Wave
 ✅ **6 Color Strategies**: Solid, Horizontal/Vertical/Radial Gradient, Rainbow Spiral, Time-Based
-✅ **5 Initialization Directions**: TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT, RADIAL_OUT (random!)
+✅ **6 Initialization Directions**: TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT, RADIAL_OUT, RADIAL_IN (random!)
 ✅ **Multi-mode rendering** dengan efek visual bervariasi
 ✅ **Dynamic mode selection** (random pada startup/reset)
 ✅ **Interactive strategy switching** via keyboard (1-5 untuk animasi, Z-X-C-V-B untuk color)
