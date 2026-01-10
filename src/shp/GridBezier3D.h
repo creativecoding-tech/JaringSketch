@@ -17,7 +17,7 @@ public:
 	std::unique_ptr<AnimationStrategy> animStrategy;
 	std::unique_ptr<ColorStrategy> colorStrategy;
 
-	enum bezierMode3D { VARYING3D, MULURLR3D };
+	enum bezierMode3D { VARYING3D, MULURLR3D, WOBBLE3D, WAVE3D, RADIALWAVE3D, HORIZONTALWAVE3D, VERTICALWAVE3D };
 	bezierMode3D currentBzMode = VARYING3D;
 
 	GridBezier3D(float cellSize, float margin);
@@ -34,4 +34,9 @@ private:
 	int randomModeBezier;
 	void setBezierVarying3D();
 	void setBezierMulurLR3D();
+	void setBezierWobble3D();
+	void setBezierWave3D();
+	void setBezierRadialWave3D();
+	void setBezierHorizontalWave3D();
+	void setBezierVerticalWave3D();
 };
