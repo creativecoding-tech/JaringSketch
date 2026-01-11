@@ -35,9 +35,9 @@ void ofApp::setup(){
 
 	// Random choice: 0 = 2D, 1 = 3D
 	int choice = (int)ofRandom(0, 2);
-	//use3D = (choice == 1);
+	use3D = (choice == 1);
 	//TEST
-	use3D = true;
+	//use3D = true;
 
 	int cellMargin = ofRandom(45, 51);
 
@@ -260,9 +260,9 @@ void ofApp::initTrailsBackground() {
 void ofApp::resetGirBezier() {
 	// Random choice lagi: 0 = 2D, 1 = 3D
 	int choice = (int)ofRandom(0, 2);
-	//use3D = (choice == 1);
+	use3D = (choice == 1);
     //TEST 3D
-	use3D = true;
+	//use3D = true;
 
 	int cellMargin = ofRandom(45, 51);
 
@@ -355,15 +355,11 @@ void ofApp::startCameraAnimation(bool reverse) {
 		// Reverse: dari current posisi → posisi awal
 		cameraTargetPos = ofVec3f(ofGetWidth() / 2, (ofGetHeight() / 2) + 100, 811);
 		cameraAnimState = CAM_TO_START;
-		ofLog() << "REVERSE ANIMATION STARTED!";
-		ofLog() << "From: " << cameraStartPos << " To: " << cameraTargetPos;
 	}
 	else {
 		// Forward: dari posisi awal → posisi target
 		cameraTargetPos = ofVec3f(ofGetWidth() / 2, -181, 996);
 		cameraAnimState = CAM_TO_TARGET;
-		ofLog() << "FORWARD ANIMATION STARTED!";
-		ofLog() << "From: " << cameraStartPos << " To: " << cameraTargetPos;
 	}
 
 	cameraAnimationProgress = 0.0f;

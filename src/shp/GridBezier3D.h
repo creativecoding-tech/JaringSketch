@@ -20,6 +20,13 @@ public:
 	enum bezierMode3D { VARYING3D, MULURLR3D, WOBBLE3D, WAVE3D, RADIALWAVE3D, HORIZONTALWAVE3D, VERTICALWAVE3D };
 	bezierMode3D currentBzMode = VARYING3D;
 
+	// Init direction untuk growing animation
+	enum initDirection { TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT, RADIAL_OUT, RADIAL_IN };
+	initDirection currentInitDir;
+	int randomDir;
+	bool hasReinitialized = false;
+	int lastWidth, lastHeight;  // Simpan width/height untuk re-initialize
+
 	GridBezier3D(float cellSize, float margin);
 	void setAnimationStr(std::unique_ptr<AnimationStrategy> strategy) override;
 	void setColorStr(std::unique_ptr<ColorStrategy> strategy) override;
@@ -32,6 +39,8 @@ public:
 private:
 	float curveIntensity = 0;
 	int randomModeBezier;
+	int zCoordinate;
+	float calculateZ(int i, int j);  // Helper untuk menghitung Z position
 	void setBezierVarying3D();
 	void setBezierMulurLR3D();
 	void setBezierWobble3D();

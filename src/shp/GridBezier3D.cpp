@@ -13,6 +13,16 @@ GridBezier3D::GridBezier3D(float cellSize, float margin) {
 
 	//teset manual
 	//this->currentBzMode = VERTICALWAVE3D;
+
+	// 6 init directions: random pilih salah satu
+	this->randomDir = (int)ofRandom(0, 6);
+	this->currentInitDir = static_cast<GridBezier3D::initDirection>(randomDir);
+
+	// Test manual
+	//this->currentInitDir = RADIAL_OUT;
+
+	this->zCoordinate = (int)ofRandom(0, 5);
+	//int zCoordinate = 2;
 }
 
 void GridBezier3D::setAnimationStr(std::unique_ptr<AnimationStrategy> animStrategy) {
@@ -24,6 +34,10 @@ void GridBezier3D::setColorStr(std::unique_ptr<ColorStrategy> colorStrategy) {
 }
 
 void GridBezier3D::initialize(int w, int h) {
+	// Simpan width/height untuk re-initialize
+	lastWidth = w;
+	lastHeight = h;
+
 	// Hitung area yang bisa digunakan
 	float usableWidth = w - margin * 2;
 	maxCols = (int)(usableWidth / cellSize);
@@ -40,30 +54,130 @@ void GridBezier3D::initialize(int w, int h) {
 	currentCols = 0;
 	currentRows = 0;
 
-	// Allocate node array
-	totalNodes = (maxCols + 1) * (maxRows + 1);
+	// Clear existing nodes
+	nodes.clear();
 
-	// Inisialisasi semua node dengan 3D position
-	for (int j = 0; j <= maxRows; j++) {
-		for (int i = 0; i <= maxCols; i++) {
-			float startX = offsetX + i * cellSize;
-			float startY = offsetY + j * cellSize;
+	// Struct untuk node info (buat RADIAL_OUT dan RADIAL_IN)
+	struct NodeInfo {
+		int i, j;
+		float x, y, z;
+		float distance;
+	};
 
-			// Hitung z position berdasarkan distance dari center untuk efek 3D
-			float centerX = maxCols / 2.0f;
-			float centerY = maxRows / 2.0f;
-			float distFromCenter = sqrt(pow(i - centerX, 2) + pow(j - centerY, 2));
+	// Hitung semua nodes berdasarkan init direction
+	switch (currentInitDir) {
+		case TOP_LEFT:
+			// Atas ke bawah, kiri ke kanan
+			for (int j = 0; j <= maxRows; j++) {
+				for (int i = 0; i <= maxCols; i++) {
+					float x = offsetX + i * cellSize;
+					float y = offsetY + j * cellSize;
+					float z = calculateZ(i, j);
+					nodes.push_back(std::make_unique<Node3D>(x, y, z));
+				}
+			}
+			break;
 
-			// Z variation: gelombang 3D dari center
-			float maxDist = sqrt(pow(centerX, 2) + pow(centerY, 2));
-			float normalizedDist = distFromCenter / maxDist;  // 0.0 - 1.0
+		case TOP_RIGHT:
+			// Atas ke bawah, kanan ke kiri
+			for (int j = 0; j <= maxRows; j++) {
+				for (int i = maxCols; i >= 0; i--) {
+					float x = offsetX + i * cellSize;
+					float y = offsetY + j * cellSize;
+					float z = calculateZ(i, j);
+					nodes.push_back(std::make_unique<Node3D>(x, y, z));
+				}
+			}
+			break;
 
-			// Z position: SINUSOIDAL CURVE - melengkung halus dari center ke edge
-			float startZ = sin(normalizedDist * PI / 2) * 200 - 100;
+		case BOTTOM_LEFT:
+			// Bawah ke atas, kiri ke kanan
+			for (int j = maxRows; j >= 0; j--) {
+				for (int i = 0; i <= maxCols; i++) {
+					float x = offsetX + i * cellSize;
+					float y = offsetY + j * cellSize;
+					float z = calculateZ(i, j);
+					nodes.push_back(std::make_unique<Node3D>(x, y, z));
+				}
+			}
+			break;
 
-			nodes.push_back(std::make_unique<Node3D>(startX, startY, startZ));
-		}
+		case BOTTOM_RIGHT:
+			// Bawah ke atas, kanan ke kiri
+			for (int j = maxRows; j >= 0; j--) {
+				for (int i = maxCols; i >= 0; i--) {
+					float x = offsetX + i * cellSize;
+					float y = offsetY + j * cellSize;
+					float z = calculateZ(i, j);
+					nodes.push_back(std::make_unique<Node3D>(x, y, z));
+				}
+			}
+			break;
+
+		case RADIAL_OUT:
+			{
+				// Tengah ke luar (distance-based sorting)
+				std::vector<NodeInfo> nodeInfos;
+				float centerX = maxCols / 2.0f;
+				float centerY = maxRows / 2.0f;
+
+				// Hitung semua node positions dan distances
+				for (int j = 0; j <= maxRows; j++) {
+					for (int i = 0; i <= maxCols; i++) {
+						float x = offsetX + i * cellSize;
+						float y = offsetY + j * cellSize;
+						float z = calculateZ(i, j);
+						float dist = sqrt(pow(i - centerX, 2) + pow(j - centerY, 2));
+						nodeInfos.push_back({i, j, x, y, z, dist});
+					}
+				}
+
+				// Sort by distance ascending (terdekat dulu)
+				std::sort(nodeInfos.begin(), nodeInfos.end(),
+					[](const NodeInfo& a, const NodeInfo& b) {
+						return a.distance < b.distance;
+					});
+
+				// Push nodes in sorted order
+				for (const auto& info : nodeInfos) {
+					nodes.push_back(std::make_unique<Node3D>(info.x, info.y, info.z));
+				}
+			}
+			break;
+
+		case RADIAL_IN:
+			{
+				// Luar ke tengah (distance-based sorting, descending)
+				std::vector<NodeInfo> nodeInfos;
+				float centerX = maxCols / 2.0f;
+				float centerY = maxRows / 2.0f;
+
+				// Hitung semua node positions dan distances
+				for (int j = 0; j <= maxRows; j++) {
+					for (int i = 0; i <= maxCols; i++) {
+						float x = offsetX + i * cellSize;
+						float y = offsetY + j * cellSize;
+						float z = calculateZ(i, j);
+						float dist = sqrt(pow(i - centerX, 2) + pow(j - centerY, 2));
+						nodeInfos.push_back({i, j, x, y, z, dist});
+					}
+				}
+
+				// Sort by distance descending (terjauh dulu)
+				std::sort(nodeInfos.begin(), nodeInfos.end(),
+					[](const NodeInfo& a, const NodeInfo& b) {
+						return a.distance > b.distance;
+					});
+
+				// Push nodes in sorted order
+				for (const auto& info : nodeInfos) {
+					nodes.push_back(std::make_unique<Node3D>(info.x, info.y, info.z));
+				}
+			}
+			break;
 	}
+
+	totalNodes = nodes.size();
 }
 
 void GridBezier3D::updateAnimation() {
@@ -74,6 +188,25 @@ void GridBezier3D::updateAnimation() {
 
 		if (currentCols > maxCols) currentCols = maxCols;
 		if (currentRows > maxRows) currentRows = maxRows;
+	}
+
+	// Re-initialize dengan random arah setelah RADIAL_OUT/RADIAL_IN selesai
+	if ((currentInitDir == RADIAL_OUT || currentInitDir == RADIAL_IN) && isAnimationFinished() && !hasReinitialized) {
+		// Clear nodes
+		nodes.clear();
+
+		// Random hanya 4 directional (TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT)
+		randomDir = (int)ofRandom(0, 4);
+		currentInitDir = static_cast<GridBezier3D::initDirection>(randomDir);
+
+		// Re-initialize
+		initialize(lastWidth, lastHeight);
+
+		// Reset flag
+		hasReinitialized = true;
+
+		currentCols = maxCols;
+		currentRows = maxRows;
 	}
 }
 
@@ -110,11 +243,41 @@ bool GridBezier3D::isAnimationFinished() {
 	return true;
 }
 
-void GridBezier3D::resetAnimation() {
+void GridBezier3D::resetAnimation() {	
+	currentCols = 0;
+	currentRows = 0;
+	hasReinitialized = false;  // Reset flag untuk RADIAL_OUT
 	if (animStrategy) {
 		animStrategy->reset();
-		currentCols = 0;
-		currentRows = 0;
+	}
+}
+
+// Helper function untuk menghitung Z position berdasarkan grid position
+float GridBezier3D::calculateZ(int i, int j) {
+	float centerX = maxCols / 2.0f;
+	float centerY = maxRows / 2.0f;
+	float distFromCenter = sqrt(pow(i - centerX, 2) + pow(j - centerY, 2));
+
+	// Normalized distance
+	float maxDist = sqrt(pow(centerX, 2) + pow(centerY, 2));
+	float normalizedDist = distFromCenter / maxDist;
+
+	// Z curve untuk efek 3D
+	//test 
+	switch (zCoordinate) {
+	case 0:
+		return sin(normalizedDist * PI / 2) * 200 - 100;
+	case 1:
+		return cos(normalizedDist * PI / 2) * 200 - 100;
+	case 2:
+		return sin(normalizedDist * TWO_PI) * 200 - 100;
+	case 3 : 
+		return cos(normalizedDist * TWO_PI) * 200 - 100;
+	case 4:
+		float tanVal = tan(normalizedDist * TWO_PI);
+		if (tanVal > 2.0f) tanVal = 2.0f;  // Clamp max
+		if (tanVal < -2.0f) tanVal = -2.0f;  // Clamp min
+		return tanVal * 170 - 100;
 	}
 }
 
