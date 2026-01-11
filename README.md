@@ -6,7 +6,7 @@ Eksperimen grid dengan animasi bezier yang smooth dan efek trails. Project ini a
 ![C++](https://img.shields.io/badge/C++-17-blue)
 ![Platform](https://img.shields.io/badge/Platform-Windows-lightgrey)
 ![License](https://img.shields.io/badge/License-Apache%202.0-green)
-![Branch](https://img.shields.io/badge/Branch-sketch--GridBezier-orange)
+![Branch](https://img.shields.io/badge/Branch-sketch--grid--bezier--3d-orange)
 
 [![Fund The Experiments](https://img.shields.io/badge/Fund-The_Experiments-FF5722?style=for-the-badge&logo=buy-me-a-coffee)](https://sociabuzz.com/abdkdhni)
 
@@ -14,13 +14,13 @@ Eksperimen grid dengan animasi bezier yang smooth dan efek trails. Project ini a
 
 ## 📺 Demo Video
 
-Lihat hasilnya di YouTube: [Watch Demo](https://youtu.be/Ggu9cwZL4QY)
+Lihat hasilnya di YouTube: [Watch Demo](https://youtu.be/R_g6W-CVu7A)
 
 ---
 
 ## 📺 Preview
 
-Project ini menampilkan grid node dengan animasi bezier yang dinamis dan 7 mode rendering berbeda:
+Project ini menampilkan grid node dengan animasi bezier yang dinamis dalam **2D dan 3D** dengan 7 mode rendering berbeda:
 
 - **VARYING**: Grid statis dengan curve intensity yang bervariasi
 - **MULURLR**: Grid tumbuh dengan animasi easing dari 6 arah pertumbuhan yang berbeda
@@ -31,6 +31,18 @@ Project ini menampilkan grid node dengan animasi bezier yang dinamis dan 7 mode 
 - **VERTICALWAVE**: Grid dengan gelombang vertikal dari atas ke bawah
 
 Setiap mode memiliki karakteristik visual yang unik dengan dynamic line width dan smooth color transitions.
+
+### 2D vs 3D Rendering
+
+Project ini mendukung **2 mode rendering** yang dipilih secara random saat startup dan reset:
+
+- **2D Mode (GridBezier)**: Grid bezier pada bidang 2D dengan 7 mode rendering
+- **3D Mode (GridBezier3D)**: Grid bezier dalam ruang 3D dengan:
+  - **Z-Axis Curve**: 5 variasi trigonometric functions (sin, cos, tan) untuk posisi Z
+  - **3D Bezier Curves**: Kurva bezier dengan control points dalam ruang 3D
+  - **Camera Animation**: Auto movement kamera dengan smooth easing
+  - **3D Wave Effects**: Gelombang 3D yang mempengaruhi posisi Z dan control points
+  - **3D Wobble Effects**: Perlin noise dalam 3 axis (X, Y, Z) untuk gerakan organik
 
 ---
 
@@ -58,19 +70,10 @@ Setiap mode memiliki karakteristik visual yang unik dengan dynamic line width da
 | Input | Action |
 | --- | --- |
 | **Key 'S'** | Toggle visibility shape grid (Show/Hide) |
-| **Key 'R'** | Reset animasi dengan strategi baru (random) |
+| **Key 'R'** | Reset dengan mode, animasi, warna, dan arah baru (random 2D/3D) |
 | **Key 'Q'** | Keluar dari aplikasi |
+| **Key 'P'** | Print camera position dan orientation (3D mode only) |
 | **Right Click** | Toggle visibilitas kursor |
-| **Key 'Z'** | Set Horizontal Gradient color |
-| **Key 'X'** | Set Rainbow Spiral color |
-| **Key 'C'** | Set Radial Gradient color |
-| **Key 'V'** | Set Vertical Gradient color |
-| **Key 'B'** | Set Time-Based (WAVE mode) color |
-| **Key '1'** | Set EaseInOut (Quadratic) animation |
-| **Key '2'** | Set Linear animation |
-| **Key '3'** | Set CubicEaseInOut animation |
-| **Key '4'** | Set Wobble animation |
-| **Key '5'** | Set Wave animation |
 
 ---
 
@@ -317,6 +320,202 @@ Ubah range line width untuk efek yang berbeda:
 
 ---
 
+## 🎨 GridBezier3D: 3D Rendering System
+
+GridBezier3D adalah ekstensi 3D dari GridBezier yang menampilkan grid bezier dalam ruang 3D dengan efek visual yang lebih dramatis.
+
+### 3D Mode Rendering
+
+GridBezier3D mendukung **7 mode rendering 3D** yang setara dengan versi 2D:
+
+| Mode | Deskripsi | Fitur 3D |
+|------|-----------|----------|
+| **VARYING3D** | Static 3D grid | Bezier curves di ruang 3D dengan Z-axis curve |
+| **MULURLR3D** | Growing 3D grid | Animasi easing di 3D space |
+| **WOBBLE3D** | 3D Perlin noise | **Wobble di 3 axis (X, Y, Z)** untuk gerakan organik |
+| **WAVE3D** | 3D Diagonal wave | **Wave pada posisi Z** dan control points |
+| **RADIALWAVE3D** | 3D Radial ripple | **Radial wave pada Z-axis** dari center ke luar |
+| **HORIZONTALWAVE3D** | 3D Horizontal wave | **Horizontal wave pada Z-axis** dari kiri ke kanan |
+| **VERTICALWAVE3D** | 3D Vertical wave | **Vertical wave pada Z-axis** dari atas ke bawah |
+
+### Z-Axis Calculation
+
+GridBezier3D menggunakan **5 variasi trigonometric functions** untuk menghitung posisi Z setiap node:
+
+```cpp
+// Normalized distance dari center (0.0 - 1.0)
+float normalizedDist = distFromCenter / maxDist;
+
+switch (zCoordinate) {
+    case 0: return sin(normalizedDist * PI / 2) * 200 - 100;     // Smooth rise
+    case 1: return cos(normalizedDist * PI / 2) * 200 - 100;     // Smooth fall
+    case 2: return sin(normalizedDist * TWO_PI) * 200 - 100;     // Full sine wave
+    case 3: return cos(normalizedDist * TWO_PI) * 200 - 100;     // Full cosine wave
+    case 4:                                                      // Tangent wave (clamped)
+        float tanVal = tan(normalizedDist * TWO_PI);
+        if (tanVal > 2.0f) tanVal = 2.0f;
+        if (tanVal < -2.0f) tanVal = -2.0f;
+        return tanVal * 170 - 100;
+}
+```
+
+**Z-coordinate dipilih secara random** (0-4) saat setiap initialize/reset, menciptakan variasi bentuk 3D yang berbeda-beda.
+
+### 3D Bezier Curves
+
+Berbeda dengan versi 2D yang menggunakan `ofDrawBezier(x1, y1, x2, y2, ...)`, GridBezier3D menggunakan 3D bezier curves:
+
+```cpp
+// 2D Bezier (GridBezier)
+ofDrawBezier(n1.x, n1.y, cp1_x, cp1_y, cp2_x, cp2_y, n2.x, n2.y);
+
+// 3D Bezier (GridBezier3D)
+ofDrawBezier(n1.x, n1.y, n1.z,           // Start point (X, Y, Z)
+             cp1_x, cp1_y, cp1_z,        // Control point 1 (X, Y, Z)
+             cp2_x, cp2_y, cp2_z,        // Control point 2 (X, Y, Z)
+             n2.x, n2.y, n2.z);          // End point (X, Y, Z)
+```
+
+Control points juga memiliki offset Z untuk menciptakan kurva 3D yang dinamis.
+
+### 3D Wave Effects
+
+Mode WAVE3D, RADIALWAVE3D, HORIZONTALWAVE3D, dan VERTICALWAVE3D memiliki efek wave 3D:
+
+**Wave pada Z-axis:**
+```cpp
+// Hitung wave value (-1 sampai 1)
+float wave = sin(i * frequency + j * frequency + time * speed);
+
+// Wave offset untuk Z-axis (3D effect!)
+float waveZ = sin(i * frequency * 0.7 + j * frequency * 0.7 + time * waveSpeed);
+float waveZOffset = waveZ * waveAmplitudeZ;  // AmplitudeZ = 30
+
+// Posisi Z dengan wave effect
+float z1 = n1.z + waveZOffset;
+float z2 = n2.z + waveZOffset;
+
+// Control points juga di-wave di Z
+float cp1_z = z1 + 50 + waveZOffset;
+float cp2_z = z2 - 50 + waveZOffset;
+```
+
+**Vertical & Horizontal Bezier dengan 3D Wave:**
+```cpp
+ofDrawBezier(n1.x, n1.y, z1,              // Start dengan wave Z
+             n1.x + curveAmount, (n1.y + n2.y) / 2, cp1_z,  // CP1 dengan wave Z
+             n2.x - curveAmount, (n1.y + n2.y) / 2, cp2_z,  // CP2 dengan wave Z
+             n2.x, n2.y, z2);              // End dengan wave Z
+```
+
+### 3D Wobble Effects
+
+WOBBLE3D mode menggunakan **Perlin noise dalam 3 axis** (X, Y, Z) untuk gerakan organik:
+
+```cpp
+// WOBBLE 3D dengan PERLIN NOISE untuk setiap node
+float time = ofGetFrameNum() * 0.02f;
+
+// Hitung wobble untuk node1 (X, Y, Z)
+float noise1_x = ofNoise(time + n1.noiseOffset);
+float noise1_y = ofNoise(time + n1.noiseOffset + 100);  // Offset berbeda
+float noise1_z = ofNoise(time + n1.noiseOffset + 200);  // Offset berbeda
+float wobble1_x = ofMap(noise1_x, 0, 1, -15, 15);
+float wobble1_y = ofMap(noise1_y, 0, 1, -15, 15);
+float wobble1_z = ofMap(noise1_z, 0, 1, -20, 20);
+
+// Hitung wobble untuk node2 (X, Y, Z)
+float noise2_x = ofNoise(time + n2.noiseOffset);
+float noise2_y = ofNoise(time + n2.noiseOffset + 100);
+float noise2_z = ofNoise(time + n2.noiseOffset + 200);
+float wobble2_x = ofMap(noise2_x, 0, 1, -15, 15);
+float wobble2_y = ofMap(noise2_y, 0, 1, -15, 15);
+float wobble2_z = ofMap(noise2_z, 0, 1, -20, 20);
+
+// Pulse untuk line width (hybrid approach)
+float pulse = cos(ofGetFrameNum() * 0.05f);
+float combined = ((noise1_x + noise2_x) / 2.0f + pulse) / 2.0f;
+float lineWidth = ofMap(combined, 0, 1, 3, 7);
+ofSetLineWidth(lineWidth);
+
+// Posisi node dengan wobble 3D
+float x1 = n1.x + wobble1_x;
+float y1 = n1.y + wobble1_y;
+float z1 = n1.z + wobble1_z;
+
+// Control points juga di-wobble
+float cp1_z = z1 + 50 + wobble1_z;
+float cp2_z = z2 - 50 + wobble2_z;
+
+// Draw bezier di 3D space dengan wobble
+ofDrawBezier(x1, y1, z1,
+             cp1_x, cp1_y, cp1_z,
+             cp2_x, cp2_y, cp2_z,
+             x2, y2, z2);
+```
+
+### Camera Animation System
+
+GridBezier3D menggunakan **ofEasyCam** dengan sistem animasi otomatis:
+
+**State Machine dengan 5 States:**
+```cpp
+enum CameraAnimState {
+    CAM_IDLE,           // Tidak ada animasi
+    CAM_TO_TARGET,      // Animasi dari awal ke target
+    CAM_TO_START,       // Animasi dari target ke awal (reverse)
+    CAM_DELAY_TO_TARGET // Delay sebelum animasi ke target
+};
+```
+
+**Parameter Animation:**
+- **Animation Duration**: 8.0 detik (dengan smooth easing)
+- **Initial Delay**: 5.5 detik sebelum animasi pertama
+- **Reverse Delay**: 1.0 detik delay saat reverse complete
+
+**Camera Positions:**
+```cpp
+// Start position (awal)
+cameraStartPos = ofVec3f(ofGetWidth() / 2, (ofGetHeight() / 2) + 100, 811);
+
+// Target position (setelah animasi)
+cameraTargetPos = ofVec3f(ofGetWidth() / 2, -181, 996);
+
+// Look at center (selalu)
+cam.lookAt(ofVec3f(ofGetWidth() / 2, ofGetHeight() / 2, 0));
+```
+
+**Easing Function (Smooth Step):**
+```cpp
+float t = cameraAnimationProgress;
+float easedT = t * t * (3.0f - 2.0f * t);  // Smooth step (3t² - 2t³)
+
+// Interpolate posisi kamera
+ofVec3f currentPos = cameraStartPos.getInterpolated(cameraTargetPos, easedT);
+cam.setPosition(currentPos);
+```
+
+### Node3D Class
+
+GridBezier3D menggunakan `Node3D` class yang memiliki tambahan noise offsets untuk 3D wobble:
+
+```cpp
+class Node3D {
+public:
+    float x, y, z;           // 3D position
+    float noiseOffset;       // Untuk Perlin noise wobble
+
+    Node3D(float x, float y, float z) {
+        this->x = x;
+        this->y = y;
+        this->z = z;
+        this->noiseOffset = ofRandom(1000);  // Random offset untuk noise
+    }
+};
+```
+
+---
+
 ### 🔥 WOBBLE Mode: Hybrid Dynamic Line Width
 
 WOBBLE mode menggunakan pendekatan **hybrid** yang menggabungkan dua sumber nilai:
@@ -356,10 +555,13 @@ float pulse = sin(frame * 0.05);  // Horizontal curves
 ## 🛠️ Tech Stack
 
 - **[OpenFrameworks 0.12.1](https://openframeworks.cc/)**
+  - **ofEasyCam** untuk 3D camera system
+  - **3D Rendering** dengan OpenGL-based functions
 - **C++17**
 - **Visual Studio 2022 Community** (v143 toolset)
 - **Strategy Pattern** untuk arsitektur yang fleksibel
 - **Bezier Curve Algorithms** untuk smooth animations
+- **3D Mathematics** (trigonometric functions untuk Z-axis calculation)
 
 ---
 
@@ -376,8 +578,8 @@ float pulse = sin(frame * 0.05);  // Horizontal curves
 # Clone repository ini
 git clone https://github.com/username/JaringSketch.git
 
-# Checkout branch sketch-GridBezier
-git checkout sketch-GridBezier
+# Checkout branch sketch-grid-bezier-3d
+git checkout sketch-grid-bezier-3d
 
 # Buka Visual Studio
 # Double-click: JaringSketch.sln
@@ -611,6 +813,8 @@ JaringSketch/
 ├── src/
 │   ├── main.cpp              # Entry point aplikasi
 │   ├── ofApp.cpp/h           # Main application class
+│   ├── Node.h                # 2D Node class untuk grid positions
+│   ├── Node3D.h              # 3D Node class untuk grid positions dengan noise offsets
 │   ├── anim/                 # Animation strategies
 │   │   ├── LinearAnimation.cpp/h          # Linear easing (Power 1)
 │   │   ├── EaseInOutAnimation.cpp/h       # Quadratic easing (Power 2)
@@ -625,7 +829,8 @@ JaringSketch/
 │   │   ├── RainbowSpiral.cpp/h           # Rainbow spiral with rotation
 │   │   └── TimeBasedColor.cpp/h           # Time-based animated colors
 │   ├── shp/                 # Shape implementations
-│   │   └── GridBezier.cpp/h              # Grid shape dengan bezier curves
+│   │   ├── GridBezier.cpp/h              # 2D Grid shape dengan bezier curves
+│   │   └── GridBezier3D.cpp/h            # 3D Grid shape dengan bezier curves di ruang 3D
 │   └── strategy/            # Base strategies & interfaces
 │       ├── AnimationStrategy.h           # Interface untuk animasi
 │       ├── ColorStrategy.cpp/h           # Interface untuk warna
@@ -661,18 +866,18 @@ Dengan optimasi C++ modern dan openFrameworks:
 
 ---
 
-## 📝 Current Status: **sketch-GridBezier**
+## 📝 Current Status: **sketch-grid-bezier-3d**
 
-Branch ini adalah **pengembangan lanjut** dari JaringSketch dengan fokus pada **multi-mode rendering system** untuk GridBezier. Fitur yang tersedia:
+Branch ini adalah **pengembangan lanjut** dari JaringSketch dengan fokus pada **multi-mode rendering system** untuk GridBezier (2D) dan GridBezier3D (3D). Fitur yang tersedia:
 
+✅ **Auto 2D/3D Selection**: Random choice antara GridBezier (2D) dan GridBezier3D (3D) saat startup/reset
 ✅ Grid layout system dengan konfigurasi cols/rows
-✅ **7 Rendering Modes**: VARYING, MULURLR, WOBBLE, WAVE, RADIALWAVE, HORIZONTALWAVE, VERTICALWAVE
+✅ **7 Rendering Modes (2D & 3D)**: VARYING, MULURLR, WOBBLE, WAVE, RADIALWAVE, HORIZONTALWAVE, VERTICALWAVE
 ✅ **5 Animation Strategies**: Linear, Quadratic, Cubic, Wobble, Wave
 ✅ **6 Color Strategies**: Solid, Horizontal/Vertical/Radial Gradient, Rainbow Spiral, Time-Based
 ✅ **6 Initialization Directions**: TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT, RADIAL_OUT, RADIAL_IN (random!)
 ✅ **Multi-mode rendering** dengan efek visual bervariasi
 ✅ **Dynamic mode selection** (random pada startup/reset)
-✅ **Interactive strategy switching** via keyboard (1-5 untuk animasi, Z-X-C-V-B untuk color)
 ✅ Trails effect untuk visual impact
 ✅ Strategy pattern untuk animasi & warna
 ✅ Bezier curve rendering dengan curve intensity dinamis
@@ -681,12 +886,22 @@ Branch ini adalah **pengembangan lanjut** dari JaringSketch dengan fokus pada **
 ✅ Distance-based radial ripple effects
 ✅ **Dynamic line width** yang mengikuti gelombang (WAVE, RADIALWAVE, HORIZONTALWAVE, VERTICALWAVE & WOBBLE mode)
 ✅ **Hybrid dynamic line width** dengan noise + pulse combination (WOBBLE mode)
+✅ **GridBezier3D Features**:
+  - **3D Bezier Curves**: Kurva bezier dengan control points dalam ruang 3D (X, Y, Z)
+  - **Z-Axis Calculation**: 5 variasi trigonometric functions (sin, cos, tan) untuk posisi Z nodes
+  - **3D Wave Effects**: Gelombang 3D yang mempengaruhi posisi Z dan control points (WAVE3D, RADIALWAVE3D, HORIZONTALWAVE3D, VERTICALWAVE3D)
+  - **3D Wobble Effects**: Perlin noise dalam 3 axis (X, Y, Z) untuk gerakan organik (WOBBLE3D)
+  - **Camera Animation System**: State machine dengan 5 states (IDLE, TO_TARGET, TO_START, DELAY) untuk smooth camera movement
+  - **ofEasyCam Integration**: Kamera 3D dengan auto position dan look-at center grid
+  - **Camera Print Debug**: Tekan 'P' untuk print camera position dan orientation ke console
 ✅ HSB color system untuk vivid gradients
 ✅ Delta time-based animation (FPS independent)
 ✅ Memory-safe implementation dengan `std::unique_ptr`
 ✅ **Auto re-initialization** untuk RADIAL_OUT mode (chaotic → rapi setelah animasi)
 
 ### Mode Highlights:
+
+**2D Mode (GridBezier):**
 - **WOBBLE Mode**: Perlin noise-based organic movement dengan **hybrid dynamic line width** (noise + pulse)
 - **WAVE Mode**: Diagonal wave pattern dengan **dynamic line width** yang berdenyut
 - **RADIALWAVE Mode**: Radial ripple effect dengan **dynamic line width** yang berdenyut
@@ -695,6 +910,22 @@ Branch ini adalah **pengembangan lanjut** dari JaringSketch dengan fokus pada **
 - **MULURLR Mode**: Growing grid dengan smooth easing
 - **VARYING Mode**: Static grid dengan **random curve intensity** yang bervariasi setiap reset
 - **RADIAL_OUT Init Direction**: Grid tumbuh dari tengah ke luar (chaotic visual), lalu otomatis re-initialize ke arah random yang rapi setelah animasi selesai
+
+**3D Mode (GridBezier3D):**
+- **VARYING3D Mode**: Static 3D grid dengan bezier curves di ruang 3D
+- **MULURLR3D Mode**: Growing 3D grid dengan smooth easing
+- **WOBBLE3D Mode**: **3D Perlin noise** dalam 3 axis (X, Y, Z) untuk gerakan organik dengan hybrid dynamic line width
+- **WAVE3D Mode**: **3D diagonal wave** yang mempengaruhi curve amount dan posisi Z dengan dynamic line width
+- **RADIALWAVE3D Mode**: **3D radial ripple** yang merambat dari tengah dengan efek pada Z-axis dan dynamic line width
+- **HORIZONTALWAVE3D Mode**: **3D horizontal wave** yang merambat dari kiri ke kanan dengan efek pada Z-axis dan dynamic line width
+- **VERTICALWAVE3D Mode**: **3D vertical wave** yang merambat dari atas ke bawah dengan efek pada Z-axis dan dynamic line width
+- **Z-Axis Curve**: 5 variasi trigonometric functions (sin, cos, tan) untuk posisi Z nodes:
+  - Case 0: `sin(normalizedDist * PI / 2) * 200 - 100` (Smooth rise)
+  - Case 1: `cos(normalizedDist * PI / 2) * 200 - 100` (Smooth fall)
+  - Case 2: `sin(normalizedDist * TWO_PI) * 200 - 100` (Full sine wave)
+  - Case 3: `cos(normalizedDist * TWO_PI) * 200 - 100` (Full cosine wave)
+  - Case 4: `tan(normalizedDist * TWO_PI) * 170 - 100` (Tangent wave dengan clamping)
+- **Camera Animation**: Auto movement dari position awal ke target dan kembali dengan smooth easing (8 second duration)
 
 🎨 **Creative Freedom**: Project ini terbuka untuk eksplorasi dan improvisasi tanpa batas. Seni digital adalah tentang ekspresi, bukan checklist.
 
@@ -724,7 +955,7 @@ This project is licensed under the **Apache License 2.0** - see the LICENSE file
 
 - **[OpenFrameworks](https://openframeworks.cc/)** - openframeworks.cc
 - **[ofxGui Addon](https://ofxaddons.com/categories/1-gui)** - ofxGui documentation
-- **[Watch Demo](https://youtu.be/Ggu9cwZL4QY)** - YouTube demonstration
+- **[Watch Demo](https://youtu.be/R_g6W-CVu7A)** - YouTube demonstration
 - **[Support Me](https://sociabuzz.com/abdkdhni)** - Fund the experiments ☕
 
 ---

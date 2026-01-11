@@ -153,48 +153,6 @@ void ofApp::keyPressed(int key){
 		ofLog() << "Orientation: X=" << orient.x() << ", Y=" << orient.y() << ", Z=" << orient.z() << ", W=" << orient.w();
 		ofLog() << "====================================";
 	}
-
-	//set Color
-	if (key == 'z' || key == 'Z') {
-		gridBezier->setColorStr(std::make_unique<HorizontalGradient>(200, 280));
-	}
-
-	if (key == 'x' || key == 'X') {
-		gridBezier->setColorStr(std::make_unique<RainbowSpiral>(0.5));
-	}
-	if (key == 'c' || key == 'C') {
-		gridBezier->setColorStr(std::make_unique<RadialGradient>(0,360));
-	}
-	if (key == 'v' || key == 'V') {
-		gridBezier->setColorStr(std::make_unique<VerticalGradient>(255, 360));
-	}
-	if (key == 'B' || key == 'b') {
-		gridBezier->setColorStr(std::make_unique<TimeBasedColor>(125, 360, 0.25f,TimeBasedColor::WAVE));
-	}
-
-	//set Animation
-
-	if (key == '1' || key == '1') {
-		gridBezier->resetAnimation();
-		gridBezier->setAnimationStr(std::make_unique<EaseInOutAnimation>(0.25f));
-	}
-	if (key == '2' || key == '2') {
-		gridBezier->resetAnimation();
-		gridBezier->setAnimationStr(std::make_unique<LinearAnimation>(0.25f));
-	}
-	if (key == '3' || key == '3') {
-		gridBezier->resetAnimation();
-		gridBezier->setAnimationStr(std::make_unique<CubicEaseInOutAnimation>(0.25f));
-	}
-
-	if (key == '4' || key == '4') {
-		gridBezier->resetAnimation();
-		gridBezier->setAnimationStr(std::make_unique<WobbleAnimation>(0.25f, 3, 0.7));
-	}
-	if (key == '5' || key == '5') {
-		gridBezier->resetAnimation();
-		gridBezier->setAnimationStr(std::make_unique<WaveAnimation>(0.25f, 0.2f, 0.3f, 0.0f));
-	}
 }
 
 //--------------------------------------------------------------
@@ -276,7 +234,6 @@ void ofApp::resetGirBezier() {
 		startCameraAnimation(true); // true = reverse mode
 	} else {
 		// Reset 2D GridBezier
-		gridBezier->resetAnimation();
 		gridBezier = std::make_unique<GridBezier>(cellMargin, cellMargin);
 		gridBezier->initialize(ofGetWidth(), ofGetHeight());
 		gridBezier->setColorStr(getRandomColorStrategy());
