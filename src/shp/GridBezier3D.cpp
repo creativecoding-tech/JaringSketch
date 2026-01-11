@@ -8,10 +8,11 @@ GridBezier3D::GridBezier3D(float cellSize, float margin) {
 	this->curveIntensity = ofRandom(0, 6);
 
 	// 7 modes: VARYING3D, MULURLR3D, WOBBLE3D, WAVE3D, RADIALWAVE3D, HORIZONTALWAVE3D, VERTICALWAVE3D
-	/*this->randomModeBezier = (int)ofRandom(0, 7);
-	this->currentBzMode = static_cast<GridBezier3D::bezierMode3D>(randomModeBezier);*/
+	this->randomModeBezier = (int)ofRandom(0, 7);
+	this->currentBzMode = static_cast<GridBezier3D::bezierMode3D>(randomModeBezier);
 
-	this->currentBzMode = VERTICALWAVE3D;
+	//teset manual
+	//this->currentBzMode = VERTICALWAVE3D;
 }
 
 void GridBezier3D::setAnimationStr(std::unique_ptr<AnimationStrategy> animStrategy) {

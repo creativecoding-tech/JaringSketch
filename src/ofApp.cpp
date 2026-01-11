@@ -46,6 +46,12 @@ void ofApp::setup(){
 		cam.setPosition(ofGetWidth() /2, (ofGetHeight() / 2) + 100 , 811);  // Camera position
 		cam.lookAt(ofVec3f(ofGetWidth() / 2, ofGetHeight() / 2, 0)); // Look at center of grid
 
+		cameraLastKnownPos = ofVec3f(ofGetWidth() / 2, (ofGetHeight() / 2) + 100, 811);
+		cameraAnimationDelayTimer = 5.0f;
+		cameraAnimationProgress = 0.0f;
+		isAnimatingCamera = false;
+		cameraAnimState = CAM_IDLE;
+
 		// Initialize 3D GridBezier3D
 		gridBezier3D = std::make_unique<GridBezier3D>(cellMargin, cellMargin);
 		gridBezier3D->initialize(ofGetWidth(), ofGetHeight());
@@ -61,11 +67,51 @@ void ofApp::setup(){
 }
 
 //--------------------------------------------------------------
-void ofApp::update(){
+void ofApp::update() {
+	// Update camera animation dengan state machine
+	if (use3D) {
+		switch (cameraAnimState) {
+		case CAM_IDLE:
+			// Delay sebelum mulai animasi pertama
+			if (cameraAnimationDelayTimer > 0) {
+				cameraAnimationDelayTimer -= 1.0f / 120.0f;
+				if (cameraAnimationDelayTimer <= 0) {
+					startCameraAnimation(false); // Forward ke target
+				}
+			}
+			break;
+
+		case CAM_TO_TARGET:
+		case CAM_TO_START:
+			// Update camera animation (selalu jalankan, tidak tergantung showShape)
+			updateCameraAnimation();
+
+			// Cek jika animasi complete
+			if (!isAnimatingCamera) {
+				if (cameraAnimState == CAM_TO_TARGET) {
+					cameraAnimState = CAM_IDLE;
+				}
+				else if (cameraAnimState == CAM_TO_START) {
+					cameraAnimState = CAM_DELAY_TO_TARGET;
+					cameraAnimationDelayTimer = 1.0f; // 1 detik delay
+				}
+			}
+			break;
+
+		case CAM_DELAY_TO_TARGET:
+			cameraAnimationDelayTimer -= 1.0f / 120.0f;
+			if (cameraAnimationDelayTimer <= 0) {
+				startCameraAnimation(false); // Forward ke target
+			}
+			break;
+		}
+	}
+
 	if (showShape) {
 		if (use3D && gridBezier3D) {
 			gridBezier3D->updateAnimation();
-		} else if (gridBezier) {
+		}
+		else if (gridBezier) {
 			gridBezier->updateAnimation();
 		}
 	}
@@ -221,16 +267,13 @@ void ofApp::resetGirBezier() {
 	int cellMargin = ofRandom(45, 51);
 
 	if (use3D) {
-		// Setup 3D camera
-		cam.setPosition(ofGetWidth()/2, -181, 996);  // Camera position
-		cam.lookAt(ofVec3f(ofGetWidth() / 2, ofGetHeight() / 2, 0)); // Look at center of grid
-		cam.setOrientation(ofQuaternion(0.35005, 0.006934, -0.00259127, 0.936702));
-
 		// Reset 3D GridBezier3D
 		gridBezier3D = std::make_unique<GridBezier3D>(cellMargin, cellMargin);
 		gridBezier3D->initialize(ofGetWidth(), ofGetHeight());
 		gridBezier3D->setColorStr(getRandomColorStrategy());
 		gridBezier3D->setAnimationStr(getRandomAnimationStrategy3D());
+		// Trigger reverse animation: current pos → awal → target
+		startCameraAnimation(true); // true = reverse mode
 	} else {
 		// Reset 2D GridBezier
 		gridBezier->resetAnimation();
@@ -302,4 +345,57 @@ std::unique_ptr<AnimationStrategy> ofApp::getRandomAnimationStrategy3D() {
 	case 4: return std::make_unique<WaveAnimation>(0.25f, 0.2f, 0.3f, 0.0f);
 	default: return std::make_unique<EaseInOutAnimation>(0.25f);
 	}
+}
+
+void ofApp::startCameraAnimation(bool reverse) {
+	// Simpan posisi kamera saat ini sebagai start point
+	cameraStartPos = cameraLastKnownPos;
+
+	if (reverse) {
+		// Reverse: dari current posisi → posisi awal
+		cameraTargetPos = ofVec3f(ofGetWidth() / 2, (ofGetHeight() / 2) + 100, 811);
+		cameraAnimState = CAM_TO_START;
+		ofLog() << "REVERSE ANIMATION STARTED!";
+		ofLog() << "From: " << cameraStartPos << " To: " << cameraTargetPos;
+	}
+	else {
+		// Forward: dari posisi awal → posisi target
+		cameraTargetPos = ofVec3f(ofGetWidth() / 2, -181, 996);
+		cameraAnimState = CAM_TO_TARGET;
+		ofLog() << "FORWARD ANIMATION STARTED!";
+		ofLog() << "From: " << cameraStartPos << " To: " << cameraTargetPos;
+	}
+
+	cameraAnimationProgress = 0.0f;
+	isAnimatingCamera = true;
+}
+
+void ofApp::updateCameraAnimation() {
+	if (!isAnimatingCamera) return;
+
+	// Update progress
+	float deltaTime = ofGetLastFrameTime();
+	cameraAnimationProgress += deltaTime / cameraAnimationDuration;
+
+
+	if (cameraAnimationProgress >= 1.0f) {
+		cameraAnimationProgress = 1.0f;
+		isAnimatingCamera = false;
+		cameraLastKnownPos = cameraTargetPos;  // ← Simpan posisi akhir
+		cam.setPosition(cameraTargetPos);
+		cam.lookAt(ofVec3f(ofGetWidth() / 2, ofGetHeight() / 2, 0));
+		return;
+	}
+
+	// Easing function: smooth step (3t² - 2t³)
+	float t = cameraAnimationProgress;
+	float easedT = t * t * (3.0f - 2.0f * t);
+
+	// Interpolate posisi SAJA
+	ofVec3f currentPos = cameraStartPos.getInterpolated(cameraTargetPos, easedT);
+	cameraLastKnownPos = currentPos;  // ← Update posisi current
+	cam.setPosition(currentPos);
+
+	// Selalu look at center
+	cam.lookAt(ofVec3f(ofGetWidth() / 2, ofGetHeight() / 2, 0));
 }
