@@ -47,7 +47,7 @@ void ofApp::setup(){
 		cam.lookAt(ofVec3f(ofGetWidth() / 2, ofGetHeight() / 2, 0)); // Look at center of grid
 
 		cameraLastKnownPos = ofVec3f(ofGetWidth() / 2, (ofGetHeight() / 2) + 100, 811);
-		cameraSpherePos = ofVec3f(ofGetWidth() / 2, ofGetHeight() / 2 + 400, 500);  // Isometric View untuk sphere
+		cameraSpherePos = ofVec3f(ofGetWidth() / 2, ofGetHeight() / 2 - 200, 600);
 		cameraAnimationDelayTimer = 5.0f;
 		cameraAnimationProgress = 0.0f;
 		isAnimatingCamera = false;

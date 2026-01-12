@@ -26,6 +26,8 @@ GridBezier3D::GridBezier3D(float cellSize, float margin) {
 	isPhyllotaxisActive = false;
 
 	this->currentPhyllotaxisMode = PHYLLO_FLAT;
+	sphereRotationAngle = 0.0f;
+	isSphereRotating = false;
 }
 
 void GridBezier3D::setAnimationStr(std::unique_ptr<AnimationStrategy> animStrategy) {
@@ -211,6 +213,13 @@ void GridBezier3D::updateAnimation() {
 		currentCols = maxCols;
 		currentRows = maxRows;
 	}
+
+	if (isSphereRotating) {
+		sphereRotationAngle += 4.0f; // Kecepatan rotasi (derajat per frame)
+		//if (sphereRotationAngle >= 360.0f) {
+		//	sphereRotationAngle -= 360.0f;
+		//}
+	}
 }
 
 void GridBezier3D::display() {
@@ -218,6 +227,26 @@ void GridBezier3D::display() {
 	for (int i = 0; i < nodes.size(); i++) {
 		nodes[i]->updatePhyllotaxisAnimation();
 	}
+
+	if (isSphereRotating) {
+		ofPushMatrix();  // Simpan matrix transformasi saat ini
+
+		// Pindah ke center sphere
+		float centerX = ofGetWidth() / 2.0f;
+		float centerY = ofGetHeight() / 2.0f;
+		float centerZ = 0.0f;
+		ofTranslate(centerX, centerY, centerZ);
+
+		// Rotasi pada sumbu Y (vertical) - seperti planet berputar
+		ofRotateY(sphereRotationAngle);
+
+		// Rotasi sedikit pada sumbu X untuk lebih dinamis
+		ofRotateX(sphereRotationAngle * 0.7f);
+
+		// Kembalikan ke posisi awal
+		ofTranslate(-centerX, -centerY, -centerZ);
+	}
+
 	switch (currentBzMode) {
 	case VARYING3D:
 		setBezierVarying3D();
@@ -240,6 +269,11 @@ void GridBezier3D::display() {
 	case VERTICALWAVE3D:
 		setBezierVerticalWave3D();
 		break;
+	}
+
+	// Restore matrix setelah selesai menggambar
+	if (isSphereRotating) {
+		ofPopMatrix();
 	}
 }
 
@@ -940,11 +974,19 @@ void GridBezier3D::enablePhyllotaxis() {
 	isPhyllotaxisActive = true;
 
 	// RANDOM pilih mode phyllotaxis: 0 = FLAT, 1 = SPHERE
-	/*int randomMode = (int)ofRandom(0, 2);
-	currentPhyllotaxisMode = static_cast<PhyllotaxisMode>(randomMode);*/
+	int randomMode = (int)ofRandom(0, 2);
+	currentPhyllotaxisMode = static_cast<PhyllotaxisMode>(randomMode);
 
 	//test manual
-	currentPhyllotaxisMode = PHYLLO_SPHERE;
+	//currentPhyllotaxisMode = PHYLLO_SPHERE;
+
+	if (currentPhyllotaxisMode == PHYLLO_SPHERE) {
+		isSphereRotating = true;
+		sphereRotationAngle = 0.0f;
+	}
+	else {
+		isSphereRotating = false;
+	}
 
 	// Print ke console untuk debug (opsional, bisa dihapus nanti)
 	if (currentPhyllotaxisMode == PHYLLO_FLAT) {
@@ -958,6 +1000,8 @@ void GridBezier3D::enablePhyllotaxis() {
 void GridBezier3D::disablePhyllotaxis() {
 	if (!isPhyllotaxisActive) return;
 	isPhyllotaxisActive = false;
+	isSphereRotating = false;  // Tambahkan ini
+	sphereRotationAngle = 0.0f; // Reset angle
 
 	// Kembalikan semua node ke posisi grid ASLI
 	for (int i = 0; i < nodes.size(); i++) {
@@ -1012,7 +1056,7 @@ void GridBezier3D::enablePhyllotaxisFlat() {
 
 void GridBezier3D::enablePhyllotaxisSphere() {
 	// Fibonacci Sphere Algorithm untuk distribute nodes di permukaan bola
-	float goldenAngle = TWO_PI * (3.0f - sqrt(5.0f));  // ~2.399 radian
+	float goldenAngle = PI * (3.0f - sqrt(5.0f));  // ~2.399 radian
 	float offset = 2.0f / nodes.size();
 
 	// Sphere size (bisa adjust)

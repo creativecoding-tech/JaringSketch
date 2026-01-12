@@ -33,6 +33,8 @@ public:
 		PHYLLO_SPHERE  // Opsi 3: Sphere phyllotaxis (X, Y, Z dari spherical mapping)
 	};
 	PhyllotaxisMode currentPhyllotaxisMode;  // Track mode saat ini
+	float sphereRotationAngle;      // Sudut rotasi sphere
+	bool isSphereRotating;          // Flag untuk mengaktifkan rotasi
 
 	GridBezier3D(float cellSize, float margin);
 	void setAnimationStr(std::unique_ptr<AnimationStrategy> strategy) override;
