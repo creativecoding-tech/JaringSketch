@@ -144,8 +144,15 @@ void ofApp::keyPressed(int key){
 	}
 
 	if (key == 'x' || key == 'X') {
-		//pastikan gridBezier pada mode 2D
-		if (gridBezier && !use3D) gridBezier->togglePhyllotaxis();
+		// Support 2D dan 3D mode
+		if (!use3D && gridBezier) {
+			// 2D mode
+			gridBezier->togglePhyllotaxis();
+		}
+		else if (use3D && gridBezier3D) {
+			// 3D mode
+			gridBezier3D->togglePhyllotaxis();
+		}
 	}
 
 	// Print camera position dan orientation

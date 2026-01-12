@@ -35,11 +35,16 @@ public:
 	void display() override;
 	bool isAnimationFinished() override;
 	void resetAnimation() override;
+	// Phyllotaxis methods
+	void enablePhyllotaxis();
+	void disablePhyllotaxis();
+	void togglePhyllotaxis();
 
 private:
 	float curveIntensity = 0;
 	int randomModeBezier;
 	int zCoordinate;
+	bool isPhyllotaxisActive;
 	float calculateZ(int i, int j);  // Helper untuk menghitung Z position
 	void setBezierVarying3D();
 	void setBezierMulurLR3D();

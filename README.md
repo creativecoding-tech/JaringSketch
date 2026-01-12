@@ -72,7 +72,7 @@ Project ini mendukung **2 mode rendering** yang dipilih secara random saat start
 | Input | Action |
 | --- | --- |
 | **Key 'S'** | Toggle visibility shape grid (Show/Hide) |
-| **Key 'X'** | Toggle Phyllotaxis pattern on/off (2D mode only) |
+| **Key 'X'** | Toggle Phyllotaxis pattern on/off (2D & 3D mode) |
 | **Key 'R'** | Reset dengan mode, animasi, warna, dan arah baru (random 2D/3D) |
 | **Key 'Q'** | Keluar dari aplikasi |
 | **Key 'P'** | Print camera position dan orientation (3D mode only) |
@@ -325,22 +325,36 @@ Ubah range line width untuk efek yang berbeda:
 
 ## 🌻 Phyllotaxis Pattern (NEW!)
 
-GridBezier mendukung **Phyllotaxis pattern** - pola spiral yang ditemukan di alam (bunga matahari, bunga matahari, pinecone). Fitur ini mengubah grid menjadi pola spiral dengan golden angle.
+GridBezier dan GridBezier3D mendukung **Phyllotaxis pattern** - pola spiral yang ditemukan di alam (bunga matahari, pinecone, bunga matahari). Fitur ini mengubah grid menjadi pola spiral dengan golden angle.
 
 ### Cara Menggunakan
 
 **Untuk 2D Grid Mode:**
-1. Pastikan aplikasi berjalan di mode 2D (bukan 3D)
+1. Pastikan aplikasi berjalan di mode 2D
 2. Tekan **'S'** untuk menampilkan grid
 3. Tekan **'X'** untuk mengaktifkan Phyllotaxis pattern
 4. Tekan **'X'** lagi untuk menonaktifkan kembali ke grid normal
 
+**Untuk 3D Grid Mode:**
+1. Pastikan aplikasi berjalan di mode 3D
+2. Tekan **'S'** untuk menampilkan grid
+3. Tekan **'X'** untuk mengaktifkan Phyllotaxis pattern 3D
+4. Tekan **'X'** lagi untuk menonaktifkan kembali ke grid normal
+
 ### Visual Effect
 
+**2D Mode (GridBezier):**
 - ✨ **Smooth Animation** - Transisi grid ↔ phyllotaxis dengan cubic ease-in-out (~1 detik)
 - 🌀 **Golden Angle Spiral** - Menggunakan angle 137.5° (sudut emas)
 - 🌊 **Bidirectional Animation** - Toggle on/off dengan animasi smooth
 - 🎨 **Preserve Grid Structure** - Bezier curves tetap terbentuk antar nodes
+
+**3D Mode (GridBezier3D):**
+- ✨ **Smooth Animation** - Transisi grid ↔ phyllotaxis dengan cubic ease-in-out (~2 detik)
+- 🌀 **Golden Angle Spiral di 3D Space** - Spiral phyllotaxis dengan Z-axis curves
+- 🎥 **Camera Auto-Movement** - Camera berputar mengelilingi spiral 3D
+- 🎨 **Preserve 3D Curves** - Bezier curves 3D tetap terbentuk dengan wave/dome/bowl effect
+- 🌊 **Depth Effect** - Spiral phyllotaxis dengan variasi Z (5 variasi trigonometric functions)
 
 ### Teknik Phyllotaxis
 
@@ -365,7 +379,7 @@ bool isValid = (x >= 0 && x <= screenWidth &&
 
 ### Technical Implementation
 
-**Node Properties:**
+**Node Properties (2D):**
 ```cpp
 class Node {
     float x, y;                    // Posisi saat ini
@@ -377,6 +391,37 @@ class Node {
     float animProgress;            // 0.0 - 1.0
     float animSpeed;               // 0.008f (~1 detik di 120FPS)
 };
+```
+
+**Node3D Properties (3D):**
+```cpp
+class Node3D {
+    float x, y, z;                 // Posisi saat ini
+    float startX, startY, startZ; // Posisi awal (di-update tiap animasi)
+    float originalGridX, originalGridY, originalGridZ;  // Posisi grid asli
+    float targetX, targetY, targetZ;  // Posisi target
+
+    bool isAnimating;              // Flag animasi
+    float animProgress;            // 0.0 - 1.0
+    float animSpeed;               // 0.004f (~2 detik di 120FPS)
+};
+```
+
+**Phyllotaxis 2D Calculation:**
+```cpp
+float angle = index * goldenAngle;
+float radius = cellSize * 0.35f * sqrt(index);
+float phylloX = centerX + radius * cos(angle);
+float phylloY = centerY + radius * sin(angle);
+```
+
+**Phyllotaxis 3D Calculation:**
+```cpp
+float angle = index * goldenAngle;
+float radius = cellSize * 0.35f * sqrt(index);
+float phylloX = centerX + radius * cos(angle);
+float phylloY = centerY + radius * sin(angle);
+float phylloZ = nodes[i]->z;  // Z dari existing grid 3D (PENTING!)
 ```
 
 **Cubic Ease-In-Out Easing:**
@@ -415,10 +460,11 @@ y = ofLerp(startY, targetY, easedT);
 
 ### Catatan Penting
 
-- ⚠️ **Hanya untuk 2D mode** - Tidak tersedia untuk 3D GridBezier3D
+- ✅ **Support 2D & 3D mode** - Tersedia untuk GridBezier (2D) dan GridBezier3D (3D)
 - ⚠️ **Preserve bezier connections** - Curve antar nodes tetap terbentuk
 - ✅ **Reusable** - Bisa toggle on/off berkali-kali
 - ✅ **Performance optimized** - Menggunakan `std::unique_ptr` dan efficient loops
+- 🎨 **Z-Axis Preservation (3D)** - Phyllotaxis 3D mempertahankan Z-axis curves dari grid asli
 
 ---
 
@@ -988,12 +1034,14 @@ Branch ini adalah **pengembangan lanjut** dari JaringSketch dengan fokus pada **
 ✅ Distance-based radial ripple effects
 ✅ **Dynamic line width** yang mengikuti gelombang (WAVE, RADIALWAVE, HORIZONTALWAVE, VERTICALWAVE & WOBBLE mode)
 ✅ **Hybrid dynamic line width** dengan noise + pulse combination (WOBBLE mode)
-✅ **🌻 PHYLLO TAXIS PATTERN (NEW!)**: Pola spiral dengan golden angle 137.5° untuk 2D Grid
+✅ **🌻 PHYLLO TAXIS PATTERN (NEW!)**: Pola spiral dengan golden angle 137.5° untuk 2D & 3D Grid
   - **Golden Angle Spiral**: Menggunakan angle 137.5° (sudut emas dari alam)
-  - **Smooth Toggle Animation**: Transisi grid ↔ phyllotaxis dengan cubic ease-in-out (~1 detik)
+  - **Smooth Toggle Animation (2D)**: Transisi grid ↔ phyllotaxis dengan cubic ease-in-out (~1 detik)
+  - **Smooth Toggle Animation (3D)**: Transisi grid ↔ phyllotaxis dengan cubic ease-in-out (~2 detik)
   - **Bidirectional Animation**: Enable/disable dengan animasi smooth
-  - **Key 'X' Control**: Toggle phyllotaxis on/off di 2D mode
+  - **Key 'X' Control**: Toggle phyllotaxis on/off di 2D & 3D mode
   - **Preserve Grid Structure**: Bezier curves tetap terbentuk antar nodes
+  - **3D Z-Axis Preservation**: Phyllotaxis 3D mempertahankan Z-axis curves dari grid asli
 ✅ **GridBezier3D Features**:
   - **3D Bezier Curves**: Kurva bezier dengan control points dalam ruang 3D (X, Y, Z)
   - **Z-Axis Calculation**: 5 variasi trigonometric functions (sin, cos, tan) untuk posisi Z nodes
@@ -1024,6 +1072,12 @@ Branch ini adalah **pengembangan lanjut** dari JaringSketch dengan fokus pada **
 - **RADIAL_OUT Init Direction**: Grid tumbuh dari tengah ke luar (chaotic visual), lalu otomatis re-initialize ke arah random yang rapi setelah animasi selesai
 
 **3D Mode (GridBezier3D):**
+- **🌻 Phyllotaxis Pattern 3D (NEW!)**: Tekan 'X' untuk toggle pola spiral 3D dengan golden angle
+  - **Smooth Animation**: Transisi grid 3D ↔ spiral dengan cubic ease-in-out (~2 detik)
+  - **Bidirectional**: Bisa toggle on/off berkali-kali
+  - **Preserve Z-Axis Curves**: Z dari grid asli tetap dipertahankan
+  - **Camera Auto-Movement**: Camera berputar mengelilingi spiral
+  - **Depth Effect**: Spiral dengan variasi Z (5 trigonometric functions)
 - **VARYING3D Mode**: Static 3D grid dengan bezier curves di ruang 3D
 - **MULURLR3D Mode**: Growing 3D grid dengan smooth easing
 - **WOBBLE3D Mode**: **3D Perlin noise** dalam 3 axis (X, Y, Z) untuk gerakan organik dengan hybrid dynamic line width
