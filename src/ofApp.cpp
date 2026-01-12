@@ -214,7 +214,7 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
 
 void ofApp::initTrailsBackground() {
 	ofSetBackgroundAuto(false);
-	ofSetColor(0, ofRandom(15,21));
+	ofSetColor(0, 20);
 	ofFill();
 	ofDrawRectangle(0, 0, ofGetWidth(), ofGetHeight());
 	ofSetLineWidth(3.0);

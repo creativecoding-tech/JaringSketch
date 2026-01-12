@@ -721,7 +721,7 @@ void GridBezier::enablePhyllotaxis() {
     for (int i = 0; i < nodes.size();i++) {
         //hitung posisi phyllotaxis
         float angle = i * goldenAngle;
-        float radius = cellSize * 0.3f * sqrt(i);
+        float radius = cellSize * 0.35f * sqrt(i);
         float phylloX = centerX + radius * cos(angle);
         float phylloY = centerY + radius * sin(angle);
 
