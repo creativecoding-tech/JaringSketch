@@ -4,6 +4,7 @@ class Node
 public:
 	float x, y;
 	float startX, startY;
+	float originalGridX, originalGridY;
 	float targetX, targetY;
 	float noiseOffset;
 	//Animation

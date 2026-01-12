@@ -4,13 +4,15 @@
 Node::Node(float startX,float startY) {
 	this->startX = startX;
 	this->startY = startY;
+	originalGridX = startX;
+	originalGridY = startY;
 	x = startX;
 	y = startY;
 	targetX = startX;
 	targetY = startY;
 	isAnimating = false;
 	animProgress = 0.0f;
-	animSpeed = 0.008f;
+	animSpeed = 0.004f;
 	noiseOffset = ofRandom(0, 1000);
 }
 
@@ -29,6 +31,8 @@ void Node::updatePhyllotaxisAnimation() {
 		isAnimating = false;
 		x = targetX;
 		y = targetY;
+		startX = x;
+		startY = y;
 		return;
 	}
 	//Cubic ease-in-out

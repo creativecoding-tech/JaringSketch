@@ -742,8 +742,8 @@ void GridBezier::disablePhyllotaxis() {
     //Reverse node ke posisi asal
     for (int i = 0; i < nodes.size();i++) {
         nodes[i]->startPhyllotaxisAnimation(
-            nodes[i]->startX,
-            nodes[i]->startY);
+            nodes[i]->originalGridX,
+            nodes[i]->originalGridY);
     }
 }
 
