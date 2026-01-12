@@ -27,6 +27,10 @@ public:
 	int getCurrentCols();
 	int getCurrentRows();
 	int getTotalNodes();
+	void enablePhyllotaxis();
+	void disablePhyllotaxis();
+	void togglePhyllotaxis();
+	
 private:
 	int randomModeBezier;
 	float curveIntensity = 0;
@@ -35,6 +39,7 @@ private:
 	int randomDir;
 	bool hasReinitialized = false;
 	int lastWidth, lastHeight;  // Simpan width/height untuk re-initialize
+	bool isPhyllotaxisActive; //phyllotaxis
 	void setBezierMulurLR();
 	void setBezierVarying();
 	void setBezierWobble();

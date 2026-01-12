@@ -143,6 +143,11 @@ void ofApp::keyPressed(int key){
 		resetGirBezier();
 	}
 
+	if (key == 'x' || key == 'X') {
+		//pastikan gridBezier pada mode 2D
+		if (gridBezier && !use3D) gridBezier->togglePhyllotaxis();
+	}
+
 	// Print camera position dan orientation
 	if (key == 'p' || key == 'P') {
 		ofVec3f pos = cam.getPosition();

@@ -21,6 +21,9 @@ GridBezier::GridBezier(float cellSize, float margin) {
   this->currentInitDir = static_cast<GridBezier::initDirection>(randomDir);
   //test arah inisialisasi
   //this->currentInitDir = RADIAL_IN;
+
+  //Phyllotaxis
+  isPhyllotaxisActive = false;
 }
 
 void GridBezier::setAnimationStr(
@@ -202,6 +205,10 @@ void GridBezier::updateAnimation() {
 }
 
 void GridBezier::display() {
+    //Update animasi phyllotaxis all node
+    for (int i = 0;i < nodes.size();i++) {
+        nodes[i]->updatePhyllotaxisAnimation();
+    }
     switch (currentBzMode) {
     case MULURLR:
         setBezierMulurLR();
@@ -699,5 +706,52 @@ void GridBezier::setBezierVerticalWave() {
             ofDrawBezier(n1.x, n1.y, (n1.x + n2.x) / 2, n1.y + curveAmount,
                 (n1.x + n2.x) / 2, n2.y - curveAmount, n2.x, n2.y);
         }
+    }
+}
+
+void GridBezier::enablePhyllotaxis() {
+    if (isPhyllotaxisActive) return;
+    isPhyllotaxisActive = true;
+    float goldenAngle = ofDegToRad(137.5f);
+    //center screen
+    float centerX = ofGetWidth() / 2.0f;
+    float centerY = ofGetHeight() / 2.0f;
+
+    //hitung setiap node, hitung posisi phyllotaxis
+    for (int i = 0; i < nodes.size();i++) {
+        //hitung posisi phyllotaxis
+        float angle = i * goldenAngle;
+        float radius = cellSize * 0.3f * sqrt(i);
+        float phylloX = centerX + radius * cos(angle);
+        float phylloY = centerY + radius * sin(angle);
+
+        //cek apakah dalam bounds screen
+        bool isValid = (phylloX >= 0 && phylloX <= ofGetWidth()
+            && phylloY >= 0 && phylloY <= ofGetHeight());
+
+        if (isValid) {
+            //mulai animasi dari posisi grid saat ini
+            nodes[i]->startPhyllotaxisAnimation(phylloX, phylloY);
+        }
+    }
+}
+
+void GridBezier::disablePhyllotaxis() {
+    if (!isPhyllotaxisActive) return; //stop phyllotaxis
+    isPhyllotaxisActive = false;
+    //Reverse node ke posisi asal
+    for (int i = 0; i < nodes.size();i++) {
+        nodes[i]->startPhyllotaxisAnimation(
+            nodes[i]->startX,
+            nodes[i]->startY);
+    }
+}
+
+void GridBezier::togglePhyllotaxis() {
+    if (isPhyllotaxisActive) {
+        disablePhyllotaxis();
+    }
+    else {
+        enablePhyllotaxis();
     }
 }
