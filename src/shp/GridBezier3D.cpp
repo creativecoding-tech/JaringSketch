@@ -26,8 +26,8 @@ GridBezier3D::GridBezier3D(float cellSize, float margin) {
 	isPhyllotaxisActive = false;
 
 	this->currentPhyllotaxisMode = PHYLLO_FLAT;
-	sphereRotationAngle = 0.0f;
-	isSphereRotating = false;
+	phyllotaxisRotationAngle = 0.0f;
+	isPhyllotaxisRotating = false;
 }
 
 void GridBezier3D::setAnimationStr(std::unique_ptr<AnimationStrategy> animStrategy) {
@@ -214,10 +214,10 @@ void GridBezier3D::updateAnimation() {
 		currentRows = maxRows;
 	}
 
-	if (isSphereRotating) {
-		sphereRotationAngle += 4.0f; // Kecepatan rotasi (derajat per frame)
-		//if (sphereRotationAngle >= 360.0f) {
-		//	sphereRotationAngle -= 360.0f;
+	if (isPhyllotaxisRotating) {
+		phyllotaxisRotationAngle += 0.5f; // Kecepatan rotasi (derajat per frame)
+		//if (phyllotaxisRotationAngle >= 360.0f) {
+		//	phyllotaxisRotationAngle -= 360.0f;
 		//}
 	}
 }
@@ -228,7 +228,7 @@ void GridBezier3D::display() {
 		nodes[i]->updatePhyllotaxisAnimation();
 	}
 
-	if (isSphereRotating) {
+	if (isPhyllotaxisRotating) {
 		ofPushMatrix();  // Simpan matrix transformasi saat ini
 
 		// Pindah ke center sphere
@@ -238,10 +238,10 @@ void GridBezier3D::display() {
 		ofTranslate(centerX, centerY, centerZ);
 
 		// Rotasi pada sumbu Y (vertical) - seperti planet berputar
-		ofRotateY(sphereRotationAngle);
+		ofRotateY(phyllotaxisRotationAngle);
 
 		// Rotasi sedikit pada sumbu X untuk lebih dinamis
-		ofRotateX(sphereRotationAngle * 0.7f);
+		ofRotateX(phyllotaxisRotationAngle * 0.3f);
 
 		// Kembalikan ke posisi awal
 		ofTranslate(-centerX, -centerY, -centerZ);
@@ -272,7 +272,7 @@ void GridBezier3D::display() {
 	}
 
 	// Restore matrix setelah selesai menggambar
-	if (isSphereRotating) {
+	if (isPhyllotaxisRotating) {
 		ofPopMatrix();
 	}
 }
@@ -972,22 +972,8 @@ void GridBezier3D::setBezierVarying3D() {
 void GridBezier3D::enablePhyllotaxis() {
 	if (isPhyllotaxisActive) return;
 	isPhyllotaxisActive = true;
-
-	// RANDOM pilih mode phyllotaxis: 0 = FLAT, 1 = SPHERE
-	int randomMode = (int)ofRandom(0, 2);
-	currentPhyllotaxisMode = static_cast<PhyllotaxisMode>(randomMode);
-
-	//test manual
-	//currentPhyllotaxisMode = PHYLLO_SPHERE;
-
-	if (currentPhyllotaxisMode == PHYLLO_SPHERE) {
-		isSphereRotating = true;
-		sphereRotationAngle = 0.0f;
-	}
-	else {
-		isSphereRotating = false;
-	}
-
+	isPhyllotaxisRotating = true;
+	phyllotaxisRotationAngle = 0.0f;
 	// Print ke console untuk debug (opsional, bisa dihapus nanti)
 	if (currentPhyllotaxisMode == PHYLLO_FLAT) {
 		enablePhyllotaxisFlat();
@@ -1000,8 +986,8 @@ void GridBezier3D::enablePhyllotaxis() {
 void GridBezier3D::disablePhyllotaxis() {
 	if (!isPhyllotaxisActive) return;
 	isPhyllotaxisActive = false;
-	isSphereRotating = false;  // Tambahkan ini
-	sphereRotationAngle = 0.0f; // Reset angle
+	isPhyllotaxisRotating = false;  // Matikan rotasi
+	phyllotaxisRotationAngle = 0.0f; // Reset angle
 
 	// Kembalikan semua node ke posisi grid ASLI
 	for (int i = 0; i < nodes.size(); i++) {
