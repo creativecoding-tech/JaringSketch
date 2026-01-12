@@ -338,8 +338,9 @@ GridBezier dan GridBezier3D mendukung **Phyllotaxis pattern** - pola spiral yang
 **Untuk 3D Grid Mode:**
 1. Pastikan aplikasi berjalan di mode 3D
 2. Tekan **'S'** untuk menampilkan grid
-3. Tekan **'X'** untuk mengaktifkan Phyllotaxis pattern 3D
+3. Tekan **'X'** untuk mengaktifkan Phyllotaxis pattern 3D (random: FLAT, SPHERE, atau CONE)
 4. Tekan **'X'** lagi untuk menonaktifkan kembali ke grid normal
+5. Setiap tekan 'X' akan memilih mode phyllotaxis secara random (3 mode tersedia!)
 
 ### Visual Effect
 
@@ -351,8 +352,12 @@ GridBezier dan GridBezier3D mendukung **Phyllotaxis pattern** - pola spiral yang
 
 **3D Mode (GridBezier3D):**
 - ✨ **Smooth Animation** - Transisi grid ↔ phyllotaxis dengan cubic ease-in-out (~2 detik)
-- 🌀 **Golden Angle Spiral di 3D Space** - Spiral phyllotaxis dengan Z-axis curves
-- 🎥 **Camera Auto-Movement** - Camera berputar mengelilingi spiral 3D
+- 🎲 **3 Mode Phyllotaxis 3D** - Random choice antara FLAT, SPHERE, dan CONE
+- 🌀 **Mode PHYLLO_FLAT** - Spiral phyllotaxis 2D dalam ruang 3D dengan Z-axis curves (berotasi)
+- 🌍 **Mode PHYLLO_SPHERE** - Phyllotaxis di permukaan bola menggunakan Fibonacci Sphere algorithm (berotasi)
+- 🌪️ **Mode PHYLLO_CONE** - Spiral phyllotaxis dengan Z menurun seiring radius seperti tornado/cone terbalik (swing kiri-kanan)
+- 🎥 **Camera Auto-Movement** - Kamera otomatis menyesuaikan posisi terbaik untuk setiap mode
+- 🔄 **Rotation System** - FLAT & SPHERE berputar penuh (360°), CONE swing kiri-kanan (oscillating)
 - 🎨 **Preserve 3D Curves** - Bezier curves 3D tetap terbentuk dengan wave/dome/bowl effect
 - 🌊 **Depth Effect** - Spiral phyllotaxis dengan variasi Z (5 variasi trigonometric functions)
 
@@ -415,13 +420,48 @@ float phylloX = centerX + radius * cos(angle);
 float phylloY = centerY + radius * sin(angle);
 ```
 
-**Phyllotaxis 3D Calculation:**
+**Phyllotaxis 3D Calculation (3 Mode Tersedia):**
+
+**Mode 1 - PHYLLO_FLAT (2D Spiral dalam 3D Space):**
 ```cpp
 float angle = index * goldenAngle;
 float radius = cellSize * 0.35f * sqrt(index);
 float phylloX = centerX + radius * cos(angle);
 float phylloY = centerY + radius * sin(angle);
-float phylloZ = nodes[i]->z;  // Z dari existing grid 3D (PENTING!)
+float phylloZ = nodes[i]->z;  // Z dari existing grid 3D (dipertahankan)
+```
+
+**Mode 2 - PHYLLO_SPHERE (Fibonacci Sphere):**
+```cpp
+// Fibonacci Sphere Algorithm untuk distribusi uniform di permukaan bola
+float goldenAngle = PI * (3.0f - sqrt(5.0f));  // ~2.399 rad
+float offset = 2.0f / nodes.size();
+float sphereRadius = cellSize * 4.0f;
+
+float y = ((i * offset) - 1) + (offset / 2);
+float radius = sqrt(1.0f - pow(y, 2));
+float phi = ((i + 1) % (int)nodes.size()) * goldenAngle;
+
+float x = radius * cos(phi);
+float z = radius * sin(phi);
+
+float phylloX = centerX + x * sphereRadius;
+float phylloY = centerY + y * sphereRadius;
+float phylloZ = centerZ + z * sphereRadius;
+```
+
+**Mode 3 - PHYLLO_CONE (Cone/Tornado Spiral):**
+```cpp
+float angle = index * goldenAngle;
+float radius = cellSize * 0.35f * sqrt(index);
+float phylloX = centerX + radius * cos(angle);
+float phylloY = centerY + radius * sin(angle);
+
+// Z menurun seiring radius (cone terbalik seperti funnel)
+float centerZ = 400.0f;  // Mulai dari atas
+float maxRadius = cellSize * 0.35f * sqrt(nodes.size());
+float normalizedRadius = radius / maxRadius;  // 0.0 di center, 1.0 di edge
+float phylloZ = centerZ - (normalizedRadius * 400.0f);  // Z menurun
 ```
 
 **Cubic Ease-In-Out Easing:**
@@ -464,7 +504,63 @@ y = ofLerp(startY, targetY, easedT);
 - ⚠️ **Preserve bezier connections** - Curve antar nodes tetap terbentuk
 - ✅ **Reusable** - Bisa toggle on/off berkali-kali
 - ✅ **Performance optimized** - Menggunakan `std::unique_ptr` dan efficient loops
-- 🎨 **Z-Axis Preservation (3D)** - Phyllotaxis 3D mempertahankan Z-axis curves dari grid asli
+- 🎨 **Z-Axis Preservation (FLAT)** - Mode FLAT mempertahankan Z-axis curves dari grid asli
+- 🎲 **Random Mode Selection (3D)** - Setiap tekan 'X' memilih secara random dari 3 mode phyllotaxis 3D
+
+### 3D Phyllotaxis Modes
+
+GridBezier3D mendukung **3 mode phyllotaxis 3D** yang dipilih secara random:
+
+| Mode | Deskripsi | Algoritma | Rotasi |
+|------|-----------|-----------|--------|
+| **PHYLLO_FLAT** | 2D spiral dalam 3D space | Golden angle spiral (X, Y) + Z dari grid | ✅ 360° rotation |
+| **PHYLLO_SPHERE** | Phyllotaxis di permukaan bola | Fibonacci Sphere algorithm | ✅ 360° rotation |
+| **PHYLLO_CONE** | Cone/tornado spiral | Golden angle + Z menurun per radius | 🌪️ Swing kiri-kanan |
+
+**Detail Per Mode:**
+
+**PHYLLO_FLAT:**
+- Golden angle spiral (137.5°) untuk X dan Y
+- Z-axis diambil dari existing grid 3D (dipertahankan)
+- Berputar 360° pada sumbu Y (seperti planet)
+- Visual: Pola spiral "datar" dengan efek 3D dari Z-axis curves
+
+**PHYLLO_SPHERE:**
+- Fibonacci Sphere algorithm untuk distribusi uniform di permukaan bola
+- Golden angle sphere: `π × (3 - √5)` ≈ 2.399 radian
+- X, Y, Z dihitung dari spherical coordinates
+- Berputar 360° pada sumbu Y + X (sedikit miring untuk dinamis)
+- Kamera otomatis menyesuaikan posisi terbaik untuk melihat sphere
+- Visual: Planet dengan garis spiral di permukaan
+
+**PHYLLO_CONE:**
+- Golden angle spiral (137.5°) untuk X dan Y
+- Z menurun seiring radius (400 → 0) seperti cone terbalik/funnel
+- Swing kiri-kanan menggunakan `sin()` function (oscillating, bukan full rotation)
+- Formula: `swingAngle = sin(angle * DEG_TO_RAD) * 60°`
+- Visual: Tornado spiral dengan ayunan kiri-kanan
+
+**Rotation System:**
+```cpp
+// Untuk FLAT dan SPHERE: Full rotation 360°
+phyllotaxisRotationAngle += 0.5f;  // Derajat per frame
+ofRotateY(phyllotaxisRotationAngle);
+ofRotateX(phyllotaxisRotationAngle * 0.3f);  // Sedikit miring
+
+// Untuk CONE: Oscillating swing
+float swingAngle = sin(phyllotaxisRotationAngle * DEG_TO_RAD) * 60.0f;
+ofRotateY(swingAngle);  // Swing 60° kiri-kanan
+```
+
+**Camera Auto-Position:**
+```cpp
+// Kamera otomatis menyesuaikan posisi terbaik berdasarkan mode phyllotaxis
+if (isSphereMode) {
+    cameraTargetPos = sphereCameraPos;  // Posisi optimal untuk sphere
+} else {
+    cameraTargetPos = normalCameraPos;  // Posisi normal
+}
+```
 
 ---
 
@@ -1034,14 +1130,18 @@ Branch ini adalah **pengembangan lanjut** dari JaringSketch dengan fokus pada **
 ✅ Distance-based radial ripple effects
 ✅ **Dynamic line width** yang mengikuti gelombang (WAVE, RADIALWAVE, HORIZONTALWAVE, VERTICALWAVE & WOBBLE mode)
 ✅ **Hybrid dynamic line width** dengan noise + pulse combination (WOBBLE mode)
-✅ **🌻 PHYLLO TAXIS PATTERN (NEW!)**: Pola spiral dengan golden angle 137.5° untuk 2D & 3D Grid
-  - **Golden Angle Spiral**: Menggunakan angle 137.5° (sudut emas dari alam)
-  - **Smooth Toggle Animation (2D)**: Transisi grid ↔ phyllotaxis dengan cubic ease-in-out (~1 detik)
-  - **Smooth Toggle Animation (3D)**: Transisi grid ↔ phyllotaxis dengan cubic ease-in-out (~2 detik)
-  - **Bidirectional Animation**: Enable/disable dengan animasi smooth
-  - **Key 'X' Control**: Toggle phyllotaxis on/off di 2D & 3D mode
+✅ **🌻 PHYLLO TAXIS PATTERN**: Pola spiral dengan golden angle 137.5° untuk 2D & 3D Grid
+  - **2D Mode**: Golden angle spiral dengan smooth toggle animation (~1 detik)
+  - **3 Mode Phyllotaxis 3D**: Random choice antara FLAT, SPHERE, dan CONE
+    - **PHYLLO_FLAT**: 2D spiral dalam 3D space, Z-axis dipertahankan (berotasi 360°)
+    - **PHYLLO_SPHERE**: Fibonacci Sphere algorithm, distribusi uniform di permukaan bola (berotasi 360°)
+    - **PHYLLO_CONE**: Cone/tornado spiral, Z menurun seiring radius (swing kiri-kanan oscillating)
+  - **Rotation System**: FLAT & SPHERE berputar penuh (360°), CONE swing oscillating (±60°)
+  - **Camera Auto-Position**: Kamera otomatis menyesuaikan posisi terbaik untuk setiap mode
+  - **Smooth Toggle Animation**: Transisi grid ↔ phyllotaxis dengan cubic ease-in-out (~2 detik untuk 3D)
+  - **Bidirectional Animation**: Toggle on/off berkali-kali dengan animasi smooth
+  - **Key 'X' Control**: Tekan 'X' untuk memilih mode phyllotaxis secara random
   - **Preserve Grid Structure**: Bezier curves tetap terbentuk antar nodes
-  - **3D Z-Axis Preservation**: Phyllotaxis 3D mempertahankan Z-axis curves dari grid asli
 ✅ **GridBezier3D Features**:
   - **3D Bezier Curves**: Kurva bezier dengan control points dalam ruang 3D (X, Y, Z)
   - **Z-Axis Calculation**: 5 variasi trigonometric functions (sin, cos, tan) untuk posisi Z nodes
