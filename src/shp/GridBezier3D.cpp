@@ -215,7 +215,7 @@ void GridBezier3D::updateAnimation() {
 	}
 
 	if (isPhyllotaxisRotating) {
-		phyllotaxisRotationAngle += 0.5f; // Kecepatan rotasi (derajat per frame)
+		phyllotaxisRotationAngle += 4.5f; 
 		//if (phyllotaxisRotationAngle >= 360.0f) {
 		//	phyllotaxisRotationAngle -= 360.0f;
 		//}
@@ -235,16 +235,19 @@ void GridBezier3D::display() {
 		float centerX = ofGetWidth() / 2.0f;
 		float centerY = ofGetHeight() / 2.0f;
 		float centerZ = 0.0f;
-		ofTranslate(centerX, centerY, centerZ);
 
-		// Rotasi pada sumbu Y (vertical) - seperti planet berputar
-		ofRotateY(phyllotaxisRotationAngle);
-
-		// Rotasi sedikit pada sumbu X untuk lebih dinamis
-		ofRotateX(phyllotaxisRotationAngle * 0.3f);
-
-		// Kembalikan ke posisi awal
-		ofTranslate(-centerX, -centerY, -centerZ);
+		if (currentPhyllotaxisMode != PHYLLO_CONE) {
+			ofTranslate(centerX, centerY, centerZ);
+			ofRotateY(phyllotaxisRotationAngle);
+			ofRotateX(phyllotaxisRotationAngle * 0.3f);
+			ofTranslate(-centerX, -centerY, -centerZ);
+		}
+		else {
+			ofTranslate(centerX, centerY, centerZ);
+			float swingAngle = cos(phyllotaxisRotationAngle * DEG_TO_RAD) * 45.0f;
+			ofRotateZ(swingAngle); 
+			ofTranslate(-centerX, -centerY, -centerZ);
+		}
 	}
 
 	switch (currentBzMode) {
@@ -974,12 +977,19 @@ void GridBezier3D::enablePhyllotaxis() {
 	isPhyllotaxisActive = true;
 	isPhyllotaxisRotating = true;
 	phyllotaxisRotationAngle = 0.0f;
-	// Print ke console untuk debug (opsional, bisa dihapus nanti)
-	if (currentPhyllotaxisMode == PHYLLO_FLAT) {
+	int randomMode = (int)ofRandom(0, 3);  // 0, 1, atau 2
+	currentPhyllotaxisMode = static_cast<PhyllotaxisMode>(randomMode);
+
+	switch (currentPhyllotaxisMode) {
+	case PHYLLO_FLAT:
 		enablePhyllotaxisFlat();
-	}
-	else if (currentPhyllotaxisMode == PHYLLO_SPHERE) {
+		break;
+	case PHYLLO_SPHERE:
 		enablePhyllotaxisSphere();
+		break;
+	case PHYLLO_CONE:
+		enablePhyllotaxisCone();
+		break;
 	}
 }
 
@@ -1071,6 +1081,30 @@ void GridBezier3D::enablePhyllotaxisSphere() {
 		float phylloZ = centerZ + z * sphereRadius;
 
 		// Start animasi 3D (tanpa bounds check, karena sphere bebas di 3D)
+		nodes[i]->startPhyllotaxisAnimation(phylloX, phylloY, phylloZ);
+	}
+}
+
+void GridBezier3D::enablePhyllotaxisCone() {
+	float goldenAngle = ofDegToRad(137.5f);
+	float centerX = ofGetWidth() / 2.0f;
+	float centerY = ofGetHeight() / 2.0f;
+	float centerZ = 400.0f;
+
+	for (int i = 0; i < nodes.size(); i++) {
+		// Hitung posisi phyllotaxis dasar (X, Y)
+		float angle = i * goldenAngle;
+		float radius = cellSize * 0.35f * sqrt(i);
+
+		float phylloX = centerX + radius * cos(angle);
+		float phylloY = centerY + radius * sin(angle);
+
+		// Z meningkat seiring radius (membuat efek cone/tornado)
+		// Semakin jauh dari center, semakin tinggi Z
+		float maxRadius = cellSize * 0.35f * sqrt(nodes.size());
+		float normalizedRadius = radius / maxRadius;  // 0.0 di center, 1.0 di edge
+		float phylloZ = centerZ - (normalizedRadius * 400.0f);  // Cone height 400 pixel
+
 		nodes[i]->startPhyllotaxisAnimation(phylloX, phylloY, phylloZ);
 	}
 }

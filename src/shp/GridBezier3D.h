@@ -30,10 +30,11 @@ public:
 	// Phyllotaxis mode enum
 	enum PhyllotaxisMode {
 		PHYLLO_FLAT,   // Opsi 1: Flat phyllotaxis (X, Y dari phyllotaxis, Z dari existing)
-		PHYLLO_SPHERE  // Opsi 3: Sphere phyllotaxis (X, Y, Z dari spherical mapping)
+		PHYLLO_SPHERE, // Opsi 2: Sphere phyllotaxis (X, Y, Z dari spherical mapping)
+		PHYLLO_CONE    // Opsi 3: Cone phyllotaxis (X, Y dari phyllotaxis, Z meningkat seiring radius)
 	};
 	PhyllotaxisMode currentPhyllotaxisMode;  // Track mode saat ini
-	float phyllotaxisRotationAngle;      // Sudut rotasi phyllotaxis (flat/sphere)
+	float phyllotaxisRotationAngle;      
 	bool isPhyllotaxisRotating;          // Flag untuk mengaktifkan rotasi
 
 	GridBezier3D(float cellSize, float margin);
@@ -59,7 +60,8 @@ private:
 	bool isPhyllotaxisActive;
 	void enablePhyllotaxisFlat();
 	void  enablePhyllotaxisSphere();
-	float calculateZ(int i, int j);  // Helper untuk menghitung Z position
+	void enablePhyllotaxisCone();
+	float calculateZ(int i, int j);
 	void setBezierVarying3D();
 	void setBezierMulurLR3D();
 	void setBezierWobble3D();
