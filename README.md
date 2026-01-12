@@ -6,7 +6,7 @@ Eksperimen grid dengan animasi bezier yang smooth dan efek trails. Project ini a
 ![C++](https://img.shields.io/badge/C++-17-blue)
 ![Platform](https://img.shields.io/badge/Platform-Windows-lightgrey)
 ![License](https://img.shields.io/badge/License-Apache%202.0-green)
-![Branch](https://img.shields.io/badge/Branch-sketch--grid--bezier--3d-orange)
+![Branch](https://img.shields.io/badge/Branch-sketch--phyllotaxis-orange)
 
 [![Fund The Experiments](https://img.shields.io/badge/Fund-The_Experiments-FF5722?style=for-the-badge&logo=buy-me-a-coffee)](https://sociabuzz.com/abdkdhni)
 
@@ -49,12 +49,14 @@ Project ini mendukung **2 mode rendering** yang dipilih secara random saat start
 ## ✨ Fitur & Teknik
 
 - **Grid Layout System** — 2D grid dengan node yang terkonfigurasi (cols & rows)
+- **Phyllotaxis Pattern** — Pola spiral dengan golden angle 137.5° yang ditemukan di alam (NEW!)
 - **Random Initialization Direction** — 6 arah pertumbuhan grid: TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT, RADIAL_OUT, RADIAL_IN
 - **Multiple Animation Strategies** — 5 jenis easing: Linear, Quadratic, Cubic, Wobble, dan Wave
 - **Multiple Color Strategies** — 6 jenis pewarnaan: Solid, Horizontal/Vertical/Radial Gradient, Rainbow Spiral, Time-Based
 - **Strategy Pattern** — Arsitektur yang fleksibel untuk animasi dan pewarnaan
 - **Modular Design** — Terpisah dalam kategori: `anim/`, `clr/`, `shp/`, `strategy/`
 - **Smooth Easing Functions** — Power-based easing (1, 2, 3) untuk tingkat smoothness berbeda
+- **Cubic Ease-In-Out Phyllotaxis** — Animasi phyllotaxis dengan transisi smooth (~1 detik)
 - **Special Effects** — Wobble (spring) dan Wave (gelombang) untuk creative animations
 - **Dynamic Line Width** — Ketebalan garis berubah mengikuti gelombang (WAVE, RADIALWAVE, HORIZONTALWAVE, VERTICALWAVE & WOBBLE mode)
 - **HSB Color System** — Hue-Saturation-Brightness untuk vivid colors dan smooth gradients
@@ -70,6 +72,7 @@ Project ini mendukung **2 mode rendering** yang dipilih secara random saat start
 | Input | Action |
 | --- | --- |
 | **Key 'S'** | Toggle visibility shape grid (Show/Hide) |
+| **Key 'X'** | Toggle Phyllotaxis pattern on/off (2D mode only) |
 | **Key 'R'** | Reset dengan mode, animasi, warna, dan arah baru (random 2D/3D) |
 | **Key 'Q'** | Keluar dari aplikasi |
 | **Key 'P'** | Print camera position dan orientation (3D mode only) |
@@ -317,6 +320,105 @@ Ubah range line width untuk efek yang berbeda:
 - `ofMap(wave, -1, 1, 2, 4)` - Lebih halus
 - `ofMap(wave, -1, 1, 3, 6)` - Medium (current)
 - `ofMap(wave, -1, 1, 1, 10)` - Ekstrem dramatis
+
+---
+
+## 🌻 Phyllotaxis Pattern (NEW!)
+
+GridBezier mendukung **Phyllotaxis pattern** - pola spiral yang ditemukan di alam (bunga matahari, bunga matahari, pinecone). Fitur ini mengubah grid menjadi pola spiral dengan golden angle.
+
+### Cara Menggunakan
+
+**Untuk 2D Grid Mode:**
+1. Pastikan aplikasi berjalan di mode 2D (bukan 3D)
+2. Tekan **'S'** untuk menampilkan grid
+3. Tekan **'X'** untuk mengaktifkan Phyllotaxis pattern
+4. Tekan **'X'** lagi untuk menonaktifkan kembali ke grid normal
+
+### Visual Effect
+
+- ✨ **Smooth Animation** - Transisi grid ↔ phyllotaxis dengan cubic ease-in-out (~1 detik)
+- 🌀 **Golden Angle Spiral** - Menggunakan angle 137.5° (sudut emas)
+- 🌊 **Bidirectional Animation** - Toggle on/off dengan animasi smooth
+- 🎨 **Preserve Grid Structure** - Bezier curves tetap terbentuk antar nodes
+
+### Teknik Phyllotaxis
+
+**Golden Angle:**
+```cpp
+float goldenAngle = 137.5 * (PI / 180.0f);  // ~2.39996 radian
+```
+
+**Position Calculation:**
+```cpp
+float angle = index * goldenAngle;
+float radius = cellSize * 0.3f * sqrt(index);
+float x = centerX + radius * cos(angle);
+float y = centerY + radius * sin(angle);
+```
+
+**Bounds Checking:**
+```cpp
+bool isValid = (x >= 0 && x <= screenWidth &&
+               y >= 0 && y <= screenHeight);
+```
+
+### Technical Implementation
+
+**Node Properties:**
+```cpp
+class Node {
+    float x, y;                    // Posisi saat ini
+    float startX, startY;          // Posisi awal (di-update tiap animasi)
+    float originalGridX, originalGridY;  // Posisi grid asli (tidak berubah)
+    float targetX, targetY;        // Posisi target
+
+    bool isAnimating;              // Flag animasi
+    float animProgress;            // 0.0 - 1.0
+    float animSpeed;               // 0.008f (~1 detik di 120FPS)
+};
+```
+
+**Cubic Ease-In-Out Easing:**
+```cpp
+float t = animProgress;
+float easedT = t < 0.5 ? 4 * t * t * t : 1 - pow(-2 * t + 2, 3) / 2;
+x = ofLerp(startX, targetX, easedT);
+y = ofLerp(startY, targetY, easedT);
+```
+
+**Key Methods:**
+- `enablePhyllotaxis()` - Hitung posisi phyllotaxis untuk setiap node
+- `disablePhyllotaxis()` - Kembalikan ke posisi grid asli (originalGridX/Y)
+- `togglePhyllotaxis()` - Switch on/off
+- `updatePhyllotaxisAnimation()` - Update posisi setiap frame dengan easing
+
+### Alur Animasi
+
+**Grid → Phyllotaxis:**
+```
+1. Grid awal: x=100, y=100
+2. enablePhyllotaxis(): targetX=500, targetY=500
+3. Animasi: x bergerak 100 → 500 (smooth)
+4. Selesai: x=500, y=500
+   Update: startX=500, startY=500
+```
+
+**Phyllotaxis → Grid:**
+```
+1. Phyllotaxis: x=500, y=500
+2. disablePhyllotaxis(): targetX=100, targetY=100 (originalGridX/Y)
+3. Animasi: x bergerak 500 → 100 (smooth)
+4. Selesai: x=100, y=100
+   Update: startX=100, startY=100
+```
+
+### Catatan Penting
+
+- ⚠️ **Hanya untuk 2D mode** - Tidak tersedia untuk 3D GridBezier3D
+- ⚠️ **Preserve bezier connections** - Curve antar nodes tetap terbentuk
+- ✅ **Reusable** - Bisa toggle on/off berkali-kali
+- ✅ **Performance optimized** - Menggunakan `std::unique_ptr` dan efficient loops
 
 ---
 
@@ -866,7 +968,7 @@ Dengan optimasi C++ modern dan openFrameworks:
 
 ---
 
-## 📝 Current Status: **sketch-grid-bezier-3d**
+## 📝 Current Status: **sketch-phyllotaxis**
 
 Branch ini adalah **pengembangan lanjut** dari JaringSketch dengan fokus pada **multi-mode rendering system** untuk GridBezier (2D) dan GridBezier3D (3D). Fitur yang tersedia:
 
@@ -886,6 +988,12 @@ Branch ini adalah **pengembangan lanjut** dari JaringSketch dengan fokus pada **
 ✅ Distance-based radial ripple effects
 ✅ **Dynamic line width** yang mengikuti gelombang (WAVE, RADIALWAVE, HORIZONTALWAVE, VERTICALWAVE & WOBBLE mode)
 ✅ **Hybrid dynamic line width** dengan noise + pulse combination (WOBBLE mode)
+✅ **🌻 PHYLLO TAXIS PATTERN (NEW!)**: Pola spiral dengan golden angle 137.5° untuk 2D Grid
+  - **Golden Angle Spiral**: Menggunakan angle 137.5° (sudut emas dari alam)
+  - **Smooth Toggle Animation**: Transisi grid ↔ phyllotaxis dengan cubic ease-in-out (~1 detik)
+  - **Bidirectional Animation**: Enable/disable dengan animasi smooth
+  - **Key 'X' Control**: Toggle phyllotaxis on/off di 2D mode
+  - **Preserve Grid Structure**: Bezier curves tetap terbentuk antar nodes
 ✅ **GridBezier3D Features**:
   - **3D Bezier Curves**: Kurva bezier dengan control points dalam ruang 3D (X, Y, Z)
   - **Z-Axis Calculation**: 5 variasi trigonometric functions (sin, cos, tan) untuk posisi Z nodes
@@ -902,6 +1010,10 @@ Branch ini adalah **pengembangan lanjut** dari JaringSketch dengan fokus pada **
 ### Mode Highlights:
 
 **2D Mode (GridBezier):**
+- **🌻 Phyllotaxis Pattern (NEW!)**: Tekan 'X' untuk toggle pola spiral dengan golden angle 137.5°
+  - **Smooth Animation**: Transisi grid ↔ spiral dengan cubic ease-in-out
+  - **Bidirectional**: Bisa toggle on/off berkali-kali
+  - **Preserve Structure**: Bezier curves tetap terbentuk
 - **WOBBLE Mode**: Perlin noise-based organic movement dengan **hybrid dynamic line width** (noise + pulse)
 - **WAVE Mode**: Diagonal wave pattern dengan **dynamic line width** yang berdenyut
 - **RADIALWAVE Mode**: Radial ripple effect dengan **dynamic line width** yang berdenyut
