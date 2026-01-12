@@ -27,6 +27,13 @@ public:
 	bool hasReinitialized = false;
 	int lastWidth, lastHeight;  // Simpan width/height untuk re-initialize
 
+	// Phyllotaxis mode enum
+	enum PhyllotaxisMode {
+		PHYLLO_FLAT,   // Opsi 1: Flat phyllotaxis (X, Y dari phyllotaxis, Z dari existing)
+		PHYLLO_SPHERE  // Opsi 3: Sphere phyllotaxis (X, Y, Z dari spherical mapping)
+	};
+	PhyllotaxisMode currentPhyllotaxisMode;  // Track mode saat ini
+
 	GridBezier3D(float cellSize, float margin);
 	void setAnimationStr(std::unique_ptr<AnimationStrategy> strategy) override;
 	void setColorStr(std::unique_ptr<ColorStrategy> strategy) override;
@@ -40,11 +47,16 @@ public:
 	void disablePhyllotaxis();
 	void togglePhyllotaxis();
 
+	bool getIsPhyllotaxisActive();
+	PhyllotaxisMode getCurrentPhyllotaxisMode();
+
 private:
 	float curveIntensity = 0;
 	int randomModeBezier;
 	int zCoordinate;
 	bool isPhyllotaxisActive;
+	void enablePhyllotaxisFlat();
+	void  enablePhyllotaxisSphere();
 	float calculateZ(int i, int j);  // Helper untuk menghitung Z position
 	void setBezierVarying3D();
 	void setBezierMulurLR3D();

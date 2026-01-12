@@ -47,6 +47,7 @@ void ofApp::setup(){
 		cam.lookAt(ofVec3f(ofGetWidth() / 2, ofGetHeight() / 2, 0)); // Look at center of grid
 
 		cameraLastKnownPos = ofVec3f(ofGetWidth() / 2, (ofGetHeight() / 2) + 100, 811);
+		cameraSpherePos = ofVec3f(ofGetWidth() / 2, ofGetHeight() / 2 + 400, 500);  // Isometric View untuk sphere
 		cameraAnimationDelayTimer = 5.0f;
 		cameraAnimationProgress = 0.0f;
 		isAnimatingCamera = false;
@@ -152,6 +153,20 @@ void ofApp::keyPressed(int key){
 		else if (use3D && gridBezier3D) {
 			// 3D mode
 			gridBezier3D->togglePhyllotaxis();
+
+			// Trigger kamera animation untuk sphere mode
+			// Cek apakah sphere mode yang baru saja diaktifkan
+			if (gridBezier3D->getIsPhyllotaxisActive() &&
+				gridBezier3D->getCurrentPhyllotaxisMode() == GridBezier3D::PHYLLO_SPHERE) {
+				// Start kamera animation ke posisi sphere
+				cameraAnimState = CAM_IDLE;
+				cameraAnimationDelayTimer = 0.5f; // Delay 0.5 detik biar phyllotaxis animation mulai dulu
+			}
+			else if (!gridBezier3D->getIsPhyllotaxisActive()) {
+				// Kembali ke grid, reset kamera ke posisi normal
+				cameraAnimState = CAM_IDLE;
+				cameraAnimationDelayTimer = 0.5f;
+			}
 		}
 	}
 
@@ -320,6 +335,11 @@ void ofApp::startCameraAnimation(bool reverse) {
 	// Simpan posisi kamera saat ini sebagai start point
 	cameraStartPos = cameraLastKnownPos;
 
+	bool isSphereMode = false;
+	if (use3D && gridBezier3D && gridBezier3D->getIsPhyllotaxisActive()) {
+		isSphereMode = (gridBezier3D->getCurrentPhyllotaxisMode() == GridBezier3D::PHYLLO_SPHERE);
+	}
+
 	if (reverse) {
 		// Reverse: dari current posisi → posisi awal
 		cameraTargetPos = ofVec3f(ofGetWidth() / 2, (ofGetHeight() / 2) + 100, 811);
@@ -327,8 +347,13 @@ void ofApp::startCameraAnimation(bool reverse) {
 	}
 	else {
 		// Forward: dari posisi awal → posisi target
-		cameraTargetPos = ofVec3f(ofGetWidth() / 2, -181, 996);
-		cameraAnimState = CAM_TO_TARGET;
+		if (isSphereMode) {
+			cameraTargetPos = cameraSpherePos;  // Posisi sphere (isometric view)
+		}
+		else {
+			cameraTargetPos = ofVec3f(ofGetWidth() / 2, -181, 996);  // Posisi normal
+			cameraAnimState = CAM_TO_TARGET;
+		}
 	}
 
 	cameraAnimationProgress = 0.0f;

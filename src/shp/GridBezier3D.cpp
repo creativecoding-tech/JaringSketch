@@ -24,6 +24,8 @@ GridBezier3D::GridBezier3D(float cellSize, float margin) {
 	this->zCoordinate = (int)ofRandom(0, 5);
 	//int zCoordinate = 2;
 	isPhyllotaxisActive = false;
+
+	this->currentPhyllotaxisMode = PHYLLO_FLAT;
 }
 
 void GridBezier3D::setAnimationStr(std::unique_ptr<AnimationStrategy> animStrategy) {
@@ -937,34 +939,19 @@ void GridBezier3D::enablePhyllotaxis() {
 	if (isPhyllotaxisActive) return;
 	isPhyllotaxisActive = true;
 
-	// Golden angle untuk phyllotaxis
-	float goldenAngle = ofDegToRad(137.5f);
+	// RANDOM pilih mode phyllotaxis: 0 = FLAT, 1 = SPHERE
+	/*int randomMode = (int)ofRandom(0, 2);
+	currentPhyllotaxisMode = static_cast<PhyllotaxisMode>(randomMode);*/
 
-	// Center screen
-	float centerX = ofGetWidth() / 2.0f;
-	float centerY = ofGetHeight() / 2.0f;
-	float centerZ = 0.0f;  // Center di Z-axis
+	//test manual
+	currentPhyllotaxisMode = PHYLLO_SPHERE;
 
-	// Untuk setiap node, hitung posisi phyllotaxis
-	for (int i = 0; i < nodes.size(); i++) {
-		// Hitung posisi phyllotaxis untuk X dan Y
-		float angle = i * goldenAngle;
-		float radius = cellSize * 0.35f * sqrt(i);  // Bisa adjust: 0.3 - 0.8
-
-		float phylloX = centerX + radius * cos(angle);
-		float phylloY = centerY + radius * sin(angle);
-
-		// Z tetap pakai posisi EXISTING dari grid 3D
-		float phylloZ = nodes[i]->z;  // ← PENTING! Z dari existing, bukan dihitung ulang
-
-		// Cek bounds (hanya X dan Y, Z bebas)
-		bool isValid = (phylloX >= 0 && phylloX <= ofGetWidth() &&
-			phylloY >= 0 && phylloY <= ofGetHeight());
-
-		if (isValid) {
-			// Mulai animasi 3D
-			nodes[i]->startPhyllotaxisAnimation(phylloX, phylloY, phylloZ);
-		}
+	// Print ke console untuk debug (opsional, bisa dihapus nanti)
+	if (currentPhyllotaxisMode == PHYLLO_FLAT) {
+		enablePhyllotaxisFlat();
+	}
+	else if (currentPhyllotaxisMode == PHYLLO_SPHERE) {
+		enablePhyllotaxisSphere();
 	}
 }
 
@@ -989,4 +976,79 @@ void GridBezier3D::togglePhyllotaxis() {
 	else {
 		enablePhyllotaxis();
 	}
+}
+
+void GridBezier3D::enablePhyllotaxisFlat() {
+	// Golden angle untuk phyllotaxis
+	float goldenAngle = ofDegToRad(137.5f);
+
+	// Center screen
+	float centerX = ofGetWidth() / 2.0f;
+	float centerY = ofGetHeight() / 2.0f;
+	float centerZ = 0.0f;  // Center di Z-axis
+
+	// Untuk setiap node, hitung posisi phyllotaxis
+	for (int i = 0; i < nodes.size(); i++) {
+		// Hitung posisi phyllotaxis untuk X dan Y
+		float angle = i * goldenAngle;
+		float radius = cellSize * 0.35f * sqrt(i);  // Spacing
+
+		float phylloX = centerX + radius * cos(angle);
+		float phylloY = centerY + radius * sin(angle);
+
+		// Z tetap pakai posisi EXISTING dari grid 3D
+		float phylloZ = nodes[i]->z;  // ← PENTING! Z dari existing
+
+		// Cek bounds (hanya X dan Y, Z bebas)
+		bool isValid = (phylloX >= 0 && phylloX <= ofGetWidth() &&
+			phylloY >= 0 && phylloY <= ofGetHeight());
+
+		if (isValid) {
+			// Mulai animasi 3D
+			nodes[i]->startPhyllotaxisAnimation(phylloX, phylloY, phylloZ);
+		}
+	}
+}
+
+void GridBezier3D::enablePhyllotaxisSphere() {
+	// Fibonacci Sphere Algorithm untuk distribute nodes di permukaan bola
+	float goldenAngle = TWO_PI * (3.0f - sqrt(5.0f));  // ~2.399 radian
+	float offset = 2.0f / nodes.size();
+
+	// Sphere size (bisa adjust)
+	float sphereRadius = cellSize * 6.0f;  // Radius bola
+
+	// Center screen
+	float centerX = ofGetWidth() / 2.0f;
+	float centerY = ofGetHeight() / 2.0f;
+	float centerZ = 0.0f;  // Center di Z-axis
+
+	// Untuk setiap node, hitung posisi di sphere
+	for (int i = 0; i < nodes.size(); i++) {
+		// Fibonacci sphere algorithm
+		float y = ((i * offset) - 1) + (offset / 2);  // -1 to 1
+		float radius = sqrt(1.0f - pow(y, 2));      // Radius di height y
+
+		float phi = ((i + 1) % (int)nodes.size()) * goldenAngle;  // Golden angle spiral
+
+		// Convert spherical to cartesian
+		float x = radius * cos(phi);
+		float z = radius * sin(phi);
+
+		// Scale ke ukuran sphere
+		float phylloX = centerX + x * sphereRadius;
+		float phylloY = centerY + y * sphereRadius;
+		float phylloZ = centerZ + z * sphereRadius;
+
+		// Start animasi 3D (tanpa bounds check, karena sphere bebas di 3D)
+		nodes[i]->startPhyllotaxisAnimation(phylloX, phylloY, phylloZ);
+	}
+}
+
+bool GridBezier3D::getIsPhyllotaxisActive() {
+	return isPhyllotaxisActive;
+}
+
+GridBezier3D::PhyllotaxisMode GridBezier3D::getCurrentPhyllotaxisMode() {
+	return currentPhyllotaxisMode;
 }

@@ -38,6 +38,7 @@ class ofApp : public ofBaseApp{
 		ofVec3f cameraTargetPos;
 		ofVec3f cameraCurrentPos;  
 		ofVec3f cameraLastKnownPos;
+		ofVec3f cameraSpherePos;
 		ofQuaternion cameraStartOrient;
 		ofQuaternion cameraTargetOrient;
 
