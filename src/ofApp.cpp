@@ -32,6 +32,7 @@ void ofApp::setup(){
 	ofBackground(0);   // Clear sekali di awal
 	ofEnableAntiAliasing(); // supaya garis/bentuk menjadi smooth untuk bentuk / geometri
 	ofEnableSmoothing();  // membuat smooth untuk garis atau kurva
+	ofHideCursor();
 
 	// Random choice: 0 = 2D, 1 = 3D
 	int choice = (int)ofRandom(0, 2);

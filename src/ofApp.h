@@ -17,7 +17,7 @@ class ofApp : public ofBaseApp{
 		std::unique_ptr<GridBezier3D> gridBezier3D;
 		ofEasyCam cam;
 		bool showShape = false;
-		bool cursorIsVisible = true;
+		bool cursorIsVisible = false;
 		bool use3D = false;  // flag untuk tracking 2D/3D
 
 		// Camera animation state
