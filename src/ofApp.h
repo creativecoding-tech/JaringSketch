@@ -42,6 +42,26 @@ class ofApp : public ofBaseApp{
 		ofQuaternion cameraStartOrient;
 		ofQuaternion cameraTargetOrient;
 
+		enum AutoPlayState {
+			AUTO_DELAY_START,      // Delay sebelum grid mulai
+			AUTO_GRID_GROWING,     // Grid sedang membentuk
+			AUTO_DELAY_PHYLLLO,    // Delay sebelum phyllotaxis
+			AUTO_PHYLLAXIS_ACTIVE, // Phyllotaxis aktif
+			AUTO_DELAY_BACK,       // Delay sebelum kembali ke grid
+			AUTO_RETURNING,        // Kembali ke grid normal
+			AUTO_DELAY_RESET,      // Delay sebelum reset
+			AUTO_RESETTING         // Reset ke mode baru
+		};
+
+		AutoPlayState autoPlayState = AUTO_DELAY_START;
+		float autoDelayTimer = 0.0f;
+
+		// Durasi delay (detik)
+		float delayBeforeStart = 3.0f;      // 3 detik sebelum grid mulai
+		float delayBeforePhyllo = 2.0f;     // 2 detik setelah grid selesai
+		float delayBeforeBack = 3.0f;       // 3 detik sebelum kembali ke grid
+		float delayBeforeReset = 3.0f;      // 3 detik sebelum reset
+
 		void setup();
 		void update();
 		void draw();

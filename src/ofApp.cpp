@@ -65,6 +65,10 @@ void ofApp::setup(){
 		gridBezier->setColorStr(getRandomColorStrategy());
 		gridBezier->setAnimationStr(getRandomAnimationStrategy());
 	}
+
+	showShape = false;  // Mulai dengan hidden shape
+	autoPlayState = AUTO_DELAY_START;
+	autoDelayTimer = delayBeforeStart;  // 3 detik delay sebelum mulai
 }
 
 //--------------------------------------------------------------
@@ -108,13 +112,158 @@ void ofApp::update() {
 		}
 	}
 
-	if (showShape) {
+	if (autoDelayTimer > 0) {
+		autoDelayTimer -= 1.0f / 120.0f;
+	}
+
+	
+	switch (autoPlayState) {
+	case AUTO_DELAY_START:
+		// Tunggu delay sebelum mulai
+		if (autoDelayTimer <= 0) {
+			showShape = true;  // Mulai grid!
+			autoPlayState = AUTO_GRID_GROWING;
+		}
+		break;
+
+	case AUTO_GRID_GROWING:
+		// Grid sedang membentuk
+		if (showShape) {
+			if (use3D && gridBezier3D) {
+				gridBezier3D->updateAnimation();
+
+				// Cek apakah animasi grid sudah selesai
+				if (gridBezier3D->isAnimationFinished()) {
+					autoPlayState = AUTO_DELAY_PHYLLLO;
+					autoDelayTimer = delayBeforePhyllo;
+				}
+			}
+			else if (gridBezier) {
+				gridBezier->updateAnimation();
+
+				if (gridBezier->isAnimationFinished()) {
+					autoPlayState = AUTO_DELAY_PHYLLLO;
+					autoDelayTimer = delayBeforePhyllo;
+				}
+			}
+		}
+		break;
+
+	case AUTO_DELAY_PHYLLLO:
+		// Tunggu delay sebelum phyllotaxis
+		if (autoDelayTimer <= 0) {
+			// Trigger phyllotaxis
+			if (use3D && gridBezier3D) {
+				gridBezier3D->togglePhyllotaxis();
+			}
+			else if (gridBezier) {
+				gridBezier->togglePhyllotaxis();
+			}
+
+			autoPlayState = AUTO_PHYLLAXIS_ACTIVE;
+		}
+		break;
+
+	case AUTO_PHYLLAXIS_ACTIVE: {
+		// Phyllotaxis sedang aktif, update animation
+		if (showShape) {
+			if (use3D && gridBezier3D) {
+				gridBezier3D->updateAnimation();
+			}
+			else if (gridBezier) {
+				gridBezier->updateAnimation();
+			}
+		}
+
+		// Cek apakah phyllotaxis animation sudah selesai
+		bool phylloFinished = false;
 		if (use3D && gridBezier3D) {
-			gridBezier3D->updateAnimation();
+			phylloFinished = true;
+			for (auto& node : gridBezier3D->nodes) {
+				if (node->isAnimating) {
+					phylloFinished = false;
+					break;
+				}
+			}
 		}
 		else if (gridBezier) {
-			gridBezier->updateAnimation();
+			phylloFinished = true;
+			for (auto& node : gridBezier->nodes) {
+				if (node->isAnimating) {
+					phylloFinished = false;
+					break;
+				}
+			}
 		}
+
+		if (phylloFinished) {
+			autoPlayState = AUTO_DELAY_BACK;
+			autoDelayTimer = delayBeforeBack;
+		}
+		break;
+	}
+
+	case AUTO_DELAY_BACK:
+		// Tunggu delay sebelum kembali ke grid
+		if (autoDelayTimer <= 0) {
+			// Toggle phyllotaxis lagi (kembali ke grid)
+			if (use3D && gridBezier3D) {
+				gridBezier3D->togglePhyllotaxis();
+			}
+			else if (gridBezier) {
+				gridBezier->togglePhyllotaxis();
+			}
+
+			autoPlayState = AUTO_RETURNING;
+		}
+		break;
+
+	case AUTO_RETURNING: {
+		// Kembali ke grid normal, update animation
+		if (showShape) {
+			if (use3D && gridBezier3D) {
+				gridBezier3D->updateAnimation();
+			}
+			else if (gridBezier) {
+				gridBezier->updateAnimation();
+			}
+		}
+
+		// Cek apakah sudah kembali ke grid
+		bool returnFinished = false;
+		if (use3D && gridBezier3D) {
+			returnFinished = true;
+			for (auto& node : gridBezier3D->nodes) {
+				if (node->isAnimating) {
+					returnFinished = false;
+					break;
+				}
+			}
+		}
+		else if (gridBezier) {
+			returnFinished = true;
+			for (auto& node : gridBezier->nodes) {
+				if (node->isAnimating) {
+					returnFinished = false;
+					break;
+				}
+			}
+		}
+
+		if (returnFinished) {
+			autoPlayState = AUTO_DELAY_RESET;
+			autoDelayTimer = delayBeforeReset;
+		}
+		break;
+	}
+
+	case AUTO_DELAY_RESET:
+		// Tunggu delay sebelum reset
+		if (autoDelayTimer <= 0) {
+			resetGirBezier();  // Reset dengan mode baru
+			autoPlayState = AUTO_GRID_GROWING;
+		}
+		break;
 	}
 }
 
@@ -273,15 +422,19 @@ std::unique_ptr<ColorStrategy> ofApp::getRandomColorStrategy() {
 	float startHue = ofRandom(0, 360);
 	float endHue = ofRandom(0, 360);
 	float speed = ofRandom(0.2f, 1.0f);
-	ofColor randomC = ofColor(ofRandom(255), ofRandom(255), ofRandom(255));
+	// Ganti RGB random dengan HSB controlled untuk warna cerah
+	ofColor randomC;
+	randomC.setHsb(ofRandom(255),        // Hue: 0-255 (semua warna)
+		ofRandom(200, 255),  // Saturation: 200-255 (vivid cerah)
+		ofRandom(200, 255)); // Brightness: 200-255 (terang cerah)
 	switch (randomColor) {
 	case 0: return std::make_unique<SolidColor>(randomC);
-	case 1: return std::make_unique<HorizontalGradient>(startHue, endHue, 80, 100);
-	case 2: return std::make_unique<VerticalGradient>(startHue, endHue, 80, 100);
-	case 3:  return std::make_unique<RadialGradient>(startHue, endHue, 80, 100);
-	case 4: return std::make_unique<RainbowSpiral>(speed, 80, 100);
+	case 1: return std::make_unique<HorizontalGradient>(startHue, endHue, 200, 230);  // S: 200, B: 230
+	case 2: return std::make_unique<VerticalGradient>(startHue, endHue, 200, 230);
+	case 3: return std::make_unique<RadialGradient>(startHue, endHue, 200, 230);
+	case 4: return std::make_unique<RainbowSpiral>(speed, 200, 230);
 	case 5: return std::make_unique<TimeBasedColor>(startHue, endHue, speed, getRandomTimeBasedMode());
-	default: return std::make_unique<SolidColor>(ofColor(255));
+	default: return std::make_unique<SolidColor>(randomC);
 	}
 }
 
