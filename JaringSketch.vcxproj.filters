@@ -39,9 +39,20 @@
     </ClCompile>
     <ClCompile Include="src\anim\EaseInOutAnimation.cpp" />
     <ClCompile Include="src\Node.cpp" />
+    <ClCompile Include="src\Node3D.cpp" />
     <ClCompile Include="src\shp\GridBezier.cpp" />
+    <ClCompile Include="src\shp\GridBezier3D.cpp" />
     <ClCompile Include="src\clr\SolidColor.cpp" />
     <ClCompile Include="src\strategy\ColorStrategy.cpp" />
+    <ClCompile Include="src\anim\LinearAnimation.cpp" />
+    <ClCompile Include="src\anim\CubicEaseInOutAnimation.cpp" />
+    <ClCompile Include="src\anim\WobbleAnimation.cpp" />
+    <ClCompile Include="src\anim\WaveAnimation.cpp" />
+    <ClCompile Include="src\clr\HorizontalGradient.cpp" />
+    <ClCompile Include="src\clr\RainbowSpiral.cpp" />
+    <ClCompile Include="src\clr\RadialGradient.cpp" />
+    <ClCompile Include="src\clr\VerticalGradient.cpp" />
+    <ClCompile Include="src\clr\TimeBasedColor.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -101,9 +112,20 @@
     <ClInclude Include="src\strategy\ColorStrategy.h" />
     <ClInclude Include="src\anim\EaseInOutAnimation.h" />
     <ClInclude Include="src\Node.h" />
+    <ClInclude Include="src\Node3D.h" />
     <ClInclude Include="src\shp\GridBezier.h" />
+    <ClInclude Include="src\shp\GridBezier3D.h" />
     <ClInclude Include="src\strategy\Shape.h" />
     <ClInclude Include="src\clr\SolidColor.h" />
+    <ClInclude Include="src\anim\LinearAnimation.h" />
+    <ClInclude Include="src\anim\CubicEaseInOutAnimation.h" />
+    <ClInclude Include="src\anim\WobbleAnimation.h" />
+    <ClInclude Include="src\anim\WaveAnimation.h" />
+    <ClInclude Include="src\clr\HorizontalGradient.h" />
+    <ClInclude Include="src\clr\RainbowSpiral.h" />
+    <ClInclude Include="src\clr\RadialGradient.h" />
+    <ClInclude Include="src\clr\VerticalGradient.h" />
+    <ClInclude Include="src\clr\TimeBasedColor.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="icon.rc" />

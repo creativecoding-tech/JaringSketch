@@ -75,6 +75,9 @@
     <IntDir>obj\$(Platform)\$(Configuration)\</IntDir>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64' or '$(Configuration)|$(Platform)'=='Debug|ARM64' or '$(Configuration)|$(Platform)'=='Debug|ARM64EC'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
@@ -220,10 +223,20 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\anim\CubicEaseInOutAnimation.cpp" />
     <ClCompile Include="src\anim\EaseInOutAnimation.cpp" />
+    <ClCompile Include="src\anim\LinearAnimation.cpp" />
+    <ClCompile Include="src\anim\WaveAnimation.cpp" />
+    <ClCompile Include="src\anim\WobbleAnimation.cpp" />
+    <ClCompile Include="src\clr\HorizontalGradient.cpp" />
+    <ClCompile Include="src\clr\RadialGradient.cpp" />
+    <ClCompile Include="src\clr\RainbowSpiral.cpp" />
     <ClCompile Include="src\clr\SolidColor.cpp" />
+    <ClCompile Include="src\clr\TimeBasedColor.cpp" />
+    <ClCompile Include="src\clr\VerticalGradient.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Node.cpp" />
+    <ClCompile Include="src\Node3D.cpp" />
     <ClCompile Include="src\ofApp.cpp" />
     <ClCompile Include="..\..\..\AInstaled\openFrameworks\of_v0.12.1_vs_64_release\addons\ofxGui\src\ofxBaseGui.cpp" />
     <ClCompile Include="..\..\..\AInstaled\openFrameworks\of_v0.12.1_vs_64_release\addons\ofxGui\src\ofxButton.cpp" />
@@ -236,12 +249,23 @@
     <ClCompile Include="..\..\..\AInstaled\openFrameworks\of_v0.12.1_vs_64_release\addons\ofxGui\src\ofxSliderGroup.cpp" />
     <ClCompile Include="..\..\..\AInstaled\openFrameworks\of_v0.12.1_vs_64_release\addons\ofxGui\src\ofxToggle.cpp" />
     <ClCompile Include="src\shp\GridBezier.cpp" />
+    <ClCompile Include="src\shp\GridBezier3D.cpp" />
     <ClCompile Include="src\strategy\ColorStrategy.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\anim\CubicEaseInOutAnimation.h" />
     <ClInclude Include="src\anim\EaseInOutAnimation.h" />
+    <ClInclude Include="src\anim\LinearAnimation.h" />
+    <ClInclude Include="src\anim\WaveAnimation.h" />
+    <ClInclude Include="src\anim\WobbleAnimation.h" />
+    <ClInclude Include="src\clr\HorizontalGradient.h" />
+    <ClInclude Include="src\clr\RadialGradient.h" />
+    <ClInclude Include="src\clr\RainbowSpiral.h" />
     <ClInclude Include="src\clr\SolidColor.h" />
+    <ClInclude Include="src\clr\TimeBasedColor.h" />
+    <ClInclude Include="src\clr\VerticalGradient.h" />
     <ClInclude Include="src\Node.h" />
+    <ClInclude Include="src\Node3D.h" />
     <ClInclude Include="src\ofApp.h" />
     <ClInclude Include="..\..\..\AInstaled\openFrameworks\of_v0.12.1_vs_64_release\addons\ofxGui\src\ofxBaseGui.h" />
     <ClInclude Include="..\..\..\AInstaled\openFrameworks\of_v0.12.1_vs_64_release\addons\ofxGui\src\ofxButton.h" />
@@ -256,6 +280,7 @@
     <ClInclude Include="..\..\..\AInstaled\openFrameworks\of_v0.12.1_vs_64_release\addons\ofxGui\src\ofxSliderGroup.h" />
     <ClInclude Include="..\..\..\AInstaled\openFrameworks\of_v0.12.1_vs_64_release\addons\ofxGui\src\ofxToggle.h" />
     <ClInclude Include="src\shp\GridBezier.h" />
+    <ClInclude Include="src\shp\GridBezier3D.h" />
     <ClInclude Include="src\strategy\AnimationStrategy.h" />
     <ClInclude Include="src\strategy\ColorStrategy.h" />
     <ClInclude Include="src\strategy\Shape.h" />
