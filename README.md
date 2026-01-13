@@ -348,6 +348,7 @@ GridBezier dan GridBezier3D mendukung **Phyllotaxis pattern** - pola spiral yang
 - ✨ **Smooth Animation** - Transisi grid ↔ phyllotaxis dengan cubic ease-in-out (~1 detik)
 - 🌀 **Golden Angle Spiral** - Menggunakan angle 137.5° (sudut emas)
 - 🌊 **Bidirectional Animation** - Toggle on/off dengan animasi smooth
+- 🔄 **360° Rotation** - Pola phyllotaxis berputar penuh saat aktif (NEW!)
 - 🎨 **Preserve Grid Structure** - Bezier curves tetap terbentuk antar nodes
 
 **3D Mode (GridBezier3D):**
@@ -396,6 +397,10 @@ class Node {
     float animProgress;            // 0.0 - 1.0
     float animSpeed;               // 0.008f (~1 detik di 120FPS)
 };
+
+// Phyllotaxis Rotation Properties (GridBezier class)
+float phyllotaxisRotationAngle;      // Sudut rotasi saat ini (0-360°)
+bool isPhyllotaxisRotating;          // Flag rotasi aktif/non-aktif
 ```
 
 **Node3D Properties (3D):**
@@ -506,6 +511,44 @@ y = ofLerp(startY, targetY, easedT);
 - ✅ **Performance optimized** - Menggunakan `std::unique_ptr` dan efficient loops
 - 🎨 **Z-Axis Preservation (FLAT)** - Mode FLAT mempertahankan Z-axis curves dari grid asli
 - 🎲 **Random Mode Selection (3D)** - Setiap tekan 'X' memilih secara random dari 3 mode phyllotaxis 3D
+- 🔄 **2D Rotation System (NEW!)** - GridBezier 2D memiliki rotasi 360° saat phyllotaxis aktif
+
+### 2D Rotation System
+
+**GridBezier 2D** sekarang memiliki sistem rotasi saat dalam mode phyllotaxis:
+
+```cpp
+// Update rotation angle di updateAnimation()
+if (isPhyllotaxisRotating) {
+    phyllotaxisRotationAngle += 0.5f;  // Kecepatan rotasi (derajat per frame)
+    if (phyllotaxisRotationAngle >= 360.0f) {
+        phyllotaxisRotationAngle -= 360.0f;
+    }
+}
+
+// Apply rotation di display()
+if (isPhyllotaxisRotating) {
+    ofPushMatrix();
+    float centerX = ofGetWidth() / 2.0f;
+    float centerY = ofGetHeight() / 2.0f;
+    ofTranslate(centerX, centerY);
+    ofRotate(phyllotaxisRotationAngle);
+    ofTranslate(-centerX, -centerY);
+}
+
+// ... semua rendering grid/bezier ...
+
+if (isPhyllotaxisRotating) {
+    ofPopMatrix();
+}
+```
+
+**Fitur Rotasi 2D:**
+- 🔄 **Full 360° Rotation** - Pola phyllotaxis berputar penuh terus-menerus
+- ⚡ **Smooth Rotation** - Kecepatan 0.5° per frame pada 120 FPS
+- 🎯 **Center-Based** - Rotasi mengelilingi center screen
+- ✅ **Toggle On/Off** - Rotasi otomatis aktif saat phyllotaxis di-enable, stop saat disable
+- 🎨 **Preserve Grid** - Struktur grid/bezier tetap terbentuk selama rotasi
 
 ### 3D Phyllotaxis Modes
 
@@ -542,12 +585,21 @@ GridBezier3D mendukung **3 mode phyllotaxis 3D** yang dipilih secara random:
 
 **Rotation System:**
 ```cpp
-// Untuk FLAT dan SPHERE: Full rotation 360°
+// Untuk 2D (GridBezier): Full rotation 360°
+phyllotaxisRotationAngle += 0.5f;  // Derajat per frame
+ofPushMatrix();
+ofTranslate(centerX, centerY);
+ofRotate(phyllotaxisRotationAngle);
+ofTranslate(-centerX, -centerY);
+// ... rendering ...
+ofPopMatrix();
+
+// Untuk FLAT dan SPHERE (3D): Full rotation 360°
 phyllotaxisRotationAngle += 0.5f;  // Derajat per frame
 ofRotateY(phyllotaxisRotationAngle);
 ofRotateX(phyllotaxisRotationAngle * 0.3f);  // Sedikit miring
 
-// Untuk CONE: Oscillating swing
+// Untuk CONE (3D): Oscillating swing
 float swingAngle = sin(phyllotaxisRotationAngle * DEG_TO_RAD) * 60.0f;
 ofRotateY(swingAngle);  // Swing 60° kiri-kanan
 ```
@@ -1161,6 +1213,7 @@ Branch ini adalah **pengembangan lanjut** dari JaringSketch dengan fokus pada **
 - **🌻 Phyllotaxis Pattern (NEW!)**: Tekan 'X' untuk toggle pola spiral dengan golden angle 137.5°
   - **Smooth Animation**: Transisi grid ↔ spiral dengan cubic ease-in-out
   - **Bidirectional**: Bisa toggle on/off berkali-kali
+  - **360° Rotation**: Pola phyllotaxis berputar penuh saat aktif (NEW!)
   - **Preserve Structure**: Bezier curves tetap terbentuk
 - **WOBBLE Mode**: Perlin noise-based organic movement dengan **hybrid dynamic line width** (noise + pulse)
 - **WAVE Mode**: Diagonal wave pattern dengan **dynamic line width** yang berdenyut
