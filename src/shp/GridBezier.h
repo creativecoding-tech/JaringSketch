@@ -40,6 +40,8 @@ private:
 	bool hasReinitialized = false;
 	int lastWidth, lastHeight;  // Simpan width/height untuk re-initialize
 	bool isPhyllotaxisActive; //phyllotaxis
+	float phyllotaxisRotationAngle;      // Sudut rotasi phyllotaxis 2D
+	bool isPhyllotaxisRotating;          // Flag untuk mengaktifkan rotasi
 	void setBezierMulurLR();
 	void setBezierVarying();
 	void setBezierWobble();

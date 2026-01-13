@@ -24,6 +24,8 @@ GridBezier::GridBezier(float cellSize, float margin) {
 
   //Phyllotaxis
   isPhyllotaxisActive = false;
+  phyllotaxisRotationAngle = 0.0f;
+  isPhyllotaxisRotating = false;
 }
 
 void GridBezier::setAnimationStr(
@@ -202,6 +204,9 @@ void GridBezier::updateAnimation() {
     currentCols = maxCols;
     currentRows = maxRows;
   }
+
+  if (isPhyllotaxisRotating) phyllotaxisRotationAngle += 4.0f;
+
 }
 
 void GridBezier::display() {
@@ -209,6 +214,16 @@ void GridBezier::display() {
     for (int i = 0;i < nodes.size();i++) {
         nodes[i]->updatePhyllotaxisAnimation();
     }
+
+    if (isPhyllotaxisRotating) {
+        ofPushMatrix();
+        float centerX = ofGetWidth() / 2.0f;
+        float centerY = ofGetHeight() / 2.0f;
+        ofTranslate(centerX, centerY);
+        ofRotate(phyllotaxisRotationAngle);
+        ofTranslate(-centerX, -centerY);
+    }
+
     switch (currentBzMode) {
     case MULURLR:
         setBezierMulurLR();
@@ -232,6 +247,10 @@ void GridBezier::display() {
         setBezierVarying();
         break;
    }
+
+    if (isPhyllotaxisRotating) {
+        ofPopMatrix();
+    }
 }
 
 bool GridBezier::isAnimationFinished() {
@@ -712,6 +731,10 @@ void GridBezier::setBezierVerticalWave() {
 void GridBezier::enablePhyllotaxis() {
     if (isPhyllotaxisActive) return;
     isPhyllotaxisActive = true;
+
+    isPhyllotaxisRotating = true;
+    phyllotaxisRotationAngle = 0.0f;
+
     float goldenAngle = ofDegToRad(137.5f);
     //center screen
     float centerX = ofGetWidth() / 2.0f;
@@ -739,6 +762,10 @@ void GridBezier::enablePhyllotaxis() {
 void GridBezier::disablePhyllotaxis() {
     if (!isPhyllotaxisActive) return; //stop phyllotaxis
     isPhyllotaxisActive = false;
+
+    isPhyllotaxisRotating = false;
+    phyllotaxisRotationAngle = 0.0f;
+
     //Reverse node ke posisi asal
     for (int i = 0; i < nodes.size();i++) {
         nodes[i]->startPhyllotaxisAnimation(
