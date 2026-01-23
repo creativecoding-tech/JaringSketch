@@ -6,7 +6,7 @@ Eksperimen grid dengan animasi bezier yang smooth dan efek trails. Project ini a
 ![C++](https://img.shields.io/badge/C++-17-blue)
 ![Platform](https://img.shields.io/badge/Platform-Windows-lightgrey)
 ![License](https://img.shields.io/badge/License-Apache%202.0-green)
-![Branch](https://img.shields.io/badge/Branch-sketch--basic--anim--color-orange)
+![Branch](https://img.shields.io/badge/Branch-sketch--anim--color-orange)
 
 [![Fund The Experiments](https://img.shields.io/badge/Fund-The_Experiments-FF5722?style=for-the-badge&logo=buy-me-a-coffee)](https://sociabuzz.com/abdkdhni)
 
@@ -73,10 +73,19 @@ Project ini menampilkan grid node dengan animasi transisi yang smooth menggunaka
 
 ```bash
 # Clone repository ini
-git clone https://github.com/username/JaringSketch.git
+git clone https://github.com/creativecoding-tech/JaringSketch.git
 
-# Checkout branch sketch-basic
-git checkout sketch-basic
+# Checkout branch sketch-anim-color
+git checkout sketch-anim-color
+
+# Jalankan OpenFrameworks Project Generator
+# Buka: openFrameworks/apps/projectGenerator/projectGenerator.exe
+
+# Import project yang sudah diclone
+# 1. Click "Import" pada Project Generator
+# 2. Navigate ke folder JaringSketch yang sudah diclone
+# 3. Select folder dan klik "Select Current Folder"
+# 4. Click "Update" atau "Generate"
 
 # Buka Visual Studio
 # Double-click: JaringSketch.sln
