@@ -68,10 +68,19 @@ Project ini menampilkan grid node dengan animasi transisi yang smooth menggunaka
 
 ```bash
 # Clone repository ini
-git clone https://github.com/username/JaringSketch.git
+git clone https://github.com/creativecoding-tech/JaringSketch.git
 
 # Checkout branch sketch-basic
 git checkout sketch-basic
+
+# Jalankan OpenFrameworks Project Generator
+# Buka: openFrameworks/apps/projectGenerator/projectGenerator.exe
+
+# Import project yang sudah diclone
+# 1. Click "Import" pada Project Generator
+# 2. Navigate ke folder JaringSketch yang sudah diclone
+# 3. Select folder dan klik "Select Current Folder"
+# 4. Click "Update" atau "Generate"
 
 # Buka Visual Studio
 # Double-click: JaringSketch.sln
